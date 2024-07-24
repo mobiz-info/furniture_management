@@ -11,11 +11,11 @@ urlpatterns = [
     path('',include(('main.urls'),namespace='main')), 
     
     # # admin panel
+    path('super-admin/product/',include(('product.urls'),namespace='product')),
     # path('super-admin/sales/',include(('sales.urls'),namespace='sales')),
     # path('super-admin/staff/',include(('staff.urls'),namespace='staff')),
     # path('super-admin/branch/',include(('branch.urls'),namespace='branch')),
     # path('super-admin/payments/',include(('payments.urls'),namespace='payments')),
-    # path('super-admin/purchase/',include(('purchase.urls'),namespace='purchase')),
     # path('super-admin/core-team/',include(('core_team.urls'),namespace='core_team')),
     # path('super-admin/departments/',include(('departments.urls'),namespace='departments')),
     # path('super-admin/sales-party/',include(('sales_party.urls'),namespace='sales_party')),

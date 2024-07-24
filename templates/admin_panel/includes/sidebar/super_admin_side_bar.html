@@ -17,6 +17,16 @@
             <li>
                 <a href="{% url 'app' %}"> <i data-feather="home" class="align-self-center menu-icon"></i><span>Dashboard</span></a>
             </li>
+
+            <li>
+                <a href="javascript: void(0);"> <i class="ti-shopping-cart align-self-center menu-icon"></i><span>Product</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'product:material_list' %}"><i class="ti-control-record"></i>Material</a>
+                        <a class="nav-link" href="{% url 'product:create_material' %}"><i class="ti-plus"></i></a>
+                    </li>
+                </ul>
+            </li>
             
             <li>
                 <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Settings</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
@@ -33,7 +43,6 @@
                     </li> {% endcomment %}
                 </ul>
             </li>
-            
         </ul>
     </div>
 </div>
