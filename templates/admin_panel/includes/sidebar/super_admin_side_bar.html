@@ -1,0 +1,69 @@
+{% load static %}
+{% load main_templates_tags %}
+
+<div class="left-sidenav">
+    <!-- LOGO -->
+    <div class="brand">
+        <a href="{% url 'app' %}" class="logo">
+            <span>
+                <img src="{% static 'admin_panel/assets/images/mrm-logos/mrm-updated-logo2-150x150.png' %}" alt="logo-small" class="logo-sm" style="height: 85px;">
+            </span>
+        </a>
+    </div>
+    <!--end logo-->
+    <div class="menu-content h-100" data-simplebar>
+        <ul class="metismenu left-sidenav-menu">
+            <li class="menu-label mt-0">Main</li>
+            <li>
+                <a href="{% url 'app' %}"> <i data-feather="home" class="align-self-center menu-icon"></i><span>Dashboard</span></a>
+            </li>
+            
+           {% comment %} {% if request.user.is_superuser or request.user|has_group:"office_executive" or request.user|has_group:"core_team" and request.user|has_designation:"purchase manager" or request.user|has_designation:"purchase executive" %} {% endcomment %}
+            {% comment %} <li>
+                <a href="javascript: void(0);"> <i class="ti-shopping-cart align-self-center menu-icon"></i><span>Purchase</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'purchase:purchase_items' %}"><i class="ti-control-record"></i>Purchase Items</a>
+                        <a class="nav-link" href="{% url 'purchase:create_purchase_items' %}"><i class="ti-plus"></i></a>
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'purchase:purchase_reports' %}"><i class="ti-control-record"></i>Purchase Report</a>
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'purchase:purchase_expences' %}"><i class="ti-control-record"></i>Purchase Expences</a>
+                    </li>
+                </ul>
+            </li> {% endcomment %}
+            {% comment %} {% endif %}
+
+            {% if request.user.is_superuser or request.user|has_group:"core_team" and request.user|has_designation:"sales manager" or request.user|has_designation:"Sales Manager" %} {% endcomment %}
+            {% comment %} <li>
+                <a href="javascript: void(0);"> <i class="ti-stats-up align-self-center menu-icon"></i><span>Sales</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'sales:sales_reports' %}"><i class="ti-control-record"></i>Sales Report</a>
+                        {% if is_sales_manager %}
+                        <a class="nav-link" href="javascript:void('0')" id="showSalesBranchOverlay"><i class="ti-plus"></i></a>
+                        {% endif %}
+                    </li>
+
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'sales:sales_expences' %}"><i class="ti-control-record"></i>Sales Expences</a>
+                    </li>
+
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'sales_party:sales_party_list' %}"><i class="ti-control-record"></i>Sales Party</a>
+                        {% if is_sales_manager %}
+                        <a class="nav-link" href="{% url 'sales_party:create_sales_party' %}"><i class="ti-plus"></i></a>
+                        {% endif %}
+                    </li>
+
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'sales:stock_reports' %}"><i class="ti-control-record"></i>Stock Report</a>
+                    </li>
+                </ul>
+            </li> {% endcomment %}
+        </ul>
+    </div>
+</div>

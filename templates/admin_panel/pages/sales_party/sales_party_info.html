@@ -1,0 +1,104 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">Sales Party Details</h4>
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:void(0);">Sales Party</a></li>
+                                </ol>
+                            </div><!--end col-->
+                            
+                        </div><!--end row-->                                                              
+                    </div><!--end page-title-box-->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="dastone-profile">
+                                <div class="row">
+                                    <div class="col-lg-4 align-self-center mb-3 mb-lg-0">
+                                        <div class="dastone-profile-main">
+                                            <div class="dastone-profile-main-pic">
+                                                {% if instance.image %}
+                                                <img src="{{instance.image.url}}" alt="" class="rounded-circle" style="height:100%;width:100%;">
+                                                {% else %}
+                                                <span class="text-uppercase">{{instance.get_initial}}</span>
+                                                {% endif %}
+                                                <span class="dastone-profile_main-pic-change">
+                                                    <i class="fas fa-camera"></i>
+                                                </span>
+                                            </div>
+                                            <div class="dastone-profile_user-detail">
+                                                <span class="badge badge-soft-primary">{{instance.customer_id}}</span>
+                                                <h5 class="dastone-user-name text-capitalize">{{instance.get_fullname}}</h5>                                                        
+                                            </div>
+                                        </div>                                                
+                                    </div><!--end col-->
+                                    
+                                    <div class="col-lg-4 ml-auto align-self-center">
+                                        <ul class="list-unstyled personal-detail mb-0">
+                                            <li class=""><i class="las la-phone mr-2 text-secondary font-22 align-middle"></i> <b> Phone </b> : {{instance.phone}}</li>
+                                            <li class="mt-2"><i class="las la-envelope text-secondary font-22 align-middle mr-2"></i> <b> Email </b> : {{instance.email}}</li>
+                                            <li class="mt-2"><i class="far fa-calendar-alt text-secondary font-22 align-middle mr-2"></i> <b> Date of Birth </b> : {{instance.date_of_birth}}</li>                                                   
+                                        </ul>
+                                       
+                                    </div><!--end col-->
+
+                                    <div class="col-lg-4 ml-auto align-self-center">
+                                        <ul class="list-unstyled personal-detail mb-0">
+                                            <li class=""><i class="dripicons-graduation mr-2 text-secondary font-22 align-middle"></i> <b> GST No </b> : {{instance.gst_no}}</li>
+                                        </ul>
+                                       
+                                    </div><!--end col-->
+                                </div><!--end row-->
+                            </div><!--end f_profile-->                                                                                
+                        </div><!--end card-body-->          
+                    </div> <!--end card-->    
+                </div><!--end col-->
+            </div><!--end row-->
+            
+        </div><!-- container -->
+    </div>
+    <!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+    {% load static %}
+    <!-- stylessssssssssss -->
+    {{form.media}}
+    <style>
+        .dastone-profile .dastone-profile-main .dastone-profile-main-pic {
+            position: relative;
+            width: 128px;
+            height: 128px;
+            margin-right: 18px;
+            background-color: #f3f3f3;
+            border-radius: 100px;
+            color: #fff;
+        }
+        .dastone-profile-main-pic span{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 50px;
+            font-weight: 600;
+        }
+    </style>
+{% endblock  %}
+        

@@ -1,0 +1,95 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+{% load fe_template_tags %}
+{% load purchase_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">{{page_title}}</h4>
+   
+                            </div><!--end col-->
+                            
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex" style="background-color:#f8f9fa;">
+                            <div class="col-md-6">
+                                Date : <strong>{{ purchase_instances.date|date:"d-M-Y" }}</strong><br>
+                                Invoice : <strong>{{purchase_instances.invoice_no}}</strong><br>
+                                Distributer : <strong>{{purchase_instances.distributer.name}}</strong><br>
+                                {% if purchase_instances.sub_distributer %}
+                                Sub Distributer : <strong>{{purchase_instances.sub_distributer.name}}</strong><br>
+                                {% endif %}
+                                {% comment %} {% if purchase_instances.office_executive_is_varified %}
+                                Varified Office Executive : <strong>{{purchase_instances.office_executive.get_fullname}}</strong><br>
+                                {% endif %}
+                                {% if purchase_instances.purchase_manager_is_varified %}
+                                Varified Purchase Manager : <strong>{{purchase_instances.purchase_manager.get_fullname}}</strong>
+                                {% endif %} {% endcomment %}
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a href="{% url 'purchase:print_purchase' pk=purchase_instances.pk %}" target="_blank" class="btn btn-primary"><i class="ri-printer-line"></i> Print</a>
+                                <a href="{% url 'purchase:export_purchases_to_excel' %}?purchase_pk={{purchase_instances.pk}}" class="btn btn-success export-product" data-product_pk="{{purchase_instances.pk}}"><i class="ri-file-excel-2-line"></i> Export</a>
+                                <a href="{% url 'purchase:edit_purchase' pk=purchase_instances.pk %}" class="btn btn-warning"><i class="ri-loop-right-line"></i> Edit</a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive-sm">
+                                
+                                <table class="table table-striped mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-center">Title</th>
+                                            <th class="font-weight-bold text-center">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for expence in expences_instance %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-center strong">{{expence.title}}</td>
+                                            <td class="text-center">₹{{expence.amount}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td class="font-weight-bold text-right" colspan="2">Grand Total: </td>
+                                            <td class="font-weight-bold text-center">₹{{purchase_instances.materials_total_expence}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+
+        </div><!-- container -->
+    <!-- end page content -->
+{% endblock content %}
+
+
+{% block static %}
+{% load static %}
+{{form.media}}
+    
+{% endblock static %}
+    
+        

@@ -1,0 +1,173 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load payments_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">{{page_title}}</h4>
+                            </div><!--end col-->
+                            <div class="col-auto col-sm-2 float-right ml-auto">
+                                <form method="get" action="{% url 'payments:completed_requests' %}">
+                                    <li class="list-inline-item w-100">
+                                        <div class="input-group">
+                                            <input name="q" type="text" id="search_box" placeholder="Payment ID, Employee Name or ID" value="{{ filter_data.q }}"
+                                                class="form-control" />
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </form>
+                            </div>
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h4 class="card-title">List view</h4>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <a href="javascript:void('0');" id="print_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
+                                    <a href="javascript:void('0');" id="export_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end card-header-->
+                        <div class="card-body">
+                            
+                            <div class="table-responsive">
+                                <table class="table mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Date</th>
+                                            <th class="text-center">Request ID</th>
+                                            <th>Sender</th>
+                                            <th class="text-left">Type</th>
+                                            <th class="text-center">Attachment</th>
+                                            <th class="text-left">Status</th>
+                                            <th class="text-left">Invoice No</th>
+                                            <th class="text-right">Amount</th>
+                                            <th class="text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% load el_pagination_tags %}
+                                        {% paginate 20 instances %}
+                                        {% for instance in instances %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-center">{{instance.date_added|date:"d-M-Y"}}</td>
+                                            <td class="text-center">{{instance.request_id}}</td>
+                                            <td>{{instance.requester.get_fullname}}</td>
+                                            <td class="text-left">{{ instance.payment_type.title }}</td>
+                                            <td class="text-center">
+                                                {% if instance.attachment %}
+                                                {% if instance.attachment.type == 'image' %}
+                                                <img src="{{ instance.attachment.url }}" alt="Attached Image">
+                                                {% elif instance.attachment.type == 'pdf' %}
+                                                <iframe src="{{ instance.attachment.url }}" width="100%" height="500px"></iframe>
+                                                {% else %}
+                                                <a href="{{ instance.attachment.url }}" download>Download</a>
+                                                {% endif %}
+                                                {% else %}
+                                                --
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="badge {% if instance.status == '010' %} badge-warning {% elif instance.status == '015' %} badge-info {% elif instance.status == '020' %} badge-success {% elif instance.status == '025' %} badge-danger {% elif instance.status == '030' %} badge-primary {% elif instance.status == '035' %} badge-success {% endif %}">{{instance.get_status}}</span></td>
+                                            <td class="text-left">{{instance.get_invoice_no}}</td>
+                                            <td class="text-right">{{instance.amount}}</td>
+                                            <td class="text-right">
+                                                <a href="{% url 'payments:my_request_details' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
+                                                <a href="{% url 'payments:edit_request' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                                <a class="action-button remove btn btn-default btn-icon" style="padding:0;"
+                                                 data-id="{{instance.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" href="{% url 'payments:delete_request' pk=instance.pk %}"><i class="las la-trash-alt text-danger font-18"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td class="font-weight-bold text-right" colspan="8">Grand Total: </td>
+                                            {% get_total_amount instances as total_values %}
+                                            <td class="font-weight-bold text-right">{{total_values.payments_amount_total}}</td>
+                                            <td class="font-weight-bold text-right"></td>
+                                        </tr>    
+                                    </tbody>
+                                </table>
+                                <!--end /table-->
+                                {% get_pages %}
+                                <div class="clearfix"></div>
+                                <div class="row pagi my-3">
+                                    <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                    <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                        <div class="m-t-10">
+                                            Showing {{title}}
+                                            <span class="current_page_index">{{ pages.current_start_index }}</span> - <span
+                                                class="current_end_status">{{ pages.current_end_index }}</span> of <span
+                                                class="total_count">{{ pages.total_count }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--end /tableresponsive-->
+                            <!-- pagination -->
+                            
+                        </div>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+        </div><!-- container -->
+    <!-- end page content -->
+{% endblock content %}
+
+
+{% block static %}
+{% load static %}
+<script>
+    $(document).ready(function () {
+        $('#print_button').click(function () {
+            var q = $("#search_box").val();
+            var url = "{% url 'payments:print_completed_requests'%}";
+
+            var printUrl = url + "?q=" + encodeURIComponent(q);
+            window.open(printUrl, '_blank');
+        });
+    });
+
+    $(document).ready(function () {
+        $('#export_button').click(function () {  
+            var url = "{% url 'payments:export_completed_requests_to_excel' %}";
+            var q = $("#search_box").val();
+            
+            var hiddenIFrameID = 'hiddenDownloader';
+            var iframe = document.createElement('iframe');
+            iframe.id = hiddenIFrameID;
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            iframe.src = url + "?q=" + encodeURIComponent(q);
+            iframe.onload = function () {
+                console.log("File download completed.");
+            };
+        });
+    });
+</script>
+    
+{% endblock static %}
+    

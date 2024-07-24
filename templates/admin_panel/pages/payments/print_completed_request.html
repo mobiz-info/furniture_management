@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% load payments_templates_tags %}
+    <title>Completed Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        .expenses-row, .expenses-row table, .meterial-row, .meterial-row table{
+            padding: 0;
+            margin: 0;
+        }
+        .expenses-row table th,.meterial-row table th{
+            padding: 4px;
+        }
+        .text-right{
+            text-align: right;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .amount-row{
+            width: 18px;
+        }
+        .capital-field{
+            text-transform: capitalize;
+        }
+        .text-bold{
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <h1>Completed Requests</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th class="text-center">#</th>
+                <th class="text-center" style="width:200px;">Date</th>
+                <th class="text-center" style="width:200px;">Request ID</th>
+                <th class="text-center">Sender</th>
+                <th class="text-center">Request Type</th>
+                <th class="text-center">Attachement</th>
+                <th class="text-center">Status</th>
+                <th class="text-center" style="width:200px;">Invoice No</th>
+                <th class="text-center" style="width:100px;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{instance.date_added|date:"d-M-Y"}}</td>
+                <td class="text-center">{{instance.request_id}}</td>
+                <td>{{instance.requester.get_fullname}}</td>
+                <td>{{ instance.payment_type.title }}</td>
+                <td class="text-center">
+                    {% if instance.attachment %}
+                    {% if instance.attachment.type == 'image' %}
+                    <img src="{{ instance.attachment.url }}" alt="Attached Image">
+                    {% elif instance.attachment.type == 'pdf' %}
+                    <iframe src="{{ instance.attachment.url }}" width="100%" height="500px"></iframe>
+                    {% else %}
+                    <a href="{{ instance.attachment.url }}" download>Download</a>
+                    {% endif %}
+                    {% else %}
+                    --
+                    {% endif %}
+                </td>
+                <td><span class="badge {% if instance.status == '010' %} badge-warning {% elif instance.status == '015' %} badge-info {% elif instance.status == '020' %} badge-success {% elif instance.status == '025' %} badge-danger {% elif instance.status == '030' %} badge-primary {% elif instance.status == '035' %} badge-success {% endif %}">{{instance.get_status}}</span></td>
+                <td class="text-center">{{instance.get_invoice_no}}</td>
+                <td class="text-right">{{instance.amount}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td class="font-weight-bold text-right text-bold" colspan="8">Grand Total: </td>
+                {% get_total_amount instances as total_values %}
+                <td class="font-weight-bold text-right text-bold">{{total_values.payments_amount_total}}</td>
+            </tr>   
+        </tbody>
+    </table>
+</body>
+</html>

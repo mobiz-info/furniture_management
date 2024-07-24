@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load purchase_templates_tags %}
+    <title>Purchases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        .expenses-row, .expenses-row table, .meterial-row, .meterial-row table{
+            padding: 0;
+            margin: 0;
+        }
+        .expenses-row table th,.meterial-row table th{
+            padding: 4px;
+        }
+        .text-right{
+            text-align: right;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .amount-row{
+            width: 18px;
+        }
+        .capital-field{
+            text-transform: capitalize;
+        }
+        .text-bold{
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Purchases</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th class="text-center">#</th>
+                <th class="text-center" style="width:200px;">Invoice No</th>
+                {% comment %} <th class="text-center">Purchase Manager</th>
+                <th class="text-center">Purchase Manager Verified</th>
+                <th class="text-center">Office Executive</th>
+                <th class="text-center">Office Executive Verified</th> {% endcomment %}
+                <th class="text-center">Field Executive</th>
+                <th class="text-center" style="width:450px;">Materials</th>
+                <th class="text-center" style="width:100px;">Total Quantity</th>
+                <th class="text-center" style="width:450px;">Expenses</th>
+                <th class="text-center" style="width:100px;">Sub Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for purchase in purchase_list %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{ purchase.invoice_no }}</td>
+                {% comment %} <td>{{ purchase.purchase_manager }}</td>
+                <td>{{ purchase.purchase_manager_is_varified }}</td>
+                <td>{{ purchase.office_executive }}</td>
+                <td>{{ purchase.office_executive_is_varified }}</td> {% endcomment %}
+                <td>{{ purchase.field_executive }}</td>
+                <td class="meterial-row">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>QTY</th>
+                                <th class="amount-row text-center" style="width:100px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for material in purchase.purchasematerials_set.all %}
+                            <tr>
+                                <td class="capital-field">{{ material.purchase_item.name }}</td>
+                                <td class="capital-field">{{ material.qty }}</td>
+                                <td class="amount-row text-right">₹{{ material.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td class="text-center">{{ purchase.total_qty }}</td>
+                <td class="expenses-row">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th class="amount-row text-center" style="width:100px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in purchase.purchasemoreexpense_set.all %}
+                            <tr>
+                                <td class="capital-field">{{ expense.title }}</td>
+                                <td class="amount-row text-right">{{ expense.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td class="amount-row text-right">{{ purchase.sub_total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td class="text-right text-bold" colspan="8">Grand Total</td>
+                {% get_total_values purchase_list as total_values %}
+                <td class="amount-row text-right text-bold">{{total_values.meterial_qty_total}}</td>
+                <td class="amount-row text-right text-bold"></td>
+                <td class="amount-row text-right text-bold">{{total_values.grand_total}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% include 'admin_panel/includes/js.html' %}
+        <script>
+            $(document).ready(function(){
+                window.print();
+            });
+        </script>
+</body>
+</html>

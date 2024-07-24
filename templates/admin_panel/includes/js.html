@@ -1,0 +1,173 @@
+{%load static%}
+
+<!-- jQuery  -->
+<script src="{% static 'admin_panel/assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/metismenu.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/waves.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/feather.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/simplebar.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/moment.js' %}"></script>  
+<script src="{% static 'admin_panel/assets/sweet/sweetalert2.js' %}"></script>
+<script src="{% static 'admin_panel/assets/sweet/actions.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/jquery.formset.js' %}"></script>
+
+
+<!-- Plugins js -->
+<script src="{% static 'admin_panel/assets/plugins/daterangepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-touchspin/js/jquery.bootstrap-touchspin.min.js' %}"></script>
+
+
+<!-- plugins -->
+
+{% if is_need_select2 %}
+<script type="text/javascript" src="{% static 'admin_panel/assets/autocomplete_light/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin_panel/assets/autocomplete_light/autocomplete.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin_panel/assets/autocomplete_light/forward.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin_panel/assets/autocomplete_light/select2.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin_panel/assets/autocomplete_light/jquery.post-setup.js' %}"></script>
+<script src="{% static 'admin_panel/assets/autocomplete_light/vendor/select2/dist/js/select2.full.min.js' %}"></script>
+{%endif%}
+
+{%if is_need_datetime_picker %}
+<script src="{% static 'admin_panel/assets/plugins/daterangepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/timepicker/bootstrap-material-datetimepicker.js' %}"></script>
+<script>$('.date-picker').daterangepicker({singleDatePicker:!0,showDropdowns:!0,minYear:1901,maxYear:parseInt(moment().format("YYYY"),10),locale: {format: "YYYY-MM-DD"}});</script>
+{%endif%}
+
+{% if is_need_color_picker %}
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js' %}"></script>
+{% endif %}
+
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/bootstrap-touchspin/js/jquery.bootstrap-touchspin.min.js' %}"></script>
+
+{%if is_need_charts%}
+<script src="{% static 'admin_panel/assets/pages/jquery.apexcharts.init.js' %}"></script>         
+<script src="{% static 'admin_panel/assets/plugins/apex-charts/apexcharts.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/apex-charts/irregular-data-series.js' %}"></script>
+<script src="{% static 'admin_panel/assets/plugins/apex-charts/ohlc.js' %}"></script>
+{%endif%}
+
+{%if is_need_dropify%}
+<script src="{% static 'admin_panel/assets/plugins/dropify/js/dropify.min.js' %}"></script>
+{%endif%}
+
+{%if is_need_light_box%}
+<script src="{% static 'admin_panel/assets/js/lightbox/jquery.magnific-popup.js' %}"></script>
+{%endif%}
+
+{%if is_need_forms %}
+<script src="{% static 'admin_panel/assets/pages/jquery.forms-advanced.js' %}"></script>
+<script src="{% static 'admin_panel/assets/pages/jquery.form-upload.init.js' %}"></script>
+{%endif%}
+
+<!-- App js -->
+<script src="{% static 'admin_panel/assets/js/app.js' %}"></script>
+<script src="{% static 'admin_panel/assets/js/script.js' %}"></script>
+<script>
+    $('.change-avatar').on('click', function() { $('#fileupload').click();return false;});
+    $('.add-member').on('click', function() { $('#add-member').click();return false;});
+    
+</script> 
+
+
+{% comment %} <script src="{% static 'admin_panel/assets/sweet/sweetalert2.js' %}"></script>
+<script src="{% static 'admin_panel/assets/sweet/sweetalert2.min.js' %}"></script>
+<script src="{% static 'admin_panel/assets/sweet/sweetalert2.all.js' %}"></script>
+<script src="{% static 'admin_panel/assets/sweet/sweetalert2.all.min.js' %}"></script> {% endcomment %}
+{%if is_need_resize_cards%}
+
+<script src="{% static 'admin_panel/assets/js/modal.js' %}"></script>
+
+<script>
+
+    function equalcard(s) {
+        var h = 0;
+        var line_height = 0;
+        $(s).css("height", "auto");
+        $(s).each(function () {
+          var height = $(this).outerHeight(true);
+          if (height > h) {
+            h = height;
+          }
+        });
+        $(s).height(h);
+      }
+    
+     
+      $(document).ready(function(){
+        equalcard("#description_card p");
+        equalcard("#description_card_lessons #description ");
+        equalcard("#image_card_activity img ");
+
+    });
+    </script>
+    <script>
+      $(document).ready(function() {
+          $(".date-field").click(function() {
+              var start = moment().subtract(29, 'days');
+              var end = moment();
+              var date = new Date();
+              var currentMonth = date.getMonth();
+              var currentDate = date.getDate();
+              var currentYear = date.getFullYear();
+              
+              let dropdownEle = $(this).find(".form-dropdown-content");
+              var dateShowEle = $(dropdownEle.attr("data-date-show")).find("span.date");
+              var dayShowEle = $(dropdownEle.attr("data-date-show")).find("span.day");
+              var dateInputEle = $(dropdownEle.attr("data-date-show")).find("input");
+              // Calculate the last day of the previous month using moment.js
+              var lastDayOfPreviousMonth = moment().subtract(1, 'months').endOf('month').toDate();
+              $(".form-dropdown-content").css("display","none");
+              dropdownEle.show();
+          
+              dropdownEle.datepicker({
+                  dateFormat: "dd-mm-yy",
+                  duration: "fast",
+                  minDate: new Date(currentYear, currentMonth, currentDate),
+                  startDate: moment(date).add(0, 'days').format('DD.MM.YYYY'),
+                  endDate: moment(date).add(2, 'days').format('DD.MM.YYYY'),
+                  showButtonPanel: true, // Show the button panel
+                  prevText: '<i class="ri-arrow-left-s-line"></i>', // Set custom icon for previous button
+                  nextText: '<i class="ri-arrow-right-s-line"></i>', // Set custom icon for next button
+                  defaultDate: lastDayOfPreviousMonth, // Set default date to the last day of the previous month
+                  beforeShowDay: function(date) {
+                      var lastDayOfPrevMonth = moment().subtract(1, 'months').endOf('month').date();
+                      var firstDayOfCurrentMonth = moment().date(1).day();
+                      var day = date.getDate();
+
+                      // Set the class 'prev-month' for the last days of the previous month
+                      if (day > lastDayOfPrevMonth && day <= firstDayOfCurrentMonth) {
+                          return [true, 'prev-month'];
+                      } else {
+                          return [true, ''];
+                      }
+                  },
+
+                  locale: {
+                      format: 'DD.MM.YYYY'
+                  },
+                  onSelect: function(selectedDate) {
+                      // Convert the selectedDate string to a Moment.js object
+                      var momentSelectedDate = moment(selectedDate, "DD-MM-YYYY");
+
+                      // Check if the momentSelectedDate is valid before using .format()
+                      if (momentSelectedDate.isValid()) {
+                          // Format the date in the desired format and set it to dateShowEle
+                          var formattedDate = momentSelectedDate.format('D MMM, YYYY');
+                          dateShowEle.html(formattedDate);
+                          dayShowEle.html(momentSelectedDate.format('dddd'));
+                          dateInputEle.val(selectedDate);
+                      } else {
+                          console.error("Invalid date:", selectedDate);
+                      }   
+                  }   
+              });  
+          });
+      });
+  </script>
+    
+    {%endif%}

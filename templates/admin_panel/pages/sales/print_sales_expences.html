@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Sales</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            padding: 5px;
+            background-color: #f2f2f2;
+        }
+        .expenses-row, .expenses-row table{
+            padding: 0;
+            margin: 0;
+        }
+        .expenses-row table th{
+            padding: 4px;
+        }
+        .text-right{
+            text-align: right;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .amount-row{
+            width: 18px;
+        }
+        .capital-field{
+            text-transform: capitalize;
+        }
+        .text-bold{
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Expences</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th class="text-center">No.</th>
+                <th class="text-center" style="width:105px;">Date</th>
+                <th class="text-center" style="width:200px;">Invoice No</th>
+                <th class="text-center" style="width:130px;">Sales ID</th>
+                <th class="text-center">Sales Manager</th>
+                <th class="text-center">Sales Party</th>
+                <th class="text-center" style="width:450px;">Expenses</th>
+                <th class="text-center" style="width:100px;">Grand Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales_list %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{ sale.date|date:"d-M-Y" }}</td>
+                <td class="text-center">{{ sale.invoice_no }}</td>
+                <td class="text-center">{{ sale.sales_id }}</td>
+                <td class="capital-field text-center">{{ sale.sales_manager }}</td>
+                <td class="capital-field text-center">{{ sale.sales_party.get_fullname }}</td>
+                <td class="expenses-row">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th class="amount-row text-center" style="width:100px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in sale.salesexpenses_set.all %}
+                            <tr>
+                                <td class="capital-field">{{ expense.title }}</td>
+                                <td class="amount-row text-right">{{ expense.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                <td class="amount-row text-right">{{ sale.sub_total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td class="text-right text-bold" colspan="7">Grand Total</td>
+                <td class="amount-row text-right text-bold">{{grand_total}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% include 'admin_panel/includes/js.html' %}
+    <script>
+        $(document).ready(function(){
+            window.print();
+        });
+    </script>
+</body>
+</html>

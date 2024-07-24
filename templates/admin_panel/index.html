@@ -1,0 +1,29 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">Dashboard</h4>
+                            </div><!--end col-->
+                            {% comment %} <div class="col-auto align-self-center">
+                                <a class="btn btn-primary btn-sm text-white px-4 d-inline-block"  href="#" ><i class="mdi mdi-plus mr-2"></i>Product</a>
+                                <a class="btn btn-primary btn-sm text-white px-4 d-inline-block"  href="#" ><i class="mdi mdi-plus mr-2"></i>Offer</a>
+                            </div><!--end col-->   {% endcomment %}
+                        </div><!--end row-->                                                              
+                    </div><!--end page-title-box-->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            
+        </div>            
+    </div>
+    <!-- end page content -->
+{% endblock content %}

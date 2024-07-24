@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>FMS | {{page_name}}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        {% load static %}
+        {% load main_templates_tags %}
+        <!-- App favicon -->
+        <meta property="og:image" content="{% static 'admin_panel/assets/images/fav-icon/android-icon-192x192.png' %}" />
+        <meta property="og:title" content="FMS" />
+        {% comment %} <meta property="og:description" content="Hello, World!" /> {% endcomment %}
+
+
+        <link rel="apple-touch-icon" sizes="57x57" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-57x57.png' %}">
+        <link rel="apple-touch-icon" sizes="60x60" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-60x60.png' %}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-72x72.png' %}">
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-76x76.png' %}">
+        <link rel="apple-touch-icon" sizes="114x114" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-114x114.png' %}">
+        <link rel="apple-touch-icon" sizes="120x120" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-120x120.png' %}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-144x144.png' %}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-152x152.png' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'admin_panel/assets/images/fav-icon/fav-iconapple-icon-180x180.png' %}">
+        <link rel="icon" type="image/png" sizes="144x144"  href="{% static 'admin_panel/assets/images/fav-icon/android-icon-144x144.png' %}">
+        <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'admin_panel/assets/images/fav-icon/android-icon-192x192.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'admin_panel/assets/images/fav-icon/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="96x96" href="{% static 'admin_panel/assets/images/fav-icon/favicon-96x96.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'admin_panel/assets/images/fav-icon/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'admin_panel/assets/images/fav-icon/manifest.json' %}">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="{% static 'admin_panel/assets/images/fav-icon/ms-icon-144x144.png' %}">
+        <meta name="theme-color" content="#ffffff">
+
+        <!-- App css -->
+        <link rel="stylesheet" href="{% static 'admin_panel/assets/autocomplete_light/vendor/select2/dist/css/select2.css' %}" type="text/css" media="screen" rel="stylesheet" />  
+        <link href="{% static 'admin_panel/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'admin_panel/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'admin_panel/assets/css/metisMenu.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'admin_panel/assets/plugins/daterangepicker/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'admin_panel/assets/plugins/timepicker/bootstrap-material-datetimepicker.css' %}" rel="stylesheet">
+        <link href="{% static 'admin_panel/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'admin_panel/assets/sweet/sweetalert2.css' %}" rel="stylesheet" type="text/css" />        
+        <link href="{% static 'admin_panel/assets/js/lightbox/magnific-popup.css' %}" rel="stylesheet" type="text/css" /> 
+        <link rel="stylesheet" href="{% static 'field_executive/assets/remix_icons/remixicon.css' %}">   
+        <link rel="stylesheet" href="{% static 'date/jquery.datepicker.css' %}">
+        <style>
+            /* Custom CSS for the overlay */
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 20;
+            }
+        </style>
+        <style>
+            .corner-wishes {
+                position: fixed;
+                z-index: 9999;
+                background-color: transparent;
+                padding: 10px;
+            }
+            .corner-wishes.position-100 {
+                top: 50%;
+                left: 50%;
+            }
+            .corner-wishes.position-101 {
+                top: 0;
+                left: 0;
+            }
+            .corner-wishes.position-102 {
+                top: 0;
+                right: 0;
+            }
+            .corner-wishes.position-103 {
+                bottom: 0;
+                left: 0;
+            }
+            .corner-wishes.position-104 {
+                bottom: 0;
+                right: 0;
+            }
+            .corner-wishes img {
+              max-width: 60px; /* Adjust the image size as needed */
+              margin-right: 10px;
+              vertical-align: middle;
+            }
+          </style>
+    </head>
+
+    <body>
+        <!-- Left Sidenav -->
+        {% include 'admin_panel/includes/sidebar/super_admin_side_bar.html'%}
+        <!-- end left-sidenav-->        
+
+        <div class="page-wrapper">
+
+            {%include 'admin_panel/includes/topbar/super_admin_top_bar.html' %}
+
+            {% block content %}
+
+            {% endblock  %} 
+        </div>
+        <!-- end page-wrapper -->
+
+        {% comment %} ads modal {% endcomment %}
+        <!-- Modal -->
+        <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="adModalLabel" aria-hidden="true">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" style="text-align: center;font-size: 30px;text-transform: capitalize;border:none;">
+                    <div class="modal-body">
+                        <img id="ad-image" src="" alt="Ad Image" class="img-fluid">
+                        <div id="ad-text"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% include 'admin_panel/includes/js.html' %}
+        {% block static %}
+        {% endblock %}
+    </body>
+    <style>
+        .loader-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+            z-index: 9999; /* Ensure it's on top of other content */
+        }
+        
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <style>
+        .action{
+            text-align: center !important;
+        }
+    </style>
+    <script>
+        function showLoader() {
+            document.getElementById("loader-container").style.display = "block";
+        }
+        $(document).ready(function(){
+            document.getElementById("loader-container").style.display = "none";
+        });
+    </script>    
+</html>

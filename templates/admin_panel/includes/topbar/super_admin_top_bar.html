@@ -1,0 +1,47 @@
+{% load static %}
+{% load main_templates_tags %}
+<!-- Top Bar Start -->
+<div class="topbar">            
+    <!-- Navbar -->
+    <nav class="navbar-custom">    
+        <ul class="list-unstyled topbar-nav float-right mb-0">  
+
+            <li class="dropdown notification-list">
+                <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="javascript:void(0)" role="button"aria-haspopup="false" aria-expanded="false">
+                    <i class="fa fa-bell" aria-hidden="true"></i>
+                    <span class="badge badge-danger badge-pill noti-icon-badge" id="notificationBellBage" style="display:none;">0</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" id="notificationDropDownMenu" style="max-height:350px;overflow:auto;">
+                </div>
+            </li>
+
+            <li class="dropdown">
+                <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="{% url 'app' %}" role="button"
+                    aria-haspopup="false" aria-expanded="false">
+                    {% get_username request as user_info %}
+                    <span class="ml-1 nav-user-name hidden-sm">{{user_info.username}}</span>
+                    {% if user_info.user_image %}
+                    <img src="{{user_info.user_image.url}}" alt="profile-user" class="rounded-circle thumb-xs" />
+                    {% else %}
+                    <img src="{% static 'admin_panel/assets/images/mrm-logos/mrm-updated-logo2-150x150.png' %}" alt="profile-user" class="rounded-circle thumb-xs" />
+                    {% endif %}                               
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <!-- <a class="dropdown-item" href="index.html#"><i data-feather="settings" class="align-self-center icon-xs icon-dual mr-1"></i> Settings</a> -->
+                    <div class="dropdown-divider mb-0"></div>
+                    <a class="dropdown-item" href="/app/accounts/logout/"><i data-feather="power" class="align-self-center icon-xs icon-dual mr-1"></i> Logout</a>
+                </div>
+            </li>
+        </ul><!--end topbar-nav-->
+
+        <ul class="list-unstyled topbar-nav mb-0">                        
+            <li>
+                <button class="nav-link button-menu-mobile">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu align-self-center topbar-icon"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </li> 
+        </ul>
+    </nav>
+    <!-- end navbar-->
+</div>
+<!-- Top Bar End -->

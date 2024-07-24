@@ -1,0 +1,505 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load payments_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">Payment Request Details</h4>
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:void(0);">Payment Request Details</a></li>
+                                </ol>
+                            </div><!--end col-->
+                            
+                        </div><!--end row-->                                                              
+                    </div><!--end page-title-box-->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="dastone-profile {% if instance.status == '025' %} border-bottom {% endif %}">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-calendar text-secondary font-22 align-middle mr-2"></i> <b> Date </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.date_added|date:"d-M-Y"}}</td>
+                                                    <input type="hidden" id="instanceId" value="{{instance.id}}">
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-id-card text-secondary font-22 align-middle mr-2"></i> <b> Request ID </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.request_id}}</td>
+                                                    <input type="hidden" id="instanceId" value="{{instance.id}}">
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-user text-secondary font-22 align-middle mr-2"></i> <b> Requester </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.requester.get_fullname}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-file-signature text-secondary font-22 align-middle mr-2"></i> <b> Next Checking Department </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.next_checking_designation.name}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div><!--end col-->
+
+                                    <div class="col-6">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-suitcase text-secondary font-22 align-middle mr-2"></i> <b> Payment Type </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.payment_type.title}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-shield-alt text-secondary font-22 align-middle mr-2"></i> <b> Status </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2"><span class="badge {% if instance.status == '010' %} badge-warning {% elif instance.status == '015' %} badge-info {% elif instance.status == '020' %} badge-success {% elif instance.status == '025' %} badge-danger {% elif instance.status == '030' %} badge-primary {% elif instance.status == '035' %} badge-success {% endif %}">{{instance.get_status}}</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="las la-money-check text-secondary font-22 align-middle mr-2"></i> <b> Amount </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">{{instance.amount}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-2"><i class="lab la-buffer text-secondary font-22 align-middle mr-2"></i> <b> Attachement </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2">
+                                                        {% if instance.attachment %}
+                                                        {% if instance.attachment.type == 'image' %}
+                                                        <img src="{{ instance.attachment.url }}" alt="Attached Image">
+                                                        {% elif instance.attachment.type == 'pdf' %}
+                                                        <iframe src="{{ instance.attachment.url }}" width="100%" height="500px"></iframe>
+                                                        {% else %}
+                                                        <a href="{{ instance.attachment.url }}" download>Download File</a>
+                                                        {% endif %}
+                                                        {% else %}
+                                                        --
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div><!--end col-->
+                                    <div class="col-8">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="p-2" style="width:150px;"><i class="far fa-comment-alt text-secondary font-22 align-middle mr-2"></i> <b> Caption </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2"></td>
+                                                    <td class="p-2" colspan="3">{{instance.caption}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% if instance.is_completed %}
+                                    <div class="col-8">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="p-2" style="width:150px;"><i class="far fa-file-alt text-secondary font-22 align-middle mr-2"></i> <b> Invoice ID </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2"></td>
+                                                    <td class="p-2" colspan="3"><span class="badge badge-success">{{instance.get_invoice_no}}</span></td>
+                                                </tr>
+                                                
+                                                {% if instance.get_invoice_description %}
+                                                <tr>
+                                                    <td class="p-2" style="width:150px;"><i class="fab fa-rocketchat text-secondary font-22 align-middle mr-2"></i> <b> Description </b></td>
+                                                    <td class="p-2">:</td>
+                                                    <td class="p-2"></td>
+                                                    <td class="p-2" colspan="3">{{instance.get_invoice_description}}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% endif %}
+                                </div><!--end row-->
+                            </div><!--end f_profile-->
+                            {% if instance.status == "025" %}
+                            <div class="media my-3">
+                                <img src="{% static 'admin_panel/assets/images/rejected_icon.png' %}" alt="rejected_icon" height=50 width=50 >
+                                <div class="media-body align-self-center ml-3 text-truncate">
+                                    <h4 class="my-0 font-weight-bold">Reason for Reject</h4>
+                                    <p class="text-muted mt-2 font-13">{{instance.get_reject_reason}}</p>
+                                </div><!--end media-body-->
+                            </div>                                                                               
+                            {% endif %}
+                        </div><!--end card-body-->          
+                    </div> <!--end card-->    
+                </div><!--end col-->
+            </div><!--end row-->
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <p class="text-dark font-weight-semibold title-border">Comments</p>
+                                </div><!--end col-->
+                            </div><!--end row-->    
+                        </div><!--end card-body-->  
+                        <div class="card-body border-bottom-dashed" id="commentScrollDiv" style="max-height: 500px;overflow: hidden;overflow-y: auto;"> 
+                            <ul class="list-unstyled mb-0 ml-3" id="commentsSection">
+                                
+                            </ul> 
+                        </div><!--end card-body--> 
+                        <div class="card-body pt-3">
+                            <form>
+                                <div class="form-group">
+                                    <textarea class="form-control" rows="2" id="id_content" placeholder="Type anything....."></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 text-right">
+                                        <button type="button" class="btn btn-primary px-4" id="send-comment">Send Message</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div><!--end card-body-->             
+                    </div> <!--end card-->  
+                </div> <!-- end col -->    
+                {% if not instance.is_completed  %}
+                {% get_approve_button request instance.pk as button_visible %}
+                {% if button_visible.display_approve_button %}
+                    <div class="col-lg-6 text-right">
+                        <div class="d-flex justify-content-end align-items-right">
+                            <div class="mr-3">
+                                <select class="select2 form-control mb-3 custom-select" id="requestStatus">
+                                    <option value="">Select Status</option>
+                                    {% get_payment_status_choices as status_choices %}
+                                    {% for status_code, status_label in status_choices %}
+                                    {% if status_label != 'Request Send' %}
+                                    <option value="{{ status_code }}">{{ status_label }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <!-- Add more options if needed -->
+                                </select>
+                            </div>
+                            <div class="mr-3 d-none" id="rejectReasonDiv">
+                                <textarea class="form-control" rows="1" id="reject_reason"></textarea>
+                            </div>
+                            <div>
+                                <button class="btn btn-success waves-effect waves-light approve_request" data-url="{% url 'payments:approve_request' pk=instance.pk %}">
+                                    <i class="ri-check-double-fill"></i> Approve
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif button_visible.display_pay_button %}
+                    <div class="col-lg-4">
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <label>Invoice No :</label>
+                                <input class="form-control" placeholder="enter invoice no" type="text" id="requestInvoiceNo">
+                            </div>
+                            <div class="col-12 mb-2" id="rejectReasonDiv">
+                                <label>Description :</label>
+                                <textarea class="form-control" rows="2" id="requestPaymentDescription"></textarea>
+                            </div>
+                            <div class="col-12 text-right">
+                                <button class="btn btn-success waves-effect waves-light" id="requestPayButton" data-url="{% url 'payments:request_payment' pk=instance.pk %}">
+                                    <i class="ri-check-double-fill"></i> Pay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div><!-- container -->
+    </div>
+    <!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+    {% load static %}
+    <!-- stylessssssssssss -->
+    {{form.media}}
+    <style>
+        .dastone-profile .dastone-profile-main .dastone-profile-main-pic {
+            position: relative;
+            width: 128px;
+            height: 128px;
+            margin-right: 18px;
+            background-color: #f3f3f3;
+            border-radius: 100px;
+            color: #fff;
+        }
+        .dastone-profile-main-pic span{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 50px;
+            font-weight: 600;
+        }
+    </style>
+    <script>
+        $(".approve_request").click(function () {
+            var $this = $(this);
+            var request_status = $('#requestStatus').val();
+            var reject_reson = "";
+
+            if (request_status!=="" ){
+                if (request_status !== "025" ){
+                    var formSend = true;
+                }else{
+                    var reject_reson = $('#reject_reason').val();
+                    if(reject_reson !== ""){
+                        var formSend = true;
+                    }else{
+                        var formSend = false;
+                        $('#reject_reason').css("border", "1px solid red");
+                    }
+                }
+            }else{
+                var formSend = false;
+                $('#requestStatus').css("border", "1px solid red");
+            }
+
+            if (formSend === true){
+                var url = $this.attr('data-url');
+                var method = "GET";
+                $.ajax({
+                    type: method,
+                    url: url,
+                    dataType: 'json',
+                    data: {
+                        'request_status': request_status,
+                        'reject_reson': reject_reson,
+                    },
+            
+                    success: function (data) {
+                        window.location.reload();
+                    },
+            
+                    error: function (data) {
+                        var title = data["responseJSON"]["title"];
+                        var message = data["responseJSON"]["message"];
+                        swal(title, message, "error");
+                    },
+                });
+            }
+        });
+
+        $("#requestPayButton").click(function () {
+            var $this = $(this);
+            var invoice_no = $('#requestInvoiceNo').val();
+            var description = $("#requestPaymentDescription").val();
+
+            if(invoice_no !== ""){
+                var formSend = true;
+            }else{
+                var formSend = false;
+                $('#requestInvoiceNo').css("border", "1px solid red");
+            }
+
+            if (formSend === true){
+                var url = $this.attr('data-url');
+                var method = "GET";
+                $.ajax({
+                    type: method,
+                    url: url,
+                    dataType: 'json',
+                    data: {
+                        'invoice_no': invoice_no,
+                        'description': description,
+                    },
+            
+                    success: function (data) {
+                        swal({
+                            title: data["title"],
+                            text: data["message"],
+                            type: "success"
+                        }, function () {
+                            {% comment %} console.log("do after"); {% endcomment %}
+                            var redirect = data['redirect'];
+                            var redirect_url = data['redirect_url'];
+
+                            if (redirect == 'true') {
+                                window.location.href = redirect_url;
+                            }
+                        });
+                    },
+            
+                    error: function (data) {
+                        var title = data["responseJSON"]["title"];
+                        var message = data["responseJSON"]["message"];
+                        swal(title, message, "error");
+                    },
+                });
+            }
+        });
+
+        $("#requestStatus").change(function(){
+            var status_value = $(this).val();
+            if (status_value === "025"){
+                $("#rejectReasonDiv").removeClass('d-none');;
+            }else{
+                $("#rejectReasonDiv").addClass('d-none');
+            }
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Function to load comments
+            function loadComments() {
+                var current_user_pk = '{{request.user.id}}'
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'payments:latest_comments' pk=instance.pk %}",
+                    success: function(comments) {
+                        $('#commentsSection').empty();
+                        
+                        comments.forEach(function(comment) {
+                            var commentDate = new Date(comment.created_date);
+                            var formattedDate = getFormattedDate(commentDate);
+                            var isCurrentUserComment = comment.user_id === current_user_pk;
+                        
+                            var mediaBodyClass = isCurrentUserComment ? 'media-body reverse' : 'media-body'; 
+                        
+                            $('#commentsSection').append(
+                                `
+                                <li class="bg-light-alt mb-4 p-4 rounded-5">
+                                    <div class="row">
+                                        <div class="col-auto align-self-center">
+                                            <img src="${comment.user_image}" alt="" class="thumb-md rounded-circle">
+                                        </div><!--end col-->
+                                        <div class="col">
+                                            <div class="comment-body">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <p class="text-dark font-weight-semibold mb-2">${comment.username} <span class="badge badge-soft-primary">${comment.position}</span></p>
+                                                    </div><!--end col-->
+                                                    <div class="col-auto">
+                                                        <span class="text-muted"><i class="far fa-clock mr-1"></i>${formattedDate}</span>
+                                                    </div><!--end col-->
+                                                </div><!--end row-->                                                                
+                                                <p class="mb-0 pb-0" >${comment.content}</p>
+                                                {% comment %} <a href="pages-profile.html#" class="text-primary"><i class="fas fa-reply mr-1"></i>Replay</a> {% endcomment %}
+                                            </div>
+                                        </div><!--end col-->
+                                    </div><!--end row-->
+                                    
+                                </li>
+                                `
+                            );
+                            
+                        });
+                    }
+                });
+            }
+
+            function getFormattedDate(date) {
+                var currentDate = new Date();
+                var today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                var yesterday = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1);
+                
+                var options = { hour: 'numeric', minute: 'numeric', hour12: true };
+                
+                if (date >= today) {
+                    return date.toLocaleTimeString('en-US', options); 
+                } else if (date >= yesterday) {
+                    return 'Yesterday ' + date.toLocaleTimeString('en-US', options); 
+                } else {
+                    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', options);
+                }
+            }
+        
+            // Initial loading of comments
+            loadComments();
+            $('#send-comment').on('click', function(e) {
+                e.preventDefault();
+                var comment = $('#id_content').val();
+                $.ajax({
+                    type: 'GET',
+                    url:  "{% url 'payments:add_comment' pk=instance.pk %}",
+                    data: {
+                        'content': comment,
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#id_content').val('');
+                            loadComments();
+                            const lastLi = $('#commentsSection li:last');
+                            $("#commentsSection").scrollTop(lastLi.position().top);
+                        }
+                    }
+                });
+            });
+            setInterval(loadComments, 5000);
+        });
+    </script>
+    <script>
+        var ajaxInProgress = false;
+        var lastCommentId = null;
+
+        function loadComments() {
+            if (!ajaxInProgress) {
+                ajaxInProgress = true;
+
+                $.ajax({
+                    url: "{% url 'payments:update_comment_readed' pk=instance.pk %}",
+                    type: 'GET',
+                    success: function () {
+                        {% comment %} console.log("success"); {% endcomment %}
+                        ajaxInProgress = false;
+                    }
+                });
+            }
+        }
+
+        function checkAndLoadComments() {
+            var commentsSection = $('#commentsSection');
+            var commentScrollDiv = $('#commentScrollDiv');
+
+            if (commentsSection[0].scrollHeight > commentsSection.innerHeight()) {
+                {% comment %} console.log("mouse enter if") {% endcomment %}
+                // If #commentsSection is overloaded, trigger on scroll
+                if (commentScrollDiv.scrollTop() + commentScrollDiv.innerHeight() >= commentScrollDiv[0].scrollHeight) {
+                    loadComments();
+                }
+            } else {
+                // If #commentsSection is not overloaded, trigger on hover of li elements
+                commentsSection.find('li').mouseenter(function () {
+                    {% comment %} console.log("Loading comments on hover"); {% endcomment %}
+                    loadComments();
+                });
+            }
+        }
+
+        $('#commentScrollDiv').on({
+            scroll: function () {
+                checkAndLoadComments();
+            },
+            mouseenter: function () {
+                {% comment %} console.log("mouse enter") {% endcomment %}
+                // Only load comments on hover if the #commentsSection is not overloaded
+                checkAndLoadComments();
+            }
+        });
+
+    </script>
+{% endblock  %}
+        

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load purchase_templates_tags %}
+    <title>Purchases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            padding: 5px;
+            background-color: #f2f2f2;
+        }
+        .expenses-row, .expenses-row table{
+            padding: 0;
+            margin: 0;
+        }
+        .expenses-row table th{
+            padding: 4px;
+        }
+        .text-right{
+            text-align: right;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .amount-row{
+            width: 18px;
+        }
+        .capital-field{
+            text-transform: capitalize;
+        }
+        .text-bold{
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <h1>Purchase Expenses</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th class="text-center">#</th>
+                <th class="text-center" style="width:150px;">Date</th>
+                <th class="text-center" style="width:200px;">Invoice No</th>
+                <th class="text-center" style="width:130px;">Purchase ID</th>
+                <th class="text-center">Field Executive</th>
+                {% comment %} <th class="text-center">Verified OE</th>
+                <th class="text-center">Verified PM</th> {% endcomment %}
+                <th class="text-center" style="width:450px;">Expenses</th>
+                <th class="text-center" style="width:100px;">Total Expenses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for purchase in purchase_list %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{ purchase.date|date:"d-M-Y" }}</td>
+                <td class="text-center">{{ purchase.invoice_no }}</td>
+                <td class="text-center">{{ purchase.purchase_id}}</td>
+                
+                <td class="capital-field text-center">{{ purchase.field_executive.get_fullname }}</td>
+                {% comment %} <td class="capital-field text-center">{% if purchase.office_executive_is_varified %}{{purchase.office_executive.get_fullname}}{% else %}not varified{% endif %}</td>
+                <td class="capital-field text-center">{% if purchase.purchase_manager_is_varified %}{{purchase.purchase_manager.get_fullname}}{% else %}not varified{% endif %}</td> {% endcomment %}
+                
+                <td class="expenses-row">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th class="amount-row text-center" style="width:100px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in purchase.purchasemoreexpense_set.all %}
+                            <tr>
+                                <td class="capital-field">{{ expense.title }}</td>
+                                <td class="amount-row text-right">{{ expense.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td class="amount-row text-right">{{ purchase.materials_total_expence }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td class="text-right text-bold" colspan="6">Grand Total</td>
+                {% get_total_values purchase_list as total_values %}
+                <td class="amount-row text-right text-bold">{{total_values.expences_amount_total}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        $(document).ready(function(){
+            window.print();
+        });
+    </script>
+</body>
+</html>
