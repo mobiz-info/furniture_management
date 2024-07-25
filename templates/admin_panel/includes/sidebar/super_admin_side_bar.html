@@ -31,11 +31,11 @@
             <li>
                 <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Settings</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
-                    {% comment %} <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'purchase:purchase_items' %}"><i class="ti-control-record"></i>Purchase Items</a>
-                        <a class="nav-link" href="{% url 'purchase:create_purchase_items' %}"><i class="ti-plus"></i></a>
+                     <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'settings:company_details_list' %}"><i class="ti-control-record"></i>Company Details</a>
+                        <a class="nav-link" href="{% url 'settings:company_details_create' %}"><i class="ti-plus"></i></a>
                     </li>
-                    <li class="nav-item d-flex justify-content-between">
+                    {% comment %}<li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'purchase:purchase_reports' %}"><i class="ti-control-record"></i>Purchase Report</a>
                     </li>
                     <li class="nav-item d-flex justify-content-between">
