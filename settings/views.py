@@ -207,3 +207,124 @@ def company_details_delete(request, pk):
     }
 
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+#--------------------------------Contact-----------------------------------------
+@login_required
+@role_required(['superadmin'])
+def contact_info(request, pk):
+    """
+    Contact List
+    :param request:
+    :return: Contact List single view
+    """
+    
+    instances = get_object_or_404(Contact, pk=pk)
+    context = {
+        'instances': instances,
+        'page_name': 'Contact Info',
+        'page_title': 'Contact Info',
+    }
+    return render(request, 'admin_panel/pages/contact/info.html', context)
+
+@login_required
+@role_required(['superadmin'])
+
+def contact_list(request):
+    """
+    contact
+    :param request:
+    :return: contact list view
+    """
+
+    instances = Contact.objects.filter(is_deleted=False).order_by("-date_added")
+    context = {
+        'instances': instances,
+        'page_name': 'Contact List',
+        'page_title': 'Contact List',
+    }
+    return render(request, 'admin_panel/pages/contact/list.html', context)
+
+
+@login_required
+@role_required(['superadmin'])
+def create_contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.creator = request.user
+            contact.auto_id = get_auto_id(Contact)
+            contact.save()
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Contact created successfully.",
+                "redirect": "true",
+                "redirect_url": reverse('settings:contact_list')
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        else:
+            message = generate_form_errors(form, formset=False)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    else:
+        form = ContactForm()
+        context = {
+            'form': form,
+            'page_name': 'Create Contact',
+            'page_title': 'Create Contact',
+            'url': reverse('settings:create_contact')
+        }
+        return render(request, 'admin_panel/pages/contact/create.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def edit_contact(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    if request.method == 'POST':
+        form = ContactForm(request.POST, instance=contact)
+        if form.is_valid():
+            form.save()
+            response_data = {
+                "status": "true",
+                "title": "Successfully Updated",
+                "message": "Contact updated successfully.",
+                "redirect": "true",
+                "redirect_url": reverse('settings:contact_list')
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        else:
+            message = generate_form_errors(form, formset=False)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    else:
+        form = ContactForm(instance=contact)
+        context = {
+            'form': form,
+            'page_name': 'Edit Contact',
+            'page_title': 'Edit Contact',
+            'url': reverse('settings:edit_contact', args=[contact.pk])
+        }
+        return render(request, 'admin_panel/pages/contact/edit.html', context)
+
+@login_required
+def delete_contact(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    contact.is_deleted = True
+    contact.save()
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Contact deleted successfully.",
+        "redirect": "true",
+        "redirect_url": reverse('settings:contact_list')
+    }
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')

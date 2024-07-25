@@ -16,3 +16,17 @@ class CompanyDetails(BaseModel):
     class Meta:
         verbose_name = "Company Detail"
         verbose_name_plural = "Company Details"
+        
+class Contact(BaseModel):
+    phone = models.CharField(max_length=15)
+    instagram_url = models.URLField(blank=False, null=False)
+    facebook_url = models.URLField(blank=True, null=True)
+    gmail = models.EmailField()
+    
+    def __str__(self):
+        return str(self.phone)
+
+    class Meta:
+        db_table = 'contact'  
+        verbose_name = 'Contact'
+        verbose_name_plural = 'Contacts'
