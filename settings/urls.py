@@ -16,5 +16,12 @@ urlpatterns = [
     re_path(r'create_contact/$', views.create_contact, name='create_contact'),
     re_path(r'edit_contact/(?P<pk>.*)/$', views.edit_contact, name='edit_contact'),
     re_path(r'delete_contact/(?P<pk>.*)/$', views.delete_contact, name='delete_contact'),
+
+    #----------------------Branch---------------------------------------------------
+    re_path(r'branch_info/(?P<pk>.*)/$', views.branch_info, name='branch_info'),
+    re_path(r'branch_list/$', views.branch_list, name='branch_list'),
+    re_path(r'branch_create/$', views.branch_create, name='branch_create'),
+    re_path(r'branch_edit/(?P<pk>.*)/$', views.branch_edit, name='branch_edit'),
+    re_path(r'branch_delete/(?P<pk>.*)/$', views.branch_delete, name='branch_delete'),
 ]
 

@@ -36,3 +36,16 @@ class ContactForm(forms.ModelForm):
             'gmail': EmailInput(attrs={'class': 'required form-control','placeholder': 'Enter Gmail Address'}),
         }
 
+class BranchForm(forms.ModelForm):
+    
+    class Meta:
+        model = Branch
+        fields = ['name','location','latitude','longitude','image']
+
+        widgets = {
+            'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Branch Name'}), 
+            'location': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Location'}),
+            'latitude': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter Latitude'}),
+            'longitude': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Longitude'}), 
+            'image': FileInput(attrs={'class': 'form-control dropify'}),
+        }

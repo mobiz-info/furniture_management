@@ -328,3 +328,191 @@ def delete_contact(request, pk):
         "redirect_url": reverse('settings:contact_list')
     }
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+# Branch
+@login_required
+@role_required(['superadmin'])
+def branch_info(request,pk):
+    """
+    branch List
+    :param request:
+    :return: company details List single view
+    """
+    
+    instances = Branch.objects.get(pk=pk)
+
+    context = {
+        'instances': instances,
+        'page_name' : 'Branch',
+        'page_title' : 'Branch',
+    }
+
+    return render(request, 'settings/branch_info.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def branch_list(request):
+    """
+    branch_details
+    :param request:
+    :return: company_details list view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    
+    instances = Branch.objects.filter(is_deleted=False).order_by("-date_added")
+    
+    if query:
+        instances = instances.filter(
+            Q(name__icontains=query) |
+            Q(location__icontains=query) 
+        )
+        title = "branch details list - %s" % query
+        filter_data['q'] = query
+    
+    context = {
+        'instances': instances,
+        'page_name' : 'Branch Details List',
+        'page_title' : 'Branch Details List',
+        'filter_data' :filter_data,
+    }
+
+    return render(request, 'settings/branch_list.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def branch_create(request):
+    """
+    create operation of company details
+    :param request:
+    :param pk:
+    :return:
+    """
+    if request.method == 'POST':
+        form = BranchForm(request.POST)
+        
+        form_is_valid = False
+        if form.is_valid():
+            form_is_valid = True
+           
+        if  form_is_valid :
+            
+            data = form.save(commit=False)
+            data.auto_id = get_auto_id(Branch)
+            data.creator = request.user
+            data.save()
+            
+            
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Branch created successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('settings:branch_list')
+            }
+    
+        else:
+            message = generate_form_errors(form, formset=False)
+           
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        form = BranchForm(request.POST)
+        
+        context = {
+            'form': form,
+            'page_name' : 'Create Branch',
+            'page_title': 'Create Branch',
+            'url': reverse('settings:branch_create'),
+            
+            'material_page': True,
+            'is_need_select2': True,
+            
+        }
+        
+        return render(request,'settings/branch_create.html',context)
+    
+@login_required
+@role_required(['superadmin'])
+def branch_edit(request,pk):
+    """
+    edit operation of branch_details
+    :param request:
+    :param pk:
+    :return:
+    """
+    instance = get_object_or_404(Branch, pk=pk)
+        
+    message = ''
+    if request.method == 'POST':
+        form = BranchForm(request.POST,files=request.FILES,instance=instance)
+        
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.date_updated = datetime.datetime.today()
+            data.updater = request.user
+            data.save()
+                    
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Branch Update successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('settings:branch_list')
+            }
+    
+        else:
+            message = generate_form_errors(form ,formset=False)
+            
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        
+        form = BranchForm(instance=instance)
+
+        context = {
+            'form': form,
+            'page_name' : 'Edit Branch',
+            'page_title' : 'Edit Branch',
+            'url' : reverse('settings:branch_edit', kwargs={'pk': pk}),
+            
+            'is_need_datetime_picker': True,
+            'is_need_forms': True,
+        }
+
+        return render(request, 'settings/branch_edit.html',context)    
+    
+@login_required
+@role_required(['superadmin'])
+def branch_delete(request, pk):
+    """
+    branch deletion
+    :param request:
+    :param pk:
+    :return:
+    """
+    instance = Branch.objects.get(pk=pk)
+    
+    instance.is_deleted = True
+    instance.save()
+    
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Branch Successfully Deleted.",
+        "redirect": "true",
+        "redirect_url": reverse('settings:branch_list'),
+    }
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
