@@ -37,7 +37,7 @@ def company_details_info(request,pk):
         'page_title' : 'Company Details',
     }
 
-    return render(request, 'settings/company_details_info.html', context)
+    return render(request, 'admin_panel/pages/company/company_details_info.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -67,7 +67,7 @@ def company_details_list(request):
         'filter_data' :filter_data,
     }
 
-    return render(request, 'settings/company_details_list.html', context)
+    return render(request, 'admin_panel/pages/company/company_details_list.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -126,7 +126,7 @@ def company_details_create(request):
             
         }
         
-        return render(request,'settings/company_details_create.html',context)
+        return render(request,'admin_panel/pages/company/company_details_create.html',context)
     
 @login_required
 @role_required(['superadmin'])
@@ -182,7 +182,7 @@ def company_details_edit(request,pk):
             'is_need_forms': True,
         }
 
-        return render(request, 'settings/company_details_edit.html',context)    
+        return render(request, 'admin_panel/pages/company/company_details_edit.html',context)    
     
 @login_required
 @role_required(['superadmin'])
