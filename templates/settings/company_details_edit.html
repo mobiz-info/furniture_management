@@ -58,11 +58,11 @@
                                         {{ form.image }}
                                     </div><!-- end form-group -->
 
-                                    {% if form.instance.image %}
+                                    {% if form.instance.image and form.instance.image.url %}
                                     <div class="col-xl-4">
                                         <div class="card">
                                             <div class="card-body">
-                                                <img src="{{ form.instance.image.url }}" height="100%" width="100%">
+                                                <img src="{{ form.instance.image.url }}" alt="Image preview" style="width: 100%; height: auto;">
                                             </div><!-- end card-body -->
                                         </div><!-- end card -->
                                     </div><!-- end col -->

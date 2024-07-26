@@ -85,7 +85,7 @@
                                             <th class="font-weight-bold text-center">Location</th>
                                             <th class="font-weight-bold text-center">Latitude</th>
                                             <th class="font-weight-bold text-center">Longitude</th>
-                                            <th class="font-weight-bold text-right">Image</th>
+                                            {% comment %} <th class="font-weight-bold text-right">Image</th> {% endcomment %}
                                             <th class="text-right">Action</th>
                                         </tr>
                                     </thead>
@@ -100,7 +100,8 @@
                                             <td class="text-center">{{instance.location}}</td>
                                             <td class="text-center">{{instance.latitude}}</td>
                                             <td class="text-center">{{instance.longitude}}</td>
-                                            <td class="text-center">{% if instance.image %}{{instance.image.url}}{% endif %}</td>
+                                            
+                                            {% comment %} <td class="text-center">{% if instance.image and instance.image.url %}<img src="{{ instance.image.url }}" alt="Image preview" style="width: 5%; height: auto;">{% endif %}</td> {% endcomment %}
                                             <td class="text-right">
                                                 <a href="{% url 'settings:company_details_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
                                                 <a href="{% url 'settings:company_details_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
