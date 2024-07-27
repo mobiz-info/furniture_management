@@ -1,0 +1,102 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <h4 class="page-title">{{ page_title }}</h4>
+                </div>
+            </div>
+        </div>
+        <!-- End Page Title -->
+
+        <form action="{{ url }}" method="GET" enctype="multipart/form-data" class="ajax redirect">
+            <div class="row">
+                <div class="col-12">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body bootstrap-select-1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="company_name">Phone Number :</label>
+                                        {{ instances.phone }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="address">Gmail :</label>
+                                        {{ instances.gmail }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="location">Instagram URL :</label>
+                                        {{ instances.instagram_url }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="latitude">Facebook URL :</label>
+                                        {{ instances.facebook_url }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Back</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+<!-- Styles -->
+{{ form.media }}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .text-area {
+        height: 150px !important;
+    }
+    .select2-container--default {
+        width: 100%;
+    }
+    .select2-container .select2-selection--single {
+        height: calc(2.5em + .75rem + 2px);
+    }
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #e3ebf6;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        margin-top: 8px;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: #000;
+    }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e3ebf6;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: solid rgba(23, 97, 253, 0.5) 1px;
+    }
+    .form-control {
+        height: calc(2.8em + .75rem + 2px);
+    }
+    .dynamic-formset-add td {
+        text-align: center !important;
+    }
+</style>
+{% endblock %}

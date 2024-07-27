@@ -11,7 +11,7 @@ urlpatterns = [
     path('app/accounts/', include('registration.backends.default.urls')),
     path('super-admin/',general_views.app,name='app'),
     path('',include(('main.urls'),namespace='main')), 
-    
+    path('settings/', include('settings.urls', namespace='settings')),
     # # admin panel
     path('super-admin/product/',include(('product.urls'),namespace='product')),
     
