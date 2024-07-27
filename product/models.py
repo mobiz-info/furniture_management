@@ -1,6 +1,7 @@
 #django
 from django.db import models
 #third party
+from ckeditor_uploader.fields import RichTextUploadingField
 from versatileimagefield.fields import VersatileImageField
 #local
 from main.models import BaseModel
@@ -23,7 +24,10 @@ class Materials(BaseModel):
         
     def __str__(self):
         return f'{self.name}'
-
+    
+    def material_types(self):
+        return MaterialsType.objects.filter(is_deleted=False,material=self)
+        
   
 class MaterialsType(BaseModel):
     name = models.CharField(max_length=200)
@@ -37,6 +41,16 @@ class MaterialsType(BaseModel):
         
     def __str__(self):
         return f'{self.name}'
+    
+    def subcategories_joint(self):
+        categories = MaterialTypeCategory.objects.filter(is_deleted=False,material_type=self)
+        if categories:
+            return ','.join(category.name for category in categories)
+        else:
+            return ""
+        
+    def subcategories_list(self):
+        return MaterialTypeCategory.objects.filter(is_deleted=False,material_type=self)
     
     
 class MaterialTypeCategory(BaseModel):
@@ -64,6 +78,9 @@ class ProductCategory(BaseModel):
         
     def __str__(self):
         return f'{self.name}'
+    
+    def subcategories_list(self):
+        return ProductSubCategory.objects.filter(is_deleted=False,product_category=self)
    
     
 class ProductSubCategory(BaseModel):
@@ -85,7 +102,7 @@ class Product(BaseModel):
     item_code = models.CharField(max_length=100)
     source = models.CharField(max_length=10, choices=PRODUCT_SOURCE_CHOICES)
     approximate_development_time = models.DecimalField(default=0,max_digits=10,decimal_places=2)
-    remark = models.TextField()
+    remark = RichTextUploadingField()
     feuture_image = VersatileImageField('Image', upload_to="product/feuture_image", blank=True, null=True)
     
     product_category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from . models import MaterialTypeCategory, Materials, MaterialsType
+from . models import MaterialTypeCategory, Materials, MaterialsType, Product
 
 # Register your models here.
 class MaterialsAdmin(admin.ModelAdmin):
@@ -22,3 +22,9 @@ class MaterialTypeCategoryAdmin(admin.ModelAdmin):
         'id','name','material_type'
     ]
 admin.site.register(MaterialTypeCategory,MaterialTypeCategoryAdmin)
+
+# class MaterialTypeCategoryAdmin(admin.ModelAdmin):
+#     list_display = [
+#         'id','name','material_type'
+#     ]
+admin.site.register(Product)

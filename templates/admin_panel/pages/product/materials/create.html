@@ -62,18 +62,23 @@
                             <table id="data-table-basic" class="table table-striped table-vmiddle">
                                 <thead>
                                     <tr>
-                                        <th data-column-id="image" colspan="4">Material Types</th>
+                                        <th>Name</th>
+                                        <th>Is there a sub category?</th>
+                                        <th>Sub Categories (each category separated by ",")</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <th style="min-width: 15px;">Name</th>
-                                    <th style="min-width: 15px;">Is there a sub category?</th>
                                     {% for item in material_type_formset.forms %}
                                     <tr class="form_set_row material_type_formset">
                                         {{ item.id }}
                                         <td><span class="name">{{ item.name }}</span></td>
-                                        <td><span class="is_subcategory">{{ item.is_subcategory }} <label for="projectName"> Is there a sub category</label></span></td>
-                                        <td class="delete">{% if item.instance.pk %}{{ item.DELETE }}{% endif %}</td>
+                                        <td>
+                                            <span class="is_subcategory">{{ item.is_subcategory }} <label for="projectName"> Is there a sub category</label></span>
+                                        </td>
+                                        <td><span class="material_type_sub_category">{{ item.sub_category_name }}</span></td>
+                                        <td>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -82,7 +87,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light" id="sa-mixin">Submit</button>
+                    <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light">Submit</button>
                     <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
                 </div><!-- end col -->
             </div><!-- end row -->
@@ -93,57 +98,34 @@
 
 {% block static %}
 {% load static %}
-<!-- stylessssssssssss -->
 {{ form.media }}
 <style>
-    .form-group {
-        margin-bottom: 10px;
-    }
-    .text-area {
-        height: 150px !important;
-    }
-    .select2-container--default {
-        width: 100%;
-    }
-    .select2-container .select2-selection--single {
-        height: calc(2.5em + .75rem + 2px);
-    }
-    .select2-container--default .select2-selection--single {
-        border: 1px solid #e3ebf6;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 32px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow b {
-        margin-top: 8px;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        color: #000;
-    }
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #e3ebf6;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border: solid rgba(23, 97, 253, 0.5) 1px;
-    }
-    .form-control {
-        height: calc(2.8em + .75rem + 2px);
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        color: #000;
-    }
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #e3ebf6;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border: solid rgba(23, 97, 253, 0.5) 1px;
-    }
-    .dynamic-formset-add td {
-        text-align: center !important;
-    }
+    .form-group { margin-bottom: 10px; }
+    .text-area { height: 150px !important; }
+    .select2-container--default { width: 100%; }
+    .select2-container .select2-selection--single { height: calc(2.5em + .75rem + 2px); }
+    .select2-container--default .select2-selection--single { border: 1px solid #e3ebf6; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 32px; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b { margin-top: 8px; }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
+    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
+    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
+    .form-control { height: calc(2.8em + .75rem + 2px); }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
+    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
+    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
+    .dynamic-formset-add td { text-align: center !important; }
 </style>
 <script>
     $(document).ready(function () {
+        $('.material_type_formset table tr.form_set_row').formset({
+            prefix: '{{ material_type_formset.prefix }}',
+            formCssClass: 'dynamic-formset',
+            added: function (row) {
+                row.find('.type_sub_category_name').attr('disabled', 'disabled');
+            },
+        });
+
         // Toggle Material Types section based on is_subcategory checkbox
         function toggleMaterialTypesSection() {
             if ($('#id_is_subcategory').is(':checked')) {
@@ -160,11 +142,33 @@
         $('#id_is_subcategory').change(function () {
             toggleMaterialTypesSection();
         });
+    });
 
-        $('.material_type_formset table tr.form_set_row').formset({
-            prefix: '{{ material_type_formset.prefix }}',
-            formCssClass: 'dynamic-formset',
-            added: function (row) {},
+    $(document).ready(function() {
+        // Handle enabling/disabling sub category fields based on checkbox state
+        $(document).on('change', '.material_type_subcategory_checkbox', function() {
+            var elemId = $(this).attr("id");
+            var formCount = elemId.match(/\d+/);
+            var subCategoryNamesField = $("#id_material_type_formset-" + formCount + "-sub_category_name");
+
+            if ($(this).is(':checked')) {
+                subCategoryNamesField.removeAttr('disabled');
+            } else {
+                subCategoryNamesField.attr('disabled', 'disabled');
+            }
+        });
+
+        // Initialize the state of the subcategory fields based on current checkbox states
+        $('.material_type_subcategory_checkbox').each(function() {
+            var elemId = $(this).attr("id");
+            var formCount = elemId.match(/\d+/);
+            var subCategoryNamesField = $("#id_material_type_formset-" + formCount + "-sub_category_name");
+
+            if ($(this).is(':checked')) {
+                subCategoryNamesField.removeAttr('disabled');
+            } else {
+                subCategoryNamesField.attr('disabled', 'disabled');
+            }
         });
     });
 </script>

@@ -1,0 +1,98 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="page-title">{{page_title}}</h4>
+   
+                            </div><!--end col-->
+                            
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex" style="background-color:#f8f9fa;">
+                            <div class="col-md-6">
+                                <strong> Material Name : {{ instance.name }}</strong><br>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a href="{% url 'product:edit_material' pk=instance.pk %}" class="btn btn-primary"><i class="las la-pen"></i> Edit</a>
+                                <a href="{% url 'product:delete_material' pk=instance.pk %}" class="action-button remove redirect btn btn-danger" data-id="{{instance.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?"><i class="las la-trash-alt font-18"></i> Delete</a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive-sm">
+                                <table class="table table-striped mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Item</th>
+                                            <th class="font-weight-bold text-left">Sub Categories</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for type in instance.material_types.all %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-left">{{type.name}}</td>
+                                            <td class="text-center">
+                                                {% if type.subcategories_list %}
+                                                <table class="table mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="font-weight-bold text-center">#</th>
+                                                            <th class="font-weight-bold text-left">Name</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for category in type.subcategories_list.all %}
+                                                        <tr>
+                                                            <td class="text-center">{{forloop.counter}}</td>
+                                                            <td class="text-left">{{ category.name }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                {% else %}
+                                                -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+
+        </div><!-- container -->
+    <!-- end page content -->
+{% endblock content %}
+
+
+{% block static %}
+{% load static %}
+{{form.media}}
+
+    
+{% endblock static %}
+    
+        
