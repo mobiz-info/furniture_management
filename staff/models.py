@@ -24,3 +24,20 @@ class Designation(BaseModel):
         db_table = "designation"
         verbose_name = "Designation"
         verbose_name_plural = "Designations"
+        
+class Staff(BaseModel):
+    first_name = models.CharField(max_length=250, null=False, blank=False)
+    last_name = models.CharField(max_length=250, null=False, blank=False)
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE, null=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=False)
+    phone = models.CharField(max_length=250, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    employee_id = models.CharField(max_length=250, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    class Meta:
+        verbose_name = "Staff"
+        verbose_name_plural = "Staff"

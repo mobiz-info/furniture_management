@@ -4,21 +4,20 @@ import random
 import datetime
 from datetime import timezone
 #django
+from django.urls import reverse
 from django.db.models import Q,Sum,Min,Max 
 from django.db import transaction, IntegrityError
-from django.forms import formset_factory, inlineformset_factory
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.db import transaction
+from django.forms import formset_factory, inlineformset_factory
 # rest framework
-from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm, ProductForm, ProductImageForm, ProductSubCategoryForm
-from product.models import MaterialTypeCategory, Materials, MaterialsType, Product, ProductCategory, ProductImage, ProductSubCategory
 from rest_framework import status
 #local
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
+from product.models import MaterialTypeCategory, Materials, MaterialsType, Product, ProductCategory, ProductImage, ProductSubCategory
+from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm, ProductForm, ProductImageForm, ProductSubCategoryForm
 
 # Create your views here.
 @login_required
@@ -75,19 +74,19 @@ def material_list(request):
 def create_material(request):
     MaterialsTypeFormset = formset_factory(MaterialsTypeForm, extra=2)
     
-    message = ''
     if request.method == 'POST':
         material_form = MaterialsForm(request.POST)
-        material_type_formset = MaterialsTypeFormset(request.POST,prefix='material_type_formset', form_kwargs={'empty_permitted': False})
+        material_type_formset = MaterialsTypeFormset(request.POST, prefix='material_type_formset', form_kwargs={'empty_permitted': False})
         
         form_is_valid = False
         if material_form.is_valid():
             form_is_valid = True
-            if material_form.cleaned_data.get("is_subcategory"):
+            print(material_form.cleaned_data.get("is_subcategory"))
+            if material_form.cleaned_data.get("is_subcategory") == True:
                 if not material_type_formset.is_valid():
                     form_is_valid = False
         
-        if  form_is_valid :
+        if form_is_valid:
             try:
                 with transaction.atomic():
                     material_data = material_form.save(commit=False)
@@ -95,26 +94,25 @@ def create_material(request):
                     material_data.creator = request.user
                     material_data.save()
                     
-                    for form in material_type_formset:
-                        material_type = form.save(commit=False)
-                        material_type.auto_id = get_auto_id(MaterialsType)
-                        material_type.creator = request.user
-                        material_type.material = material_data
-                        material_type.save()
-                        
-                        if material_type.is_subcategory:
-                            sub_categories = form.cleaned_data['sub_category_name'].split(',')
+                    if material_data.is_subcategory :
+                        for form in material_type_formset:
+                            material_type = form.save(commit=False)
+                            material_type.auto_id = get_auto_id(MaterialsType)
+                            material_type.creator = request.user
+                            material_type.material = material_data
+                            material_type.save()
 
-                            for sub_category in sub_categories:
-                                sub_category = sub_category.strip()
-
-                                MaterialTypeCategory.objects.create(
-                                    auto_id=get_auto_id(MaterialTypeCategory),
-                                    creator=request.user,
-                                    name=sub_category,
-                                    material_type=material_type,
-                                )
-                        
+                            if material_type.is_subcategory: 
+                                sub_categories = form.cleaned_data['sub_category_name'].split(',')
+                                for sub_category in sub_categories:
+                                    sub_category = sub_category.strip()
+                                    MaterialTypeCategory.objects.create(
+                                        auto_id=get_auto_id(MaterialTypeCategory),
+                                        creator=request.user,
+                                        name=sub_category,
+                                        material_type=material_type,
+                                    )
+                    
                     response_data = {
                         "status": "true",
                         "title": "Successfully Created",
@@ -122,9 +120,7 @@ def create_material(request):
                         'redirect': 'true',
                         "redirect_url": reverse('product:material_list')
                     }
-                    
             except IntegrityError as e:
-                # Handle database integrity error
                 response_data = {
                     "status": "false",
                     "title": "Failed",
@@ -132,13 +128,11 @@ def create_material(request):
                 }
 
             except Exception as e:
-                # Handle other exceptions
                 response_data = {
                     "status": "false",
                     "title": "Failed",
                     "message": str(e),
                 }
-    
         else:
             message = generate_form_errors(material_form, formset=False)
             if material_form.cleaned_data.get("is_subcategory"):
@@ -148,28 +142,27 @@ def create_material(request):
                 "status": "false",
                 "title": "Failed",
                 "message": message,
+                "form_errors": material_form.errors.as_json(),
+                "formset_errors": material_type_formset.errors,
             }
 
-        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        return JsonResponse(response_data)
     
     else:
-        material_form = MaterialsForm(request.POST)
+        material_form = MaterialsForm()
         material_type_formset = MaterialsTypeFormset(prefix='material_type_formset')
         
         context = {
             'material_form': material_form,
             'material_type_formset': material_type_formset,
-            
-            'page_name' : 'Create Material',
+            'page_name': 'Create Material',
             'page_title': 'Create Materials',
             'url': reverse('product:create_material'),
-            
             'material_page': True,
             'is_need_select2': True,
-            
         }
         
-        return render(request,'admin_panel/pages/product/materials/create.html',context)
+        return render(request, 'admin_panel/pages/product/materials/create.html', context)
     
     
 @login_required
@@ -199,7 +192,7 @@ def edit_material(request,pk):
     message = ''
 
     if request.method == 'POST':
-        material_form = MaterialsForm(request.POST, instance=material_instance)
+        material_form = MaterialsForm(request.POST,files=request.FILES,instance=material_instance)
         material_type_formset = MaterialTypesFormset(request.POST,instance=material_instance,prefix='material_type_formset',form_kwargs={'empty_permitted': False})
 
         if material_form.is_valid() and material_type_formset.is_valid():
@@ -210,37 +203,38 @@ def edit_material(request,pk):
                     material_form_instance.date_updated = datetime.datetime.today().now()
                     material_form_instance.updater = request.user
                     material_form_instance.save()
+                    
+                    if material_instance.is_subcategory or material_form_instance.is_subcategory :
+                        for form in material_type_formset:
+                            if form not in material_type_formset.deleted_forms:
+                                item_data = form.save(commit=False)
+                                if not item_data.auto_id:
+                                    item_data.material = material_form_instance
+                                    item_data.auto_id = get_auto_id(MaterialsType)
+                                    item_data.updater = request.user
+                                    item_data.date_updated = datetime.datetime.today().now()
+                                item_data.save()
+                                
+                                MaterialTypeCategory.objects.filter(material_type=item_data).delete()
+                                
+                                if item_data.is_subcategory:
+                                    sub_categories = form.cleaned_data['sub_category_name'].split(',')
 
-                    for form in material_type_formset:
-                        if form not in material_type_formset.deleted_forms:
-                            item_data = form.save(commit=False)
-                            if not item_data.auto_id:
-                                item_data.material = material_form_instance
-                                item_data.auto_id = get_auto_id(MaterialsType)
-                                item_data.updater = request.user
-                                item_data.date_updated = datetime.datetime.today().now()
-                            item_data.save()
-                            
-                            MaterialTypeCategory.objects.filter(material_type=item_data).delete()
-                            
-                            if item_data.is_subcategory:
-                                sub_categories = form.cleaned_data['sub_category_name'].split(',')
+                                    for sub_category in sub_categories:
+                                        sub_category = sub_category.strip()
 
-                                for sub_category in sub_categories:
-                                    sub_category = sub_category.strip()
+                                        MaterialTypeCategory.objects.create(
+                                            auto_id=get_auto_id(MaterialTypeCategory),
+                                            creator=item_data.creator,
+                                            updater=request.user,
+                                            date_added=item_data.date_added,
+                                            date_updated=datetime.datetime.today().now(),
+                                            name=sub_category,
+                                            material_type=item_data,
+                                        )
 
-                                    MaterialTypeCategory.objects.create(
-                                        auto_id=get_auto_id(MaterialTypeCategory),
-                                        creator=item_data.creator,
-                                        updater=request.user,
-                                        date_added=item_data.date_added,
-                                        date_updated=datetime.datetime.today().now(),
-                                        name=sub_category,
-                                        material_type=item_data,
-                                    )
-
-                    for form in material_type_formset.deleted_forms:
-                        form.instance.delete()
+                        for form in material_type_formset.deleted_forms:
+                            form.instance.delete()
 
                     response_data = {
                         "status": "true",
@@ -363,7 +357,7 @@ def create_product_category(request):
     
     message = ''
     if request.method == 'POST':
-        product_category_form = ProductCategoryForm(request.POST)
+        product_category_form = ProductCategoryForm(request.POST,files=request.FILES)
         sub_product_formset = ProductSubCategoryFormset(request.POST,prefix='sub_product_formset', form_kwargs={'empty_permitted': False})
         
         form_is_valid = False
@@ -473,7 +467,7 @@ def edit_product_category(request,pk):
     message = ''
 
     if request.method == 'POST':
-        product_category_form = ProductCategoryForm(request.POST, instance=product_category_instance)
+        product_category_form = ProductCategoryForm(request.POST,files=request.FILES,instance=product_category_instance)
         sub_product_formset = MaterialTypesFormset(request.POST,instance=product_category_instance,prefix='sub_product_formset',form_kwargs={'empty_permitted': False})
 
         if product_category_form.is_valid() and sub_product_formset.is_valid():

@@ -364,3 +364,192 @@ def designation_delete(request, pk):
         "redirect_url": reverse('staff:designation_list'),
     }
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+#----------------------------Staff --------------------------
+@login_required
+@role_required(['superadmin'])
+def staff_info(request,pk):
+    """
+    Staff Information
+    :param request:
+    :return: staff information single view
+    """
+    
+    instances = Staff.objects.get(pk=pk)
+
+    context = {
+        'instances': instances,
+        'page_name' : 'Staff',
+        'page_title' : 'Staff',
+    }
+
+    return render(request, 'admin_panel/pages/staff/staff_info.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def staff_list(request):
+    """
+    Staff List
+    :param request:
+    :return: Staff List  view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    
+    instances = Staff.objects.filter(is_deleted=False).order_by("-date_added")
+    
+    if query:
+        instances = instances.filter(
+            Q(name__icontains=query) |
+            Q(location__icontains=query) 
+        )
+        title = "Staff list - %s" % query
+        filter_data['q'] = query
+    
+    context = {
+        'instances': instances,
+        'page_name' : 'Staff List',
+        'page_title' : 'Staff List',
+        'filter_data' :filter_data,
+    }
+
+    return render(request, 'admin_panel/pages/staff/staff_list.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def staff_create(request):
+    """
+    create operation of staff create
+    :param request:
+    :param pk:
+    :return:
+    """
+    if request.method == 'POST':
+        form = StaffForm(request.POST)
+        
+        form_is_valid = False
+        if form.is_valid():
+            form_is_valid = True
+           
+        if  form_is_valid :
+            
+            data = form.save(commit=False)
+            data.auto_id = get_auto_id(Staff)
+            data.creator = request.user
+            data.save()
+            
+            
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Staff created successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('staff:staff_list')
+            }
+    
+        else:
+            message = generate_form_errors(form, formset=False)
+           
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        form = StaffForm(request.POST)
+        
+        context = {
+            'form': form,
+            'page_name' : 'Create Staff',
+            'page_title': 'Create Staffs',
+            'url': reverse('staff:staff_create'),
+            
+            'staff_page': True,
+            'is_need_select2': True,
+            
+        }
+        
+        return render(request,'admin_panel/pages/staff/staff_create.html',context)
+    
+@login_required
+@role_required(['superadmin'])
+def staff_edit(request,pk):
+    """
+    edit operation of staff
+    :param request:
+    :param pk:
+    :return:
+    """
+    instance = get_object_or_404(Staff, pk=pk)
+        
+    message = ''
+    if request.method == 'POST':
+        form = StaffForm(request.POST,files=request.FILES,instance=instance)
+        
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.date_updated = datetime.datetime.today()
+            data.updater = request.user
+            data.save()
+                    
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Staff Update successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('staff:staff_list')
+            }
+    
+        else:
+            message = generate_form_errors(form ,formset=False)
+            
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        
+        form = StaffForm(instance=instance)
+
+        context = {
+            'form': form,
+            'page_name' : 'Edit Staff',
+            'page_title' : 'Edit Staff',
+            'url' : reverse('staff:staff_edit', kwargs={'pk': pk}),
+            
+            'is_need_datetime_picker': True,
+            'is_need_forms': True,
+        }
+
+        return render(request, 'admin_panel/pages/staff/staff_edit.html',context)    
+    
+@login_required
+@role_required(['superadmin'])
+def staff_delete(request, pk):
+    """
+    Staff deletion, it only mark as is deleted field to true
+    :param request:
+    :param pk:
+    :return:
+    """
+    instance = Staff.objects.get(pk=pk)
+    
+    instance.is_deleted = True
+    instance.save()
+    
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Staff Successfully Deleted.",
+        "redirect": "true",
+        "redirect_url": reverse('staff:staff_list'),
+    }
+
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
