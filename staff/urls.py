@@ -9,4 +9,11 @@ urlpatterns = [
     re_path(r'^department_create/$', views.department_create, name='department_create'),
     re_path(r'^department_edit/(?P<pk>[0-9a-f-]+)/$', views.department_edit, name='department_edit'),
     re_path(r'^department_delete/(?P<pk>[0-9a-f-]+)/$', views.department_delete, name='department_delete'),
+
+    # Destination URL patterns
+    re_path(r'^designation_info/(?P<pk>[0-9a-f-]+)/$', views.designation_info, name='designation_info'),
+    re_path(r'^designation_list/$', views.designation_list, name='designation_list'),
+    re_path(r'^designation_create/$', views.designation_create, name='designation_create'),
+    re_path(r'^designation_edit/(?P<pk>[0-9a-f-]+)/$', views.designation_edit, name='designation_edit'),
+    re_path(r'^designation_delete/(?P<pk>[0-9a-f-]+)/$', views.designation_delete, name='designation_delete'),
 ]

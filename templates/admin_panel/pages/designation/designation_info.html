@@ -1,0 +1,120 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">{{ page_title }}</h4>
+                        </div><!-- end col -->
+                    </div><!-- end row -->
+                </div><!-- end page-title-box -->
+            </div><!-- end col -->
+        </div><!-- end row -->
+        <!-- end page title end breadcrumb -->
+        <form action="{{ url }}" method="GET" enctype="multipart/form-data" class="ajax redirect">
+            <div class="row">
+                <div class="col-12">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body bootstrap-select-1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">Department Name:</label>
+                                        {{ instances.name }}
+                                    </div><!-- end form-group -->
+
+                                    <div class="form-group">
+                                        <label for="creator">Creator:</label>
+                                        {{ instances.creator }}
+                                    </div><!-- end form-group -->
+
+                                    <div class="form-group">
+                                        <label for="date_added">Date Added:</label>
+                                        {{ instances.date_added }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="date_updated">Date Updated:</label>
+                                        {{ instances.date_updated }}
+                                    </div><!-- end form-group -->
+
+                                    <div class="form-group">
+                                        <label for="is_deleted">Is Deleted:</label>
+                                        {{ instances.is_deleted }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+                            </div><!-- end row -->
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+
+                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Back</button>
+                </div><!-- end col -->
+            </div><!-- end row -->
+        </form><!-- end form -->
+    </div><!-- container -->
+</div><!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+<!-- Additional styles if necessary -->
+{{ form.media }}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .text-area {
+        height: 150px !important;
+    }
+    .select2-container--default {
+        width: 100%;
+    }
+    .select2-container .select2-selection--single {
+        height: calc(2.5em + .75rem + 2px);
+    }
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #e3ebf6;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        margin-top: 8px;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: #000;
+    }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e3ebf6;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: solid rgba(23, 97, 253, 0.5) 1px;
+    }
+    .form-control {
+        height: calc(2.8em + .75rem + 2px);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: #000;
+    }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e3ebf6;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: solid rgba(23, 97, 253, 0.5) 1px;
+    }
+    .dynamic-formset-add td {
+        text-align: center !important;
+    }
+</style>
+
+{% endblock %}

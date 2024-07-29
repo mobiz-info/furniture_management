@@ -39,7 +39,7 @@ def department_info(request, pk):
         'page_title': 'Department',
     }
 
-    return render(request, 'admin_panel/pages/department/department_info.html', context)
+    return render(request,'admin_panel/pages/department/department_info.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -68,7 +68,7 @@ def department_list(request):
         'filter_data': filter_data,
     }
 
-    return render(request, 'admin_panel/pages/department/department_list.html', context)
+    return render(request,'admin_panel/pages/department/department_list.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -116,7 +116,7 @@ def department_create(request):
             'url': reverse('staff:department_create'),
         }
         
-        return render(request, 'admin_panel/pages/department/department_create.html', context)
+        return render(request,'admin_panel/pages/department/department_create.html', context)
     
 @login_required
 @role_required(['superadmin'])
@@ -167,7 +167,7 @@ def department_edit(request, pk):
             'url': reverse('staff:department_edit', kwargs={'pk': pk}),
         }
 
-        return render(request, 'admin_panel/pages/department/department_edit.html', context)
+        return render(request,'admin_panel/pages/department/department_edit.html', context)
     
 
 @login_required
@@ -206,12 +206,12 @@ def designation_info(request, pk):
     instance = get_object_or_404(Designation, pk=pk)
 
     context = {
-        'instance': instance,
+        'instances': instance,
         'page_name': 'Designation',
         'page_title': 'Designation',
     }
 
-    return render(request, 'admin_panel/pages/department/designation_info.html', context)
+    return render(request,'admin_panel/pages/designation/designation_info.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -237,10 +237,11 @@ def designation_list(request):
         'instances': instances,
         'page_name': 'Designation Details List',
         'page_title': 'Designation Details List',
+        'url': reverse('staff:designation_list'),
         'filter_data': filter_data,
     }
 
-    return render(request, 'admin_panel/pages/department/designation_list.html', context)
+    return render(request, 'admin_panel/pages/designation/designation_list.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -285,10 +286,10 @@ def designation_create(request):
             'form': form,
             'page_name': 'Create Designation',
             'page_title': 'Create Designation',
-            'url': reverse('settings:designation_create'),
+            'url': reverse('staff:designation_create'),
         }
         
-        return render(request, 'admin_panel/pages/department/designation_create.html', context)
+        return render(request, 'admin_panel/pages/designation/designation_create.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -315,7 +316,7 @@ def designation_edit(request, pk):
                 "title": "Successfully Updated",
                 "message": "Designation updated successfully.",
                 'redirect': 'true',
-                "redirect_url": reverse('settings:designation_list')
+                "redirect_url": reverse('staff:designation_list')
             }
     
         else:
@@ -339,7 +340,7 @@ def designation_edit(request, pk):
             'url': reverse('staff:designation_edit', kwargs={'pk': pk}),
         }
 
-        return render(request, 'admin_panel/pages/department/designation_edit.html', context)
+        return render(request,'admin_panel/pages/designation/designation_edit.html', context)
 
 @login_required
 @role_required(['superadmin'])

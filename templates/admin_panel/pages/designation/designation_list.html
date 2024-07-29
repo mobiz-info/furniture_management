@@ -1,0 +1,130 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+    <!-- Page Content -->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="page-title">{{ page_title }}</h4>
+                            </div><!--end col-->
+                            <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                                <form method="get" action="{% url 'staff:designation_list' %}">
+                                    <li class="list-inline-item w-100">
+                                        <div class="input-group">
+                                            <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
+                                                class="form-control" />
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </form>
+                            </div>
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex">
+                            <div class="col-lg-4">
+                                <h4 class="card-title">List view</h4>
+                            </div>
+                            <div class="col-md-8 text-right">
+                                <div class="dropdown" style="display: inline;width: max-content;">
+                                    <button class="btn btn-info dropdown-toggle" type="button" id="filterMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="ri-filter-fill"></i> Filter
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterMenuButton">
+                                        <form action="." method="GET" class="px-4 py-3">
+                                            <div class="form-group">
+                                                <label for="inputField">Select Date</label>
+                                                <input type="text" id="reportrange" class="form-control" name="date_range" value="{% if not filter_data.date_range %}{{first_date_formatted}} - {{last_date_formatted}}{% else %}{{filter_data.date_range}}{% endif %}" style="display: inline;width: max-content;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputField">Name</label>
+                                                <input type="text" class="form-control" name="name" value="{{ filter_data.name }}" placeholder="Search by name">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Apply</button>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end card-header-->
+                        <div class="card-body">
+                            
+                            <div class="table-responsive">
+                                <table class="table mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Name</th>
+                                            <th class="font-weight-bold text-center">Creator</th>
+                                            <th class="font-weight-bold text-center">Date Added</th>
+                                            <th class="font-weight-bold text-center">Date Updated</th>
+                                            <th class="font-weight-bold text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% load el_pagination_tags %}
+                                        {% paginate 10 instances %}
+                                        {% for instance in instances %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td class="text-left">{{ instance.name }}</td>
+                                            <td class="text-center">{{ instance.creator }}</td>
+                                            <td class="text-center">{{ instance.date_added }}</td>
+                                            <td class="text-center">{{ instance.date_updated }}</td>
+                                            <td class="text-right">
+                                                <a href="{% url 'staff:designation_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
+                                                <a href="{% url 'staff:designation_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                                <a href="{% url 'staff:designation_delete' pk=instance.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
+                                                 data-id="{{ instance.pk }}" data-text="{{ confirm_delete_message }}" data-title="Are you sure?" href=""><i class="las la-trash-alt text-danger font-18"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!--end /table-->
+                                {% get_pages %}
+                                <div class="clearfix"></div>
+                                <div class="row pagi my-3">
+                                    <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                    <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                        <div class="m-t-10">
+                                            Showing {{ title }}
+                                            <span class="current_page_index">{{ pages.current_start_index }}</span> - <span
+                                                class="current_end_status">{{ pages.current_end_index }}</span> of <span
+                                                class="total_count">{{ pages.total_count }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--end /tableresponsive-->
+                            <!-- pagination -->
+                            
+                        </div>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+        </div><!-- container -->
+    <!-- end page content -->
+{% endblock content %}
+
+
+{% block static %}
+{% load static %}
+{% endblock static %}
