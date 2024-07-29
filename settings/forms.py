@@ -49,3 +49,4 @@ class BranchForm(forms.ModelForm):
             'longitude': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Longitude'}), 
             'image': FileInput(attrs={'class': 'form-control dropify'}),
         }
+

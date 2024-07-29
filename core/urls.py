@@ -14,7 +14,9 @@ urlpatterns = [
     path('settings/', include('settings.urls', namespace='settings')),
     # # admin panel
     path('super-admin/product/',include(('product.urls'),namespace='product')),
-    
+    path('staff/', include('staff.urls', namespace='staff')),
+
+
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})
 ]
