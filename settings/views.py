@@ -563,3 +563,5 @@ def branch_delete(request, pk):
         "redirect_url": reverse('settings:branch_list'),
     }
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+

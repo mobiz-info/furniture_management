@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'main',
     'product',
     'settings',
+    'staff',
 ]
 
 MIDDLEWARE = [

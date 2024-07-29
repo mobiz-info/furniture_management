@@ -23,5 +23,7 @@ urlpatterns = [
     re_path(r'branch_create/$', views.branch_create, name='branch_create'),
     re_path(r'branch_edit/(?P<pk>.*)/$', views.branch_edit, name='branch_edit'),
     re_path(r'branch_delete/(?P<pk>.*)/$', views.branch_delete, name='branch_delete'),
+
+  
 ]
 
