@@ -4,19 +4,19 @@ import random
 import datetime
 from datetime import timezone
 #django
-from django.db.models import Q,Sum,Min,Max 
-from django.forms import formset_factory, inlineformset_factory
+from django.urls import reverse
 from django.http import HttpResponse
+from django.db.models import Q,Sum,Min,Max 
+from django.db import transaction, IntegrityError
+from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.db import transaction
+from django.forms import formset_factory, inlineformset_factory
 # rest framework
+from rest_framework import status
+#local
 from settings.forms import *
 from settings.models import *
-from rest_framework import status
-
-#local
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
 
@@ -248,13 +248,16 @@ def contact_list(request):
 @login_required
 @role_required(['superadmin'])
 def create_contact(request):
+    
     if request.method == 'POST':
         form = ContactForm(request.POST)
+        
         if form.is_valid():
             contact = form.save(commit=False)
             contact.creator = request.user
             contact.auto_id = get_auto_id(Contact)
             contact.save()
+        
             response_data = {
                 "status": "true",
                 "title": "Successfully Created",
@@ -265,6 +268,7 @@ def create_contact(request):
             return HttpResponse(json.dumps(response_data), content_type='application/javascript')
         else:
             message = generate_form_errors(form, formset=False)
+        
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -273,6 +277,7 @@ def create_contact(request):
             return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     else:
         form = ContactForm()
+        
         context = {
             'form': form,
             'page_name': 'Create Contact',
@@ -285,10 +290,18 @@ def create_contact(request):
 @role_required(['superadmin'])
 def edit_contact(request, pk):
     contact = get_object_or_404(Contact, pk=pk)
+    
     if request.method == 'POST':
+    
         form = ContactForm(request.POST, instance=contact)
+    
         if form.is_valid():
-            form.save()
+    
+            data = form.save(commit=False)
+            data.date_updated = datetime.datetime.today()
+            data.updater = request.user
+            data.save()
+        
             response_data = {
                 "status": "true",
                 "title": "Successfully Updated",
@@ -297,6 +310,7 @@ def edit_contact(request, pk):
                 "redirect_url": reverse('settings:contact_list')
             }
             return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        
         else:
             message = generate_form_errors(form, formset=False)
             response_data = {
@@ -315,11 +329,14 @@ def edit_contact(request, pk):
         }
         return render(request, 'admin_panel/pages/contact/edit.html', context)
 
+
 @login_required
 def delete_contact(request, pk):
+
     contact = get_object_or_404(Contact, pk=pk)
     contact.is_deleted = True
     contact.save()
+
     response_data = {
         "status": "true",
         "title": "Successfully Deleted",
@@ -334,7 +351,7 @@ def delete_contact(request, pk):
 @role_required(['superadmin'])
 def branch_info(request,pk):
     """
-    branch List
+    branch details
     :param request:
     :return: company details List single view
     """
@@ -347,15 +364,15 @@ def branch_info(request,pk):
         'page_title' : 'Branch',
     }
 
-    return render(request, 'settings/branch_info.html', context)
+    return render(request, 'admin_panel/pages/settings/branch_info.html', context)
 
 @login_required
 @role_required(['superadmin'])
 def branch_list(request):
     """
-    branch_details
+    branch list
     :param request:
-    :return: company_details list view
+    :return: branch list view
     """
     filter_data = {}
     query = request.GET.get("q")
@@ -377,13 +394,13 @@ def branch_list(request):
         'filter_data' :filter_data,
     }
 
-    return render(request, 'settings/branch_list.html', context)
+    return render(request, 'admin_panel/pages/settings/branch_list.html', context)
 
 @login_required
 @role_required(['superadmin'])
 def branch_create(request):
     """
-    create operation of company details
+    create operation of branch
     :param request:
     :param pk:
     :return:
@@ -391,25 +408,50 @@ def branch_create(request):
     if request.method == 'POST':
         form = BranchForm(request.POST)
         
-        form_is_valid = False
         if form.is_valid():
-            form_is_valid = True
-           
-        if  form_is_valid :
-            
-            data = form.save(commit=False)
-            data.auto_id = get_auto_id(Branch)
-            data.creator = request.user
-            data.save()
-            
-            
-            response_data = {
-                "status": "true",
-                "title": "Successfully Created",
-                "message": "Branch created successfully.",
-                'redirect': 'true',
-                "redirect_url": reverse('settings:branch_list')
-            }
+            try:
+                with transaction.atomic():
+                    user_data = User.objects.create_user(
+                        username=form.cleaned_data.get("name"),
+                        password=f'{form.cleaned_data.get("name")}@123',
+                        is_active=True,
+                        )
+                                
+                    if Group.objects.filter(name='branch').exists():
+                        group = Group.objects.get(name='branch')
+                    else:
+                        group = Group.objects.create(name='branch')
+                    user_data.groups.add(group)
+                
+                    data = form.save(commit=False)
+                    data.auto_id = get_auto_id(Branch)
+                    data.creator = request.user
+                    data.user = user_data
+                    data.save()
+                    
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Created",
+                        "message": "Branch created successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('settings:branch_list')
+                    }
+                    
+            except IntegrityError as e:
+                # Handle database integrity error
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+
+            except Exception as e:
+                # Handle other exceptions
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
     
         else:
             message = generate_form_errors(form, formset=False)
@@ -436,13 +478,13 @@ def branch_create(request):
             
         }
         
-        return render(request,'settings/branch_create.html',context)
+        return render(request,'admin_panel/pages/settings/branch_create.html',context)
     
 @login_required
 @role_required(['superadmin'])
 def branch_edit(request,pk):
     """
-    edit operation of branch_details
+    edit operation of branch
     :param request:
     :param pk:
     :return:
@@ -454,6 +496,11 @@ def branch_edit(request,pk):
         form = BranchForm(request.POST,files=request.FILES,instance=instance)
         
         if form.is_valid():
+            user= User.objects.get(pk=instance.user.pk)
+            user.username = form.cleaned_data.get("name")
+            user.set_password(f'{form.cleaned_data.get("name")}@123')
+            user.save()
+            
             data = form.save(commit=False)
             data.date_updated = datetime.datetime.today()
             data.updater = request.user
@@ -492,7 +539,7 @@ def branch_edit(request,pk):
             'is_need_forms': True,
         }
 
-        return render(request, 'settings/branch_edit.html',context)    
+        return render(request, 'admin_panel/pages/settings/branch_edit.html',context)    
     
 @login_required
 @role_required(['superadmin'])
