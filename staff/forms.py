@@ -36,3 +36,18 @@ class DesignationForm(forms.ModelForm):
                 'class': 'required form-control'
             }),
         }
+        
+class StaffForm(forms.ModelForm):
+    class Meta:
+        model = Staff
+        fields = ['first_name', 'last_name', 'designation', 'department', 'phone', 'address', 'email', 'employee_id']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter First Name'}),
+            'last_name': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter Last Name'}),
+            'designation': forms.Select(attrs={'class': 'form-control'}),
+            'department': forms.Select(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Address'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
+            'employee_id': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter Employee ID'}),
+        }
