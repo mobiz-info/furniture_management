@@ -356,15 +356,15 @@ def branch_info(request,pk):
     :return: company details List single view
     """
     
-    instances = Branch.objects.get(pk=pk)
+    instance = Branch.objects.get(pk=pk)
 
     context = {
-        'instances': instances,
+        'instances': instance,
         'page_name' : 'Branch',
         'page_title' : 'Branch',
     }
 
-    return render(request, 'admin_panel/pages/settings/branch_info.html', context)
+    return render(request, 'admin_panel/pages/branch/branch_info.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -394,7 +394,7 @@ def branch_list(request):
         'filter_data' :filter_data,
     }
 
-    return render(request, 'admin_panel/pages/settings/branch_list.html', context)
+    return render(request, 'admin_panel/pages/branch/branch_list.html', context)
 
 @login_required
 @role_required(['superadmin'])
@@ -478,7 +478,7 @@ def branch_create(request):
             
         }
         
-        return render(request,'admin_panel/pages/settings/branch_create.html',context)
+        return render(request,'admin_panel/pages/branch/branch_create.html',context)
     
 @login_required
 @role_required(['superadmin'])
@@ -539,7 +539,7 @@ def branch_edit(request,pk):
             'is_need_forms': True,
         }
 
-        return render(request, 'admin_panel/pages/settings/branch_edit.html',context)    
+        return render(request, 'admin_panel/pages/branch/branch_edit.html',context)    
     
 @login_required
 @role_required(['superadmin'])

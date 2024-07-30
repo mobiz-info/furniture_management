@@ -90,7 +90,7 @@
                                                 <a href="{% url 'staff:department_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
                                                 <a href="{% url 'staff:department_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
                                                 <a href="{% url 'staff:department_delete' pk=instance.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
-                                                 data-id="{{ instance.pk }}" data-text="{{ confirm_delete_message }}" data-title="Are you sure?" href=""><i class="las la-trash-alt text-danger font-18"></i></a>
+                                                 data-id="{{ instance.pk }}" data-text="{{ confirm_delete_message }}" data-title="Are you sure?"><i class="las la-trash-alt text-danger font-18"></i></a>
                                             </td>
                                         </tr>
                                         {% endfor %}
