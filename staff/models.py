@@ -26,14 +26,14 @@ class Designation(BaseModel):
         verbose_name_plural = "Designations"
         
 class Staff(BaseModel):
-    first_name = models.CharField(max_length=250, null=False, blank=False)
-    last_name = models.CharField(max_length=250, null=False, blank=False)
-    designation = models.ForeignKey(Designation, on_delete=models.CASCADE, null=False)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=False)
+    first_name = models.CharField(max_length=250)
+    last_name = models.CharField(max_length=250)
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     phone = models.CharField(max_length=250, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
-    employee_id = models.CharField(max_length=250, null=False, blank=False)
+    employee_id = models.CharField(max_length=250)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

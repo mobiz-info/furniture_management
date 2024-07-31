@@ -528,7 +528,7 @@ def staff_edit(request,pk):
             'is_need_forms': True,
         }
 
-        return render(request, 'admin_panel/pages/staff/staff_edit.html',context)    
+        return render(request, 'admin_panel/pages/staff/staff_create.html',context)    
     
 @login_required
 @role_required(['superadmin'])
