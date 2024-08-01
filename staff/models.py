@@ -32,14 +32,16 @@ class Designation(BaseModel):
 class Staff(BaseModel):
     first_name = models.CharField(max_length=250)
     last_name = models.CharField(max_length=250)
-    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     phone = models.CharField(max_length=250, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     employee_id = models.CharField(max_length=250)
     date_of_birth = models.DateField(null=True, blank=True)
     image = VersatileImageField('Image', upload_to="staff/profile", blank=True, null=True)
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -47,3 +49,11 @@ class Staff(BaseModel):
     class Meta:
         verbose_name = "Staff"
         verbose_name_plural = "Staff"
+        
+    def get_fullname(self):
+        return f'{self.first_name} {self.last_name}'
+    
+    def get_initial(self):
+        first_name = self.first_name[0] if self.first_name else ''
+        last_name = self.last_name[0] if self.last_name else ''
+        return first_name + last_name

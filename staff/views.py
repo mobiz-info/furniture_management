@@ -1,25 +1,25 @@
-from django.shortcuts import render
 import io
 import json
 import random
 import datetime
 from datetime import timezone
 #django
-from django.db.models import Q,Sum,Min,Max 
-from django.forms import formset_factory, inlineformset_factory
+from django.urls import reverse
 from django.http import HttpResponse
+from django.db.models import Q,Sum,Min,Max 
+from django.db import transaction, IntegrityError
+from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.db import transaction
+from django.forms import formset_factory, inlineformset_factory
 # rest framework
+from rest_framework import status
+#local
 from staff.forms import *
 from staff.models import *
-from rest_framework import status
-
-#local
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
+
 # Create your views here.
 #department
 @login_required
@@ -427,25 +427,53 @@ def staff_create(request):
     if request.method == 'POST':
         form = StaffForm(request.POST)
         
-        form_is_valid = False
         if form.is_valid():
-            form_is_valid = True
-           
-        if  form_is_valid :
+            try:
+                with transaction.atomic():
+                    user_data = User.objects.create_user(
+                        username=f'{form.cleaned_data.get("first_name")}123',
+                        password=f'{form.cleaned_data.get("first_name")}@123',
+                        is_active=True,
+                        )
+                                
+                    group_names = ["staff",form.cleaned_data["designation"].name,form.cleaned_data["department"].name]
+
+                    for group_name in group_names:
+                        if Group.objects.filter(name=group_name).exists():
+                            group = Group.objects.get(name=group_name)
+                        else:
+                            group = Group.objects.create(name=group_name)
+                        user_data.groups.add(group)
             
-            data = form.save(commit=False)
-            data.auto_id = get_auto_id(Staff)
-            data.creator = request.user
-            data.save()
-            
-            
-            response_data = {
-                "status": "true",
-                "title": "Successfully Created",
-                "message": "Staff created successfully.",
-                'redirect': 'true',
-                "redirect_url": reverse('staff:staff_list')
-            }
+                    data = form.save(commit=False)
+                    data.auto_id = get_auto_id(Staff)
+                    data.creator = request.user
+                    data.user = user_data
+                    data.save()
+                    
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Created",
+                        "message": "Staff created successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('staff:staff_list')
+                    }
+                    
+            except IntegrityError as e:
+                # Handle database integrity error
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+
+            except Exception as e:
+                # Handle other exceptions
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
     
         else:
             message = generate_form_errors(form, formset=False)
