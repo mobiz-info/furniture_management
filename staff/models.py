@@ -1,6 +1,10 @@
 from django.db import models
-from main.models import BaseModel
 from django.contrib.auth.models import User
+
+from versatileimagefield.fields import VersatileImageField
+
+from main.models import BaseModel
+
 # Create your models here.
 class Department(BaseModel):
     name = models.CharField(max_length=255)
@@ -34,6 +38,8 @@ class Staff(BaseModel):
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     employee_id = models.CharField(max_length=250)
+    date_of_birth = models.DateField(null=True, blank=True)
+    image = VersatileImageField('Image', upload_to="staff/profile", blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

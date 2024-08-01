@@ -12,10 +12,16 @@ urlpatterns = [
     path('super-admin/',general_views.app,name='app'),
     path('',include(('main.urls'),namespace='main')), 
     path('settings/', include('settings.urls', namespace='settings')),
-    # # admin panel
+    
+    # admin panel
     path('super-admin/product/',include(('product.urls'),namespace='product')),
     path('staff/', include('staff.urls', namespace='staff')),
-
+    
+    # api
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/v1/auth/', include(('api.v1.authentication.urls','authentication'), namespace='api_v1_authentication')),
+    path('api/v1/purchase/', include(('api.v1.purchase.urls','purchase'), namespace='api_v1_purchase')),
+    path('api/v1/work-order/', include(('api.v1.work_order.urls','work_order'), namespace='api_v1_work_order')),
 
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})
