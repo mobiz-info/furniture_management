@@ -6,12 +6,21 @@ from versatileimagefield.fields import VersatileImageField
 from main.models import BaseModel
 
 class CompanyDetails(BaseModel): 
+    MODE_CHOICES = [
+        ('subscriptions', 'Subscriptions'),
+        ('amc', 'AMC'),
+    ]
+    
     name = models.CharField(max_length=255, blank=False)
     address = models.TextField(blank=False)
-    location = models.CharField(max_length=255, blank=False)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    image = VersatileImageField(upload_to='company_images/', blank=True, null=True)
+    gst = models.CharField(max_length=50, blank=False)
+    concerned_staff = models.CharField(max_length=255)
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    mobile = models.CharField(max_length=15)
+    email = models.EmailField(blank=False, unique=True)
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=128)  
+    mode = models.CharField(max_length=20, choices=MODE_CHOICES)
 
     def __str__(self):
         return str(self.name)
