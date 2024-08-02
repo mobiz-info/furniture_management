@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from versatileimagefield.fields import VersatileImageField
 
 from main.models import BaseModel
+from staff.models import Designation
 
 class CompanyDetails(BaseModel): 
     MODE_CHOICES = [
