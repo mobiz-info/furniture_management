@@ -12,6 +12,7 @@ urlpatterns = [
     path('super-admin/',general_views.app,name='app'),
     path('',include(('main.urls'),namespace='main')), 
     path('settings/', include('settings.urls', namespace='settings')),
+    path('workorder/',include('work_order.urls',namespace='workorder')),
     
     # admin panel
     path('super-admin/product/',include(('product.urls'),namespace='product')),

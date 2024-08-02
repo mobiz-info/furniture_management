@@ -19,24 +19,6 @@
             </li>
 
             <li>
-                <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Staff</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'staff:department_list' %}"><i class="ti-control-record"></i>Department</a>
-                        <a class="nav-link" href="{% url 'staff:department_create' %}"><i class="ti-plus"></i></a>
-                    </li>
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'staff:designation_list' %}"><i class="ti-control-record"></i>Designation</a>
-                        <a class="nav-link" href="{% url 'staff:designation_create' %}"><i class="ti-plus"></i></a>
-                    </li>
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'staff:staff_list' %}"><i class="ti-control-record"></i>Staff</a>
-                        <a class="nav-link" href="{% url 'staff:staff_create' %}"><i class="ti-plus"></i></a>
-                    </li>
-                </ul>
-            </li>
-
-            <li>
                 <a href="javascript: void(0);"> <i class="ti-shopping-cart align-self-center menu-icon"></i><span>Product</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
@@ -69,8 +51,34 @@
                         <a class="nav-link" href="{% url 'settings:contact_list' %}"><i class="ti-control-record"></i>Contact</a>
                         <a class="nav-link" href="{% url 'settings:create_contact' %}"><i class="ti-plus"></i></a>
                     </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'staff:department_list' %}"><i class="ti-control-record"></i>Department</a>
+                        <a class="nav-link" href="{% url 'staff:department_create' %}"><i class="ti-plus"></i></a>
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'staff:designation_list' %}"><i class="ti-control-record"></i>Designation</a>
+                        <a class="nav-link" href="{% url 'staff:designation_create' %}"><i class="ti-plus"></i></a>
+                    </li>
+                   
+                    {% comment %}<li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'purchase:purchase_reports' %}"><i class="ti-control-record"></i>Purchase Report</a>
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'purchase:purchase_expences' %}"><i class="ti-control-record"></i>Purchase Expences</a>
+                    </li> {% endcomment %}
                 </ul>
             </li>
-        </ul>
+        
+        <li>
+            <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Order</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+            <ul class="nav-second-level" aria-expanded="false">
+                <li class="nav-item d-flex justify-content-between">
+                    <a class="nav-link" href="{% url 'work_order:work_order_list' %}"><i class="ti-control-record"></i> Work Order</a>
+                    <a class="nav-link" href="{% url 'work_order:workorder' %}"><i class="ti-plus"></i> </a>
+                    </li>   
+                </li>
+            </ul>
+        </li>
+    </ul>
     </div>
 </div>

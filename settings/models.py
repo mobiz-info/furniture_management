@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from versatileimagefield.fields import VersatileImageField
-
+from staff.models import *
 from main.models import BaseModel
 
 class CompanyDetails(BaseModel): 
