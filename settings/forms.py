@@ -12,16 +12,39 @@ class CompanyDetailsForm(forms.ModelForm):
     
     class Meta:
         model = CompanyDetails
-        fields = ['name','address','location','latitude','longitude','image']
+        fields = ['name','address','gst','concerned_staff','designation','mobile','email','username','password','mode']
 
         widgets = {
-            'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Company Name'}), 
-            'address': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter Address'}),
-            'location': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Location'}),
-            'latitude': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter Latitude'}),
-            'longitude': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Longitude'}), 
-            'image': FileInput(attrs={'class': 'form-control dropify'}),
+            'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter company name'}), 
+            'address': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter address'}),
+            'gst': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter gst'}),
+            'concerned_staff': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter concerned staff'}),
+            'designation': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter designation'}), 
+            'mobile': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mobile'}), 
+            'email': EmailInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter email'}),
+            'username': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter username'}),
+            'password': PasswordInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter password'}),
+            'mode': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mode'}), 
+            
         }
+class CompanyDetailsEditForm(forms.ModelForm):
+    
+    class Meta:
+        model = CompanyDetails
+        fields = ['name','address','gst','concerned_staff','designation','mobile','email','username','mode']
+
+        widgets = {
+            'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter company name'}), 
+            'address': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter address'}),
+            'gst': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter gst'}),
+            'concerned_staff': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter concerned staff'}),
+            'designation': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter designation'}), 
+            'mobile': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mobile'}), 
+            'email': EmailInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter email'}),
+            'username': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter username'}),
+            'mode': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mode'}), 
+            
+        }  
         
 
 class ContactForm(forms.ModelForm):
