@@ -80,15 +80,15 @@
                                     <thead>
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Employee_id</th>
                                             <th class="font-weight-bold text-left">First Name</th>
                                             <th class="font-weight-bold text-left">Last Name</th>
-                                            <th class="font-weight-bold text-center">Designation</th>
-                                            <th class="font-weight-bold text-center">Department</th>
-                                            <th class="font-weight-bold text-center">Phone</th>
-                                            <th class="font-weight-bold text-center">Address</th>
-                                            <th class="font-weight-bold text-center">Email</th>
-                                            <th class="font-weight-bold text-center">Employee_id</th>
-                                            <th class="text-right">Action</th>
+                                            <th class="font-weight-bold text-left">Username</th>
+                                            <th class="font-weight-bold text-left">Designation</th>
+                                            <th class="font-weight-bold text-left">Department</th>
+                                            <th class="font-weight-bold text-left">Phone</th>
+                                            <th class="font-weight-bold text-left">Email</th>
+                                            <th class="font-weight-bold text-right">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -97,14 +97,14 @@
                                         {% for instance in instances %}
                                         <tr>
                                             <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-left">{{instance.employee_id}}</td>
                                             <td class="text-left">{{instance.first_name}}</td>
-                                            <td class="text-center">{{instance.last_name}}</td>
-                                            <td class="text-center">{{instance.designation}}</td>
-                                            <td class="text-center">{{instance.department}}</td>
-                                            <td class="text-center">{{instance.phone}}</td>
-                                            <td class="text-center">{{instance.address}}</td>
-                                            <td class="text-center">{{instance.email}}</td>
-                                            <td class="text-center">{{instance.employee_id}}</td>
+                                            <td class="text-left">{{instance.last_name}}</td>
+                                            <td class="text-left">{{instance.user.username}}</td>
+                                            <td class="text-left">{{instance.designation.name}}</td>
+                                            <td class="text-left">{{instance.department.name}}</td>
+                                            <td class="text-left">{{instance.phone}}</td>
+                                            <td class="text-left">{{instance.email}}</td>
                                             
                                             <td class="text-right">
                                                 <a href="{% url 'staff:staff_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
