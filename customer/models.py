@@ -6,7 +6,7 @@ from main.models import BaseModel
 class Customer(BaseModel):
 
     name = models.CharField(max_length=255, null=False, blank=False)
-    mobile_number = models.CharField(max_length=255, null=False, blank=False)
+    mobile_number = models.CharField(max_length=255, null=False, blank=False,unique=True)
     address = models.TextField(null=False, blank=False)
     email = models.EmailField(null=True, blank=True)
     gst_no = models.CharField(max_length=255, null=True, blank=True)

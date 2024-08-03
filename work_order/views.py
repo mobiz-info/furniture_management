@@ -94,6 +94,10 @@ def workorder(request):
     return render(request, 'admin_panel/pages/order/workorder.html', context)
 
 
+
+@login_required
+@role_required(['superadmin'])
+
 def work_order_list(request):
     work_orders = WoodWorkOrder.objects.all()  
     return render(request, 'admin_panel/pages/order/work_order_list.html')

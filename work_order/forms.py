@@ -36,7 +36,7 @@ class WoodWorkOrderForm(forms.ModelForm):
 
 
 class WoodWorkOrderImagesForm(forms.ModelForm):
-    image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
+    image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file','multiple': True}))
 
     class Meta:
         model = WoodWorkOrderImages
