@@ -1,22 +1,21 @@
-from django.shortcuts import render, redirect
-from .forms import WoodWorkOrderForm
-from .models import *
-
+from django.shortcuts import render, redirect, get_object_or_404
+from main.decorators import role_required
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .forms import WoodWorkOrderForm
-from .models import WoodWorkOrder
 from main.functions import generate_form_errors, get_auto_id
+import json
+
 #local
 from settings.forms import *
 from settings.models import *
-from main.decorators import role_required
-from django.http import HttpResponse
-import json
-
+from .models import WoodWorkOrder
+from .forms import WoodWorkOrderForm
+from .models import *
 from .forms import *
+from work_order.models import *
 
 @login_required
 @role_required(['superadmin'])
@@ -98,3 +97,37 @@ def workorder(request):
 def work_order_list(request):
     work_orders = WoodWorkOrder.objects.all()  
     return render(request, 'admin_panel/pages/order/work_order_list.html')
+
+
+def wood_work_orders_list(request):
+    
+    work_orders = WoodWorkOrder.objects.select_related('customer').all()
+    
+    context = {
+        'page_name' : 'Wood Work Orders',
+        'page_title': 'Wood Work Orders',
+        'work_orders': work_orders,
+    }
+    
+    return render(request, 'admin_panel/pages/wood/list.html', context) 
+
+def assign_wood(request, pk):
+    work_order = get_object_or_404(WoodWorkOrder, id=pk)
+
+    if request.method == 'POST':
+        form = WoodWorksAssignForm(request.POST, work_order=work_order)
+        if form.is_valid():
+            material = form.cleaned_data['material']
+            work_order.material = material
+            work_order.is_assigned = True
+            work_order.save()
+            return redirect('work_order:wood_work_orders_list') 
+    else:
+        form = WoodWorksAssignForm(work_order=work_order)
+        context = {
+            'form': form,
+            'page_name' : 'Wood Assign',
+            'page_title': 'Wood Assign',
+            'work_order': work_order,
+        }
+    return render(request, 'admin_panel/pages/wood/assign_wood.html',context)

@@ -40,7 +40,7 @@ class WoodWorkOrderImages(BaseModel):
 
 class WoodWorkAssign(BaseModel):
     work_order = models.ForeignKey(WoodWorkOrder, on_delete=models.CASCADE)
-    choose_qty = models.CharField(max_length=255)
+    choose_quality = models.CharField(max_length=255)
     qty = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
 

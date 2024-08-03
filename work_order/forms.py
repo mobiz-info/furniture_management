@@ -1,4 +1,6 @@
 from django import forms
+from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput,NumberInput
+from django.forms import TextInput, URLInput, EmailInput
 from django.forms import inlineformset_factory
 from .models import WoodWorkOrder, WoodWorkOrderImages, WoodWorkAssign
 from customer.models import Customer
@@ -49,7 +51,31 @@ class WoodWorkAssignForm(forms.ModelForm):
     class Meta:
         model = WoodWorkAssign
         fields = ['choose_qty', 'qty', 'rate']
+        
 
 
 WoodWorkOrderImagesFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkOrderImages, form=WoodWorkOrderImagesForm, extra=1)
 WoodWorkAssignFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkAssign, form=WoodWorkAssignForm, extra=1)
+
+
+class WoodWorksAssignForm(forms.ModelForm):
+    wood = forms.ModelChoiceField(queryset=Materials.objects.none(), required=True)
+    
+    class Meta:
+        model = WoodWorkAssign
+        fields = ['wood', 'choose_quality', 'qty', 'rate']
+        widgets = {
+            'wood': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Select Wood'}),
+            'choose_quality': forms.TextInput(attrs={'class': 'form-control'}),
+            'qty': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        work_order = kwargs.pop('work_order', None)
+        super().__init__(*args, **kwargs)
+        
+        if work_order:
+            self.fields['wood'].queryset = Materials.objects.filter(id=work_order.material.id)
+        else:
+            self.fields['wood'].queryset = Materials.objects.none()
