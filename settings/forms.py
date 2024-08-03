@@ -16,7 +16,7 @@ class CompanyDetailsForm(forms.ModelForm):
 
         widgets = {
             'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter company name'}), 
-            'address': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter address'}),
+            'address': TextInput(attrs={'class': ' required form-control', 'placeholder' : 'Enter address'}),
             'gst': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter gst'}),
             'concerned_staff': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter concerned staff'}),
             'designation': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter designation'}), 
@@ -27,25 +27,6 @@ class CompanyDetailsForm(forms.ModelForm):
             'mode': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mode'}), 
             
         }
-class CompanyDetailsEditForm(forms.ModelForm):
-    
-    class Meta:
-        model = CompanyDetails
-        fields = ['name','address','gst','concerned_staff','designation','mobile','email','username','mode']
-
-        widgets = {
-            'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter company name'}), 
-            'address': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter address'}),
-            'gst': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter gst'}),
-            'concerned_staff': TextInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter concerned staff'}),
-            'designation': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter designation'}), 
-            'mobile': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mobile'}), 
-            'email': EmailInput(attrs={'type':'text','class': ' required form-control', 'placeholder' : 'Enter email'}),
-            'username': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter username'}),
-            'mode': Select(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter mode'}), 
-            
-        }  
-        
 
 class ContactForm(forms.ModelForm):
     class Meta:

@@ -30,35 +30,66 @@
                                         <label for="company_name">{{ form.name.label }} :</label>
                                         {{ form.name }}
                                     </div><!-- end form-group -->
-
-                                    <div class="form-group">
-                                        <label for="address">{{ form.address.label }} :</label>
-                                        {{ form.address }}
-                                    </div><!-- end form-group -->
                                 </div><!-- end col -->
+
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="location">{{ form.location.label }} :</label>
-                                        {{ form.location }}
+                                        <label for="gst">{{ form.gst.label }} :</label>
+                                        {{ form.gst }}
                                     </div><!-- end form-group -->
-
+                                </div>
+                                
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="latitude">{{ form.latitude.label }} :</label>
-                                        {{ form.latitude }}
+                                        <label for="concerned_staff">{{ form.concerned_staff.label }} :</label>
+                                        {{ form.concerned_staff }}
                                     </div><!-- end form-group -->
                                 </div><!-- end col -->
                                 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="longitude">{{ form.longitude.label }} :</label>
-                                        {{ form.longitude }}
+                                        <label for="designation">{{ form.designation.label }} :</label>
+                                        {{ form.designation }}
                                     </div>
+                                </div>
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="projectName">{{ form.image.label }} :</label>
-                                        {{ form.image }}
+                                        <label for="mobile">{{ form.mobile.label }} :</label>
+                                        {{ form.mobile }}
                                     </div><!-- end form-group -->
-
-                                    {% if form.instance.image %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="email">{{ form.email.label }} :</label>
+                                        {{ form.email }}
+                                    </div><!-- end form-group -->
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="username">{{ form.username.label }} :</label>
+                                        {{ form.username }}
+                                    </div><!-- end form-group -->
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="password">{{ form.password.label }} :</label>
+                                        {{ form.password }}
+                                    </div><!-- end form-group -->
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="mode">{{ form.mode.label }} :</label>
+                                        {{ form.mode }}
+                                    </div><!-- end form-group -->
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="address">{{ form.address.label }} :</label>
+                                        {{ form.address }}
+                                    </div><!-- end form-group -->
+                                </div>
+                                {% if form.instance.image %}
+                                <div class="col-md-6">
                                     <div class="col-xl-4">
                                         <div class="card">
                                             <div class="card-body">
@@ -66,14 +97,11 @@
                                             </div><!-- end card-body -->
                                         </div><!-- end card -->
                                     </div><!-- end col -->
-                                    {% endif %}
                                 </div><!-- end col -->
+                                {% endif %}
                             </div><!-- end row -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
-
-                    
-
                     <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light" id="sa-mixin">Submit</button>
                     <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
                 </div><!-- end col -->

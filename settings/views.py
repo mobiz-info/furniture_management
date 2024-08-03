@@ -81,17 +81,12 @@ def company_details_create(request):
     if request.method == 'POST':
         form = CompanyDetailsForm(request.POST)
         
-        form_is_valid = False
         if form.is_valid():
-            form_is_valid = True
-           
-        if  form_is_valid :
             
             data = form.save(commit=False)
             data.auto_id = get_auto_id(CompanyDetails)
             data.creator = request.user
             data.save()
-            
             
             response_data = {
                 "status": "true",
@@ -113,7 +108,7 @@ def company_details_create(request):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        form = CompanyDetailsForm(request.POST)
+        form = CompanyDetailsForm()
         
         context = {
             'form': form,

@@ -38,35 +38,40 @@
                                 </div><!-- end col -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="location">Location :</label>
-                                        {{ instances.location }}
+                                        <label for="gst">GST :</label>
+                                        {{ instances.gst }}
                                     </div><!-- end form-group -->
 
                                     <div class="form-group">
-                                        <label for="latitude">Latitude :</label>
-                                        {{ instances.latitude }}
+                                        <label for="concerned_staff">Concerned Staff :</label>
+                                        {{ instances.concerned_staff }}
                                     </div><!-- end form-group -->
                                 </div><!-- end col -->
-                                
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="longitude">Longitude :</label>
-                                        {{ instances.longitude }}
+                                        <label for="designation">Designation :</label>
+                                        {{ instances.designation }}
                                     </div>
                                     <div class="form-group">
-                                        <label for="projectName">Image :</label>
-                                        {{ instances.image }}
+                                        <label for="username">username :</label>
+                                        {{ instances.username }}
+                                    </div>
+                                </div><!-- end col -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="mobile">Mobile :</label>
+                                        {{ instances.mobile }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email :</label>
+                                        {{ instances.email }}
                                     </div><!-- end form-group -->
-
-                                    {% if instances.image and instances.image.url %}
-                                    <div class="col-xl-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <img src="{{ instances.image.url }}" alt="Image preview" style="width: 100%; height: auto;">
-                                            </div><!-- end card-body -->
-                                        </div><!-- end card -->
-                                    </div><!-- end col -->
-                                    {% endif %}
+                                </div><!-- end col -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="mode">Mode :</label>
+                                        {{ instances.get_mode_display }}
+                                    </div>
                                 </div><!-- end col -->
                             </div><!-- end row -->
                         </div><!-- end card-body -->
