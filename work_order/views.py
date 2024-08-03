@@ -1,6 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from .forms import WoodWorkOrderForm
 from .models import *
+import datetime
+from datetime import timezone
 
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
@@ -95,6 +97,21 @@ def workorder(request):
     return render(request, 'admin_panel/pages/order/workorder.html', context)
 
 
+
+@login_required
+@role_required(['superadmin'])
+
 def work_order_list(request):
-    work_orders = WoodWorkOrder.objects.all()  
-    return render(request, 'admin_panel/pages/order/work_order_list.html')
+    """
+    :param request:
+    :return: work order list view
+    """
+
+    instances = WoodWorkOrder.objects.filter(is_deleted=False).order_by("-date_added")
+    context = {
+        'instances': instances,
+        'page_name': 'Work Order List',
+        'page_title': 'Work Order List',
+    }
+    return render(request, 'admin_panel/pages/order/work_order_list.html', context)
+
