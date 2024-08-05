@@ -42,40 +42,19 @@ class WoodWorkOrderImagesForm(forms.ModelForm):
         model = WoodWorkOrderImages
         fields = ['image']
 
-
-class WoodWorkAssignForm(forms.ModelForm):
-    choose_qty = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Choose Qty'}))
-    qty = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Qty'}))
-    rate = forms.DecimalField(max_digits=10, decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter Rate'}))
-
-    class Meta:
-        model = WoodWorkAssign
-        fields = ['choose_qty', 'qty', 'rate']
-        
-
-
 WoodWorkOrderImagesFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkOrderImages, form=WoodWorkOrderImagesForm, extra=1)
-WoodWorkAssignFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkAssign, form=WoodWorkAssignForm, extra=1)
 
 
 class WoodWorksAssignForm(forms.ModelForm):
-    wood = forms.ModelChoiceField(queryset=Materials.objects.none(), required=True)
     
     class Meta:
         model = WoodWorkAssign
-        fields = ['wood', 'choose_quality', 'qty', 'rate']
+        fields = ['material', 'quality', 'quantity', 'rate']
         widgets = {
-            'wood': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Select Wood'}),
-            'choose_quality': forms.TextInput(attrs={'class': 'form-control'}),
-            'qty': forms.NumberInput(attrs={'class': 'form-control'}),
-            'rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'quality': TextInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
-        
-    def __init__(self, *args, **kwargs):
-        work_order = kwargs.pop('work_order', None)
-        super().__init__(*args, **kwargs)
-        
-        if work_order:
-            self.fields['wood'].queryset = Materials.objects.filter(id=work_order.material.id)
-        else:
-            self.fields['wood'].queryset = Materials.objects.none()
+       
+WoodWorksAssignFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkAssign, form=WoodWorksAssignForm, extra=1)

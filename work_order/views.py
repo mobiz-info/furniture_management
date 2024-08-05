@@ -12,7 +12,7 @@ import json
 from settings.forms import *
 from settings.models import *
 from .models import WoodWorkOrder
-from .forms import WoodWorkOrderForm
+from .forms import WoodWorkOrderForm,WoodWorksAssignForm
 from .models import *
 from .forms import *
 from work_order.models import *
@@ -102,7 +102,7 @@ def work_order_list(request):
     work_orders = WoodWorkOrder.objects.all()  
     return render(request, 'admin_panel/pages/order/work_order_list.html')
 
-
+#----------------------------Wood Section---------------------------
 def wood_work_orders_list(request):
     
     work_orders = WoodWorkOrder.objects.select_related('customer').all()
@@ -116,22 +116,36 @@ def wood_work_orders_list(request):
     return render(request, 'admin_panel/pages/wood/list.html', context) 
 
 def assign_wood(request, pk):
+    
     work_order = get_object_or_404(WoodWorkOrder, id=pk)
+    WoodWorksAssignFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkAssign, form=WoodWorksAssignForm, extra=1)
+    wood_assign = WoodWorkAssign.objects.filter(work_order=work_order)
 
     if request.method == 'POST':
-        form = WoodWorksAssignForm(request.POST, work_order=work_order)
-        if form.is_valid():
-            material = form.cleaned_data['material']
-            work_order.material = material
-            work_order.is_assigned = True
-            work_order.save()
-            return redirect('work_order:wood_work_orders_list') 
+        formset = WoodWorksAssignFormSet(request.POST, request.FILES, instance=work_order)
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    
+                    formset.save()
+                    work_order.is_assigned = True
+                    work_order.save()
+                    return redirect('work_order:wood_work_orders_list')  # Redirect to the list of work orders
+            except Exception as e:
+                message = str(e)
+        else:
+            message = generate_form_errors(formset)
     else:
-        form = WoodWorksAssignForm(work_order=work_order)
-        context = {
-            'form': form,
-            'page_name' : 'Wood Assign',
-            'page_title': 'Wood Assign',
-            'work_order': work_order,
-        }
-    return render(request, 'admin_panel/pages/wood/assign_wood.html',context)
+        formset = WoodWorksAssignFormSet(instance=work_order)
+        message = ''
+
+    context = {
+        'formset': formset,
+        'page_name': 'Wood Assign',
+        'page_title': 'Wood Assign',
+        'work_order': work_order,
+        'wood_assign': wood_assign,
+        'message': message,
+    }
+    return render(request, 'admin_panel/pages/wood/assign_wood.html', context)
+
