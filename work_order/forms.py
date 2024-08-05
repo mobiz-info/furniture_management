@@ -1,4 +1,6 @@
 from django import forms
+from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput,NumberInput
+from django.forms import TextInput, URLInput, EmailInput
 from django.forms import inlineformset_factory
 from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput
 
@@ -64,11 +66,17 @@ class WorkOrderImagesForm(forms.ModelForm):
         }
 
 
-class WoodWorkAssignForm(forms.ModelForm):
-    choose_qty = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Choose Qty'}))
-    qty = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Qty'}))
-    rate = forms.DecimalField(max_digits=10, decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter Rate'}))
 
+class WoodWorksAssignForm(forms.ModelForm):
+    
     class Meta:
         model = WoodWorkAssign
-        fields = ['choose_qty', 'qty', 'rate']
+        fields = ['material', 'quality', 'quantity', 'rate']
+        widgets = {
+            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'quality': TextInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+       
+WoodWorksAssignFormSet = inlineformset_factory(WorkOrder, WoodWorkAssign, form=WoodWorksAssignForm, extra=1)

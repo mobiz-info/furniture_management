@@ -85,8 +85,11 @@ class WorkOrderImages(BaseModel):
 
 class WoodWorkAssign(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    choose_qty = models.CharField(max_length=255)
-    qty = models.CharField(max_length=255)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    quality = models.CharField(max_length=255)
+    quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:

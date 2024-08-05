@@ -1,0 +1,169 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="page-title">{{page_title}}</h4>
+                            </div><!--end col-->
+                            <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                                <form method="get" action="">
+                                    <li class="list-inline-item w-100">
+                                        <div class="input-group">
+                                            <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
+                                                class="form-control" />
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </form>
+                            </div>
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            <form action="{{ url }}" method="POST" enctype="multipart/form-data" class="ajax redirect">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body bootstrap-select-1">
+                        <h4>Wood Work Order :  {{ work_order.order_no }}</h4>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ formset.management_form }}
+                                {% for form in formset %}
+                                    <div class="form-group row">
+                                        <div class="col-md-3">
+                                            {{ form.wood.label_tag }}
+                                            {{ form.wood }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            {{ form.choose_quality.label_tag }}
+                                            {{ form.choose_quality }}
+                                        </div>
+                                        <div class="col-md-2">
+                                            {{ form.qty.label_tag }}
+                                            {{ form.qty }}
+                                        </div>
+                                        <div class="col-md-2">
+                                            {{ form.rate.label_tag }}
+                                            {{ form.rate }}
+                                        </div>
+                                       
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                        {{ formset.management_form }}
+                    </div>
+                </div>
+                <div class="card-body">
+                            
+                    <div class="table-responsive">
+                        <table class="table mb-0" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th class="font-weight-bold text-center">#</th>
+                                    <th class="font-weight-bold text-left">Wood</th>
+                                    <th class="font-weight-bold text-center">Quality</th>
+                                    <th class="font-weight-bold text-right">Quantity</th>
+                                    <th class="font-weight-bold text-center">Rate</th>
+                                    <th class="font-weight-bold text-right">Total</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                                {% for instance in wood_assign %}
+                                <tr>
+                                    <td class="text-center">{{forloop.counter}}</td>
+                                    <td class="text-left">{{instance.materials}}</td>
+                                    
+                                    <td class="text-center">{{instance.choose_quality}}</td>
+                                    <td class="text-center">{{instance.qty}}</td>
+                                    <td class="text-center">{{instance.rate}}</td>
+                                    <td class="text-center">{{instance.total}}</td>
+                                    <td class="text-right">
+                                        <a href="{% url 'product:edit_product_category' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                        <a href="{% url 'product:delete_product_category' pk=instance.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
+                                        data-id="{{instance.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?"><i class="las la-trash-alt text-danger font-18"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!--end /table-->
+                        
+                    </div>
+                    <!--end /tableresponsive-->
+                    
+                </div>
+                <button type="submit" class="btn btn-soft-primary btn-sm">Submit</button>
+                <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
+            </form>
+            
+          
+
+            
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block static %}
+<style>
+    .form-group { margin-bottom: 10px; }
+    .text-area { height: 150px !important; }
+    .select2-container--default { width: 100%; }
+    .select2-container .select2-selection--single { height: calc(2.5em + .75rem + 2px); }
+    .select2-container--default .select2-selection--single { border: 1px solid #e3ebf6; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 32px; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b { margin-top: 8px; }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
+    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
+    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
+    .form-control { height: calc(2.8em + .75rem + 2px); }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
+    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
+    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
+    .dynamic-formset-add td { text-align: center !important; }
+    #id_source{display: flex;list-style: none;padding: 0;justify-content: flex-start;align-items: center;}
+    #id_source li{margin-right: 12px;}
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var radioButtons = document.getElementsByName('assignment_status');
+        var tableRows = document.getElementById('work-orders-table').getElementsByTagName('tr');
+
+        function filterOrders() {
+            var selectedValue = document.querySelector('input[name="assignment_status"]:checked').value;
+            
+            for (var i = 0; i < tableRows.length; i++) {
+                if (selectedValue === 'assigned' && tableRows[i].classList.contains('assigned')) {
+                    tableRows[i].style.display = '';
+                } else if (selectedValue === 'unassigned' && tableRows[i].classList.contains('unassigned')) {
+                    tableRows[i].style.display = '';
+                } else {
+                    tableRows[i].style.display = 'none';
+                }
+            }
+        }
+
+        for (var i = 0; i < radioButtons.length; i++) {
+            radioButtons[i].addEventListener('change', filterOrders);
+        }
+
+        // Initial filter on page load
+        filterOrders();
+    });
+</script>
+{% endblock static %}
