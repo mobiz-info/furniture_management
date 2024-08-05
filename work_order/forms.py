@@ -1,13 +1,15 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import WoodWorkOrder, WoodWorkOrderImages, WoodWorkAssign
-from customer.models import Customer
+from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput
+
 from product.models import *
+from customer.models import Customer
+from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
     mobile_number = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Mobile No.'}))
-    address = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Address'}))
+    address = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Address','rows':'2'}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email Id'}))
     gst_no = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter GST No.'}), required=False)
 
@@ -16,29 +18,50 @@ class CustomerForm(forms.ModelForm):
         fields = ['name', 'mobile_number', 'address', 'email', 'gst_no']
 
 
-class WoodWorkOrderForm(forms.ModelForm):
-    order_no = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Work Order No'}))
-    category = forms.ModelChoiceField(queryset=ProductCategory.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    sub_category = forms.ModelChoiceField(queryset=ProductSubCategory.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    model_no = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model No.'}), required=False)
-    material = forms.ModelChoiceField(queryset=Materials.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    sub_material = forms.ModelChoiceField(queryset=MaterialTypeCategory.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    material_type = forms.ModelChoiceField(queryset=MaterialsType.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    quantity = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}))
-    delivery_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date', 'type': 'date'}))
-    remark = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}), required=False)
+class WorkOrderForm(forms.ModelForm):
 
     class Meta:
-        model = WoodWorkOrder
-        fields = ['order_no', 'category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'delivery_date', 'remark']
-
-
-class WoodWorkOrderImagesForm(forms.ModelForm):
-    image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
+        model = WorkOrder
+        fields = ['order_no','remark','total_estimate','delivery_date']
+        
+        widgets = {
+                'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
+                'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
+                'total_estimate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
+                'delivery_date': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
+            }
+        
+class WorkOrderItemsForm(forms.ModelForm):
 
     class Meta:
-        model = WoodWorkOrderImages
-        fields = ['image']
+        model = WorkOrderItems
+        fields = ['category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'remark','estimate_rate','size','color']
+        
+        widgets = {
+                'category': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'sub_category': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model No'}),
+                'material': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'sub_material': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'material_type': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'quantity': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}),
+                'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
+                'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
+                'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
+                'color': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Color'}),
+            }
+
+
+class WorkOrderImagesForm(forms.ModelForm):
+
+    class Meta:
+        model = WorkOrderImages
+        fields = ['image','remark']
+        
+        widgets = {
+            'image': FileInput(attrs={'class': 'form-control dropify'}),
+            'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
+        }
 
 
 class WoodWorkAssignForm(forms.ModelForm):
@@ -49,7 +72,3 @@ class WoodWorkAssignForm(forms.ModelForm):
     class Meta:
         model = WoodWorkAssign
         fields = ['choose_qty', 'qty', 'rate']
-
-
-WoodWorkOrderImagesFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkOrderImages, form=WoodWorkOrderImagesForm, extra=1)
-WoodWorkAssignFormSet = inlineformset_factory(WoodWorkOrder, WoodWorkAssign, form=WoodWorkAssignForm, extra=1)
