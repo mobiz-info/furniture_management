@@ -11,7 +11,45 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
+from product.models import Materials, ProductCategory
 from main.functions import decrypt_message, encrypt_message
+from api.v1.product.serializers import MaterialsSerializer, ProductCategorySerializer
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def materials(request):
+    if request.method == 'GET':
+        
+        instances = Materials.objects.filter(is_deleted=False)
+        serializer = MaterialsSerializer(instances,many=True)
+        
+        status_code = status.HTTP_200_OK
+        response_data = {
+            "StatusCode": 200,
+            "status": status_code,
+            "data": serializer.data,
+        }
+        
+    return Response(response_data, status=status_code)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def product_category(request):
+    if request.method == 'GET':
+        
+        instances = ProductCategory.objects.filter(is_deleted=False)
+        serializer = ProductCategorySerializer(instances,many=True)
+        
+        status_code = status.HTTP_200_OK
+        response_data = {
+            "StatusCode": 200,
+            "status": status_code,
+            "data": serializer.data,
+        }
+        
+    return Response(response_data, status=status_code)
