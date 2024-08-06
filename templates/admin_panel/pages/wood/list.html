@@ -44,7 +44,7 @@
                                     <div class="toggle">
                                         <label>
                                             <input type="radio" name="assignment_status" value="unassigned" checked>
-                                            Unassigned (Default)
+                                            Unassigned
                                         </label>
                                         <label>
                                             <input type="radio" name="assignment_status" value="assigned">
@@ -107,9 +107,14 @@
                                             <td class="text-center">{{forloop.counter}}</td>
                                             <td class="text-center">{{ order.order_no }}</td>
                                             <td class="text-center">{{ order.customer.name }}</td>
-                                            <td class="text-center">{{ order.quantity }}</td>
+                                            <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
                                             <td class="text-center">{{ order.delivery_date }}</td>
-                                            <td class="text-center">{% if order.is_assigned %}<a href="">Allocated</a>{% else %}{% endif %}</td>
+                                            <td class="text-center">
+                                                {% if order.is_assigned %}
+                                                <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
+                                                {% else %}
+                                                {% endif %}
+                                            </td>
                                             <td class="text-center">
                                                 {% if not order.is_assigned %}
                                                 <a href="{% url 'work_order:assign_wood' order.id %}">Assign Wood</a>
@@ -121,6 +126,51 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignModalLabel">Assigned Wood Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        
+                    </div>
+                    <div id="assigned-wood-details">
+                        <h4>Allocated Wood -  Work Order: {{ work_order.order_no }}</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sl No</th>
+                                    <th>Wood</th>
+                                    <th>Quality</th>
+                                    <th>CFL</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for wood in wood_assign %}
+                                <tr>
+                                    {{ wood.id }}
+                                    <td class="text-center">{{forloop.counter}}</td>
+                                    <td>{{ wood.material }}</td>
+                                    <td>{{ wood.quality }}</td>
+                                    <td>{{ wood.cfl }}</td>
+                                    <td>{{ wood.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -155,6 +205,33 @@
 
         // Initial filter on page load
         filterOrders();
-    });
+   
+
+
+     // Modal related code
+    document.querySelectorAll('.view-assignments').forEach(function(element) {
+            element.addEventListener('click', function(event) {
+                var orderId = event.target.getAttribute('data-order-id');
+                fetchAssignedWoodDetails(orderId);
+            });
+        });
+
+        function fetchAssignedWoodDetails(orderId) {
+            
+            // Make an AJAX request to fetch the details
+            var url = "{% url 'work_order:allocated_wood' 0 %}".replace('0', orderId);
+            console.log("Fetching details from URL:", url);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Assuming `data` contains the HTML to render
+                    document.getElementById('assigned-wood-details').innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error fetching assigned wood details:', error);
+                });
+        }
+        });
+
 </script>
 {% endblock static %}

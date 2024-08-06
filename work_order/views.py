@@ -8,6 +8,7 @@ from django.db import transaction, IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 # rest framework
@@ -426,3 +427,95 @@ def delete_work_order_image(request,pk):
     }
     
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+
+#----------------------------Wood Section---------------------------
+def wood_work_orders_list(request):
+    
+    work_orders = WorkOrder.objects.filter(status="012")
+    
+    context = {
+        'page_name' : 'Wood Work Orders',
+        'page_title': 'Wood Work Orders',
+        'work_orders': work_orders,
+    }
+    
+    return render(request, 'admin_panel/pages/wood/list.html', context) 
+
+def assign_wood(request, pk):
+    
+    WoodWorksAssignFormSet = formset_factory(WoodWorksAssignForm, extra=1)
+    work_order = get_object_or_404(WorkOrder, id=pk)
+
+    if request.method == 'POST':
+        formset = WoodWorksAssignFormSet(request.POST, request.FILES, prefix='formset', form_kwargs={'empty_permitted': False})
+        message = ''
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    # Save each form in the formset
+                    for form in formset:
+                        wood_assign = form.save(commit=False)
+                        wood_assign.work_order = work_order
+                        wood_assign.auto_id = get_auto_id(WoodWorkAssign)
+                        wood_assign.creator = request.user
+                        wood_assign.save()
+                    
+                    work_order.is_assigned = True
+                    work_order.save()
+
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Wood assigned successfully.",
+                        "redirect": "true",
+                        "redirect_url": reverse('work_order:wood_work_orders_list')
+                    }
+
+            except IntegrityError as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+            except Exception as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+        else:
+            message = generate_form_errors(formset, formset=True)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        formset = WoodWorksAssignFormSet(prefix='formset')
+        context = {
+            'formset': formset,
+            'page_name': 'Wood Assign',
+            'page_title': 'Wood Assign',
+            'work_order': work_order,
+            'url': reverse('work_order:assign_wood', args=[pk]),
+            'is_need_select2': True,
+        }
+        return render(request, 'admin_panel/pages/wood/assign_wood.html', context)
+
+def allocated_wood(request, pk):
+    
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    wood_assign = WoodWorkAssign.objects.filter(work_order=work_order)
+        
+    context = {
+        'work_order': work_order,
+        'wood_assign': wood_assign,
+    }
+
+    html = render_to_string('admin_panel/pages/wood/allocated_wood.html', context)
+    return JsonResponse({'html': html})
+   

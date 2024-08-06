@@ -1,0 +1,38 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+ 
+                    <div id="assigned-wood-details">
+                        <h4>Allocated Wood -  Work Order: {{ work_order.order_no }}</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sl No</th>
+                                    <th>Wood</th>
+                                    <th>Quality</th>
+                                    <th>CFL</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for wood in wood_assign %}
+                                <tr>
+                                    {{ wood.id }}
+                                    <td class="text-center">{{forloop.counter}}</td>
+                                    <td>{{ wood.material }}</td>
+                                    <td>{{ wood.quality }}</td>
+                                    <td>{{ wood.cfl }}</td>
+                                    <td>{{ wood.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+

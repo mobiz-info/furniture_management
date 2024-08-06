@@ -42,7 +42,8 @@ class WorkOrder(BaseModel):
     status = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     delivery_date = models.DateField(null=False, blank=False)
     total_estimate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
-
+    is_assigned = models.BooleanField(default=False)
+    
     class Meta:
         db_table = 'WoodWorkOrder'
 
