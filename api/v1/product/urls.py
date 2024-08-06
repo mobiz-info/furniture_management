@@ -4,5 +4,5 @@ from . import views
 app_name = 'api_v1_product'
 
 urlpatterns = [
-
+re_path(r'', views.get_product),
 ]
