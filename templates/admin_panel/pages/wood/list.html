@@ -147,7 +147,8 @@
                         
                     </div>
                     <div id="assigned-wood-details">
-                        <h4>Allocated Wood -  Work Order: {{ work_order.order_no }}</h4>
+                        
+                        {% comment %} <h4>Allocated Wood -  Work Order: {{ order.order_no }}</h4>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -170,7 +171,7 @@
                                 </tr>
                                 {% endfor %}
                             </tbody>
-                        </table>
+                        </table> {% endcomment %}
                     </div>
                 </div>
             </div>
@@ -217,15 +218,15 @@
         });
 
         function fetchAssignedWoodDetails(orderId) {
-            
-            // Make an AJAX request to fetch the details
             var url = "{% url 'work_order:allocated_wood' 0 %}".replace('0', orderId);
-            console.log("Fetching details from URL:", url);
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    // Assuming `data` contains the HTML to render
-                    document.getElementById('assigned-wood-details').innerHTML = data.html;
+                    if (data.html) {
+                        document.getElementById('assigned-wood-details').innerHTML = data.html;
+                    } else {
+                        console.error('No HTML content received');
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching assigned wood details:', error);

@@ -459,6 +459,7 @@ def assign_wood(request, pk):
                         wood_assign.work_order = work_order
                         wood_assign.auto_id = get_auto_id(WoodWorkAssign)
                         wood_assign.creator = request.user
+                        wood_assign.work_order.status = "015"
                         wood_assign.save()
                     
                     work_order.is_assigned = True
@@ -510,12 +511,12 @@ def allocated_wood(request, pk):
     
     work_order = get_object_or_404(WorkOrder, id=pk)
     wood_assign = WoodWorkAssign.objects.filter(work_order=work_order)
-        
+    
     context = {
         'work_order': work_order,
         'wood_assign': wood_assign,
     }
 
-    html = render_to_string('admin_panel/pages/wood/allocated_wood.html', context)
+    html = render_to_string('admin_panel/pages/wood/allocated_wood.html', context, request=request)
     return JsonResponse({'html': html})
-   
+

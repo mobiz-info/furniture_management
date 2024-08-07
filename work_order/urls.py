@@ -15,4 +15,5 @@ urlpatterns = [
     re_path(r'^wood_work_orders_list/', views.wood_work_orders_list, name='wood_work_orders_list'),
     re_path(r'^assign_wood/(?P<pk>.*)/$', views.assign_wood, name='assign_wood'),
     re_path(r'^allocated_wood/(?P<pk>.*)/$', views.allocated_wood, name='allocated_wood'),
+    
 ]
