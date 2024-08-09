@@ -98,3 +98,18 @@ class WoodWorkAssign(BaseModel):
 
     def __str__(self):
         return f'WorkAssign {self.work_order.order_no}'
+
+class Carpentary(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    quality = models.CharField(max_length=255)
+    quantity = models.CharField(max_length=255)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        db_table = 'Carpentary'
+
+    def __str__(self):
+        return f'Carpentary {self.work_order}'
