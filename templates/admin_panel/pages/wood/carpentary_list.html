@@ -97,7 +97,7 @@
                                             <th class="font-weight-bold text-center">Customer Name</th>
                                             <th class="font-weight-bold text-center">No of Items</th>
                                             <th class="font-weight-bold text-center">Delivery Date</th>
-                                            <th class="font-weight-bold text-center">Wood Assigned</th>
+                                            <th class="font-weight-bold text-center">Carpentary Assigned</th>
                                             <th class="font-weight-bold text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -105,19 +105,19 @@
                                         {% for order in carpentary %}
                                         <tr class="{% if order.is_assigned %}assigned{% else %}unassigned{% endif %}">
                                             <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-center">{{ order.work_order.order_no }}</td>
-                                            <td class="text-center">{{ order.work_order.customer.name }}</td>
+                                            <td class="text-center">{{ order.order_no }}</td>
+                                            <td class="text-center">{{ order.customer.name }}</td>
                                             <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
-                                            <td class="text-center">{{ order.work_order.delivery_date }}</td>
+                                            <td class="text-center">{{ order.delivery_date }}</td>
                                             <td class="text-center">
                                                 {% if order.work_order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
-                                                <!-- {% else %} -->
+                                                {% else %}
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
                                                 {% if not order.work_order.is_assigned %}
-                                                <a href="{% url 'work_order:assign_carpentary' order.work_order.id %}">Assign Carpentary</a>
+                                                <a href="{% url 'work_order:assign_carpentary' order.id %}">Assign Carpentary</a>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -148,7 +148,7 @@
                     </div>
                     <div id="assigned-furniture-details">
                         
-                        <h4>Allocated Carpentary -  Work Order: {{ order.order_no }}</h4>
+                        <h4>Allocated Carpentary -  Work Order: {{ order.work_order.order_no }}</h4>
                         <table class="table">
                             <thead>
                                 <tr>
