@@ -7,5 +7,5 @@ urlpatterns = [
     re_path(r'^materials/$', views.materials),
     
     re_path(r'^product-category/$', views.product_category),
-    re_path(r'', views.get_product),
+    re_path(r'product-details', views.get_product),
 ]

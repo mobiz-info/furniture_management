@@ -59,7 +59,7 @@ def product_category(request):
         
     return Response(response_data, status=status_code)
 
-
+@api_view(['GET'])
 def get_product(request,id=None):
     try:
         if id:

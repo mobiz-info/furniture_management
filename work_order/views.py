@@ -432,7 +432,7 @@ def delete_work_order_image(request,pk):
 #----------------------------Wood Section---------------------------
 def wood_work_orders_list(request):
     
-    work_orders = WorkOrder.objects.filter(status="012")
+    work_orders = WoodWorkAssign.objects.filter(status="012")
     
     context = {
         'page_name' : 'Wood Work Orders',
@@ -524,7 +524,7 @@ def allocated_wood(request, pk):
 def carpentary_list(request):
     
     carpentary = WoodWorkAssign.objects.filter(work_order__status="015")
-    
+    # carpentary=Carpentary.objects.all()
     context = {
         'page_name' : 'Carpentary',
         'page_title': 'Carpentary',
@@ -675,7 +675,7 @@ def allocated_carpentary(request, pk):
     
     context = {
         'work_order': work_order,
-        'carpentary_assign': carpentary,
+        'assign_carpentary': carpentary,
     }
 
     html = render_to_string('admin_panel/pages/wood/allocated_carpentary.html', context, request=request)
