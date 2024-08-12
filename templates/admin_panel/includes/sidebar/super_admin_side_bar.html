@@ -84,14 +84,22 @@
             </li>
         
         <li>
-            <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Order</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+            <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Wood Section</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
             <ul class="nav-second-level" aria-expanded="false">
                 <li class="nav-item d-flex justify-content-between">
-                    <a class="nav-link" href="{% url 'work_order:work_order_list' %}"><i class="ti-control-record"></i> Work Order</a>
-                    <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a>
+                    <a class="nav-link" href="{% url 'work_order:wood_work_orders_list' %}"><i class="ti-control-record"></i> Wood Assign</a>
+                    {% comment %} <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a> {% endcomment %}
                     </li>   
                 </li>
             </ul>
+                <li>
+                    <a href="javascript: void(0);"> <i class="ti-settings align-self-center menu-icon"></i><span>Carpentary</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li class="nav-item d-flex justify-content-between">
+                            <a class="nav-link" href="{% url 'work_order:carpentary_list' %}"><i class="ti-control-record"></i> Carpentary Assign</a>
+                            </li>   
+                        </li>
+            
         </li>
     </ul>
     </div>

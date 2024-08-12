@@ -37,7 +37,7 @@
                     <div class="card">
                         <div class="card-header d-flex" style="flex-direction: row; justify-content: space-between; align-items: center;">
                             <div class="col-lg-2">
-                                <h4 class="card-title">Wood view</h4>
+                                <h4 class="card-title">Carpentary view</h4>
                             </div>
                             <div class="col-md-4 mt-3 text-center">
                                 <div class="toggle-search">
@@ -102,22 +102,22 @@
                                         </tr>
                                     </thead>
                                     <tbody id="work-orders-table">
-                                        {% for order in work_orders %}
+                                        {% for order in carpentary %}
                                         <tr class="{% if order.is_assigned %}assigned{% else %}unassigned{% endif %}">
                                             <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-center">{{ order.order_no }}</td>
-                                            <td class="text-center">{{ order.customer.name }}</td>
+                                            <td class="text-center">{{ order.work_order.order_no }}</td>
+                                            <td class="text-center">{{ order.work_order.customer.name }}</td>
                                             <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
-                                            <td class="text-center">{{ order.delivery_date }}</td>
+                                            <td class="text-center">{{ order.work_order.delivery_date }}</td>
                                             <td class="text-center">
-                                                {% if order.is_assigned %}
+                                                {% if order.work_order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
-                                                {% else %}
+                                                <!-- {% else %} -->
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                {% if not order.is_assigned %}
-                                                <a href="{% url 'work_order:assign_wood' order.id %}">Assign Wood</a>
+                                                {% if not order.work_order.is_assigned %}
+                                                <a href="{% url 'work_order:assign_carpentary' order.work_order.id %}">Assign Carpentary</a>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -137,7 +137,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="assignModalLabel">Assigned Wood Details</h5>
+                    <h5 class="modal-title" id="assignModalLabel">Assigned Carpentary Details</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -146,9 +146,9 @@
                     <div class="table-responsive">
                         
                     </div>
-                    <div id="assigned-wood-details">
+                    <div id="assigned-furniture-details">
                         
-                        {% comment %} <h4>Allocated Wood -  Work Order: {{ order.order_no }}</h4>
+                        <h4>Allocated Carpentary -  Work Order: {{ order.order_no }}</h4>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -160,7 +160,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for wood in wood_assign %}
+                                {% for wood in carpentary_assign %}
                                 <tr>
                                     {{ wood.id }}
                                     <td class="text-center">{{forloop.counter}}</td>
@@ -171,7 +171,7 @@
                                 </tr>
                                 {% endfor %}
                             </tbody>
-                        </table> {% endcomment %}
+                        </table> 
                     </div>
                 </div>
             </div>
@@ -213,23 +213,23 @@
     document.querySelectorAll('.view-assignments').forEach(function(element) {
             element.addEventListener('click', function(event) {
                 var orderId = event.target.getAttribute('data-order-id');
-                fetchAssignedWoodDetails(orderId);
+                fetchAssignedCarpentaryDetails(orderId);
             });
         });
 
-        function fetchAssignedWoodDetails(orderId) {
-            var url = "{% url 'work_order:allocated_wood' 0 %}".replace('0', orderId);
+        function fetchAssignedDetails(orderId) {
+            var url = "{% url 'work_order:allocated_carpentary' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.html) {
-                        document.getElementById('assigned-wood-details').innerHTML = data.html;
+                        document.getElementById('assigned-furniture-details').innerHTML = data.html;
                     } else {
                         console.error('No HTML content received');
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching assigned wood details:', error);
+                    console.error('Error fetching assigned carpentary details:', error);
                 });
         }
         });
