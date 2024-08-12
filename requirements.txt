@@ -37,3 +37,12 @@ typing_extensions==4.12.2
 Unidecode==1.1.2
 urllib3==2.2.2
 webencodings==0.5.1
+
+
+# /home/mobiz/webapp/vinayakha/live
+# /home/mobiz/webapp/vinayakha/vinayakha.sock
+# sudo systemctl start vinayakha.socket
+# sudo systemctl enable vinayakha.socket
+# sudo journalctl -u vinayakha.socket
+# sudo systemctl status vinayakha
+# curl --unix-socket /home/mobiz/webapp/vinayakha/vinayakha.sock localhost
