@@ -523,8 +523,8 @@ def allocated_wood(request, pk):
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
     
-    carpentary = WoodWorkAssign.objects.filter(work_order__status="015")
-    
+    carpentary = WorkOrder.objects.filter(status="015")
+    # carpentary=Carpentary.objects.all()
     context = {
         'page_name' : 'Carpentary',
         'page_title': 'Carpentary',
@@ -533,71 +533,7 @@ def carpentary_list(request):
     
     return render(request, 'admin_panel/pages/wood/carpentary_list.html', context) 
 
-# def assign_carpentary(request, pk):
-    
-#     CarpentaryAssignFormSet = formset_factory(CarpentaryAssignForm, extra=1)
-#     work_order = get_object_or_404(WorkOrder, id=pk)
 
-#     if request.method == 'POST':
-#         carpentary_formset = CarpentaryAssignFormSet(request.POST, request.FILES, prefix='formset', form_kwargs={'empty_permitted': False})
-#         message = ''
-#         if carpentary_formset.is_valid():
-#             try:
-#                 with transaction.atomic():
-#                     for form in carpentary_formset:
-#                         carpentary_assign = form.save(commit=False)
-#                         carpentary_assign.work_order = work_order
-#                         carpentary_assign.auto_id = get_auto_id(Carpentary)
-#                         carpentary_assign.creator = request.user
-#                         # carpentary_assign.work_order.status = "015"
-#                         carpentary_assign.save()
-
-#                     work_order.status = "015"
-#                     work_order.is_assigned = True
-#                     work_order.save()
-
-#                     response_data = {
-#                         "status": "true",
-#                         "title": "Successfully Assigned",
-#                         "message": "Carpentary assigned successfully.",
-#                         "redirect": "true",
-#                         "redirect_url": reverse('work_order:carpentary_list')
-#                     }
-
-#             except IntegrityError as e:
-#                 response_data = {
-#                     "status": "false",
-#                     "title": "Failed",
-#                     "message": str(e),
-#                 }
-#             except Exception as e:
-#                 response_data = {
-#                     "status": "false",
-#                     "title": "Failed",
-#                     "message": str(e),
-#                 }
-#         else:
-#             message = generate_form_errors(carpentary_formset, formset=True)
-#             response_data = {
-#                 "status": "false",
-#                 "title": "Failed",
-#                 "message": message,
-#             }
-
-#         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
-    
-#     else:
-#         carpentary_formset = CarpentaryAssignForm(prefix='carpentary_formset')
-#         context = {
-#             'carpentary_formset': carpentary_formset,
-#             'page_name': 'Carpentary Assign',
-#             'page_title': 'Carpentary Assign',
-#             'work_order': work_order,
-#             'url': reverse('work_order:assign_carpentary', args=[pk]),
-#             'is_need_select2': True,
-#         }
-        
-#         return render(request, 'admin_panel/pages/wood/assign_carpentary.html', context)
 
 def assign_carpentary(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
@@ -675,7 +611,7 @@ def allocated_carpentary(request, pk):
     
     context = {
         'work_order': work_order,
-        'carpentary_assign': carpentary,
+        'assign_carpentary': carpentary,
     }
 
     html = render_to_string('admin_panel/pages/wood/allocated_carpentary.html', context, request=request)
