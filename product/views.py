@@ -211,6 +211,7 @@ def edit_material(request,pk):
                                 if not item_data.auto_id:
                                     item_data.material = material_form_instance
                                     item_data.auto_id = get_auto_id(MaterialsType)
+                                    item_data.creator = request.user
                                     item_data.updater = request.user
                                     item_data.date_updated = datetime.datetime.today().now()
                                 item_data.save()

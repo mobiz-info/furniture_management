@@ -76,16 +76,7 @@
 <script src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 
-{% comment %} <script src="{% static 'admin_panel/assets/sweet/sweetalert2.js' %}"></script>
-<script src="{% static 'admin_panel/assets/sweet/sweetalert2.min.js' %}"></script>
-<script src="{% static 'admin_panel/assets/sweet/sweetalert2.all.js' %}"></script>
-<script src="{% static 'admin_panel/assets/sweet/sweetalert2.all.min.js' %}"></script> {% endcomment %}
-{%if is_need_resize_cards%}
-
-<script src="{% static 'admin_panel/assets/js/modal.js' %}"></script>
-
 <script>
-
     function equalcard(s) {
         var h = 0;
         var line_height = 0;
@@ -107,69 +98,3 @@
 
     });
     </script>
-    <script>
-      $(document).ready(function() {
-          $(".date-field").click(function() {
-              var start = moment().subtract(29, 'days');
-              var end = moment();
-              var date = new Date();
-              var currentMonth = date.getMonth();
-              var currentDate = date.getDate();
-              var currentYear = date.getFullYear();
-              
-              let dropdownEle = $(this).find(".form-dropdown-content");
-              var dateShowEle = $(dropdownEle.attr("data-date-show")).find("span.date");
-              var dayShowEle = $(dropdownEle.attr("data-date-show")).find("span.day");
-              var dateInputEle = $(dropdownEle.attr("data-date-show")).find("input");
-              // Calculate the last day of the previous month using moment.js
-              var lastDayOfPreviousMonth = moment().subtract(1, 'months').endOf('month').toDate();
-              $(".form-dropdown-content").css("display","none");
-              dropdownEle.show();
-          
-              dropdownEle.datepicker({
-                  dateFormat: "dd-mm-yy",
-                  duration: "fast",
-                  minDate: new Date(currentYear, currentMonth, currentDate),
-                  startDate: moment(date).add(0, 'days').format('DD.MM.YYYY'),
-                  endDate: moment(date).add(2, 'days').format('DD.MM.YYYY'),
-                  showButtonPanel: true, // Show the button panel
-                  prevText: '<i class="ri-arrow-left-s-line"></i>', // Set custom icon for previous button
-                  nextText: '<i class="ri-arrow-right-s-line"></i>', // Set custom icon for next button
-                  defaultDate: lastDayOfPreviousMonth, // Set default date to the last day of the previous month
-                  beforeShowDay: function(date) {
-                      var lastDayOfPrevMonth = moment().subtract(1, 'months').endOf('month').date();
-                      var firstDayOfCurrentMonth = moment().date(1).day();
-                      var day = date.getDate();
-
-                      // Set the class 'prev-month' for the last days of the previous month
-                      if (day > lastDayOfPrevMonth && day <= firstDayOfCurrentMonth) {
-                          return [true, 'prev-month'];
-                      } else {
-                          return [true, ''];
-                      }
-                  },
-
-                  locale: {
-                      format: 'DD.MM.YYYY'
-                  },
-                  onSelect: function(selectedDate) {
-                      // Convert the selectedDate string to a Moment.js object
-                      var momentSelectedDate = moment(selectedDate, "DD-MM-YYYY");
-
-                      // Check if the momentSelectedDate is valid before using .format()
-                      if (momentSelectedDate.isValid()) {
-                          // Format the date in the desired format and set it to dateShowEle
-                          var formattedDate = momentSelectedDate.format('D MMM, YYYY');
-                          dateShowEle.html(formattedDate);
-                          dayShowEle.html(momentSelectedDate.format('dddd'));
-                          dateInputEle.val(selectedDate);
-                      } else {
-                          console.error("Invalid date:", selectedDate);
-                      }   
-                  }   
-              });  
-          });
-      });
-  </script>
-    
-    {%endif%}

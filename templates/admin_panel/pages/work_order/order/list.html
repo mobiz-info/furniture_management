@@ -79,7 +79,7 @@
                                             <th class="font-weight-bold text-center">Date Added</th>
                                             <th class="font-weight-bold text-left">Order No</th>
                                             <th class="font-weight-bold text-left">Customer Name</th>
-                                            <th class="font-weight-bold text-left">Delivery Date</th>
+                                            <th class="font-weight-bold text-center">Delivery Date</th>
                                             <th class="font-weight-bold text-center">Status</th>
                                             <th class="font-weight-bold text-right">Total Estimate</th>
                                             <th class="text-right">Action</th>
@@ -94,11 +94,12 @@
                                             <td class="text-center">{{instance.date_added|date:"d-M-Y"}}</td>
                                             <td class="text-left">{{instance.order_no}}</td>
                                             <td class="text-left">{{instance.customer.name}}</td>
+                                            <td class="text-center">{{instance.delivery_date|date:"d-M-Y"}}</td>
                                             <td class="text-center">{{instance.get_status_display}}</td>
-                                            <td class="text-center">{{instance.total_estimate}}</td>
                                             <td class="text-right">{{instance.total_estimate}}</td>
                                             
                                             <td class="text-right">
+                                                <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{instance.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
                                                 <a href="{% url 'work_order:work_order_info' pk=instance.pk %}"><i class="las la-eye text-success font-18"></i></a>
                                                 <a href="{% url 'work_order:edit_work_order' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
                                                 <a data-id="{{instance.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" href="{% url 'work_order:delete_work_order' pk=instance.pk %}"><i class="las la-trash-alt text-danger font-18"></i></a>
@@ -133,12 +134,64 @@
                 </div> <!-- end col -->
             </div>
         </div><!-- container -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="WorkAssignModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Status</h5>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close" onclick="clearForm()">
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <form action="" method="POST" enctype="multipart/form-data" class="ajax redirect">
+                      <div class="modal-body">
+                          {% csrf_token %}
+                          <input type="hidden" name="order_id" class="form-control" id="orderIdModalField">
+                          {% comment %} {{status_form.export_id}} {% endcomment %}
+                          <div class="form-group">
+                              <label for="recipient-name" class="col-form-label">Status:</label>
+                              {% comment %} {{status_form.status}} {% endcomment %}
+                              <select class="form-control" id="orderStatusField">
+                                  <option value="">Select Status</option>
+                                  <option value="010">Pending</option>
+                                  <option value="015">Shipped</option>
+                                  <option value="020">Out of Delivery</option>
+                                  <option value="025">Delived</option>
+                              </select>
+                          </div>
+                          <div class="form-group">
+                              <label for="message-text" class="col-form-label">Caption:</label>
+                              {% comment %} {{status_form.caption}} {% endcomment %}
+                              <textarea class="form-control" id="message-text"></textarea>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="submit" class="btn bg-gradient-primary" >Submit</button>
+                      </div>
+                  </form>
+                </div>
+              </div>
+        </div>
+        
     <!-- end page content -->
 {% endblock content %}
 
 
 {% block static %}
 {% load static %}
+<script>
+    function handleButtonClick(button) {
+        $('#WorkAssignModal').modal('show');
+    };
+    function clearForm() {
+        // Clear the form fields
+        document.getElementById('orderIdModalField').value = '';
+        document.getElementById('orderStatusField').value = '';
+        $('#WorkAssignModal').modal('hide');
+      }
+</script>
 
 {% endblock static %}
     
