@@ -110,13 +110,14 @@
                                             <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
                                             <td class="text-center">{{ order.delivery_date }}</td>
                                             <td class="text-center">
-                                                {% if order.work_order.is_assigned %}
+                                                {% if order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
                                                 {% else %}
                                                 {% endif %}
+                                                
                                             </td>
                                             <td class="text-center">
-                                                {% if not order.work_order.is_assigned %}
+                                                {% if not order.is_assigned %}
                                                 <a href="{% url 'work_order:assign_carpentary' order.id %}">Assign Carpentary</a>
                                                 {% endif %}
                                             </td>
@@ -148,7 +149,7 @@
                     </div>
                     <div id="assigned-furniture-details">
                         
-                        <h4>Allocated Carpentary -  Work Order: {{ order.work_order.order_no }}</h4>
+                        <h4>Allocated Carpentry -  Work Order: {{ order.order_no }}</h4>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -160,14 +161,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for wood in carpentary_assign %}
+                                {% for carpentary in assign_carpentary %}
                                 <tr>
-                                    {{ wood.id }}
+                                    {{ carpentary.id }}
                                     <td class="text-center">{{forloop.counter}}</td>
-                                    <td>{{ wood.material }}</td>
-                                    <td>{{ wood.quality }}</td>
-                                    <td>{{ wood.cfl }}</td>
-                                    <td>{{ wood.total }}</td>
+                                    <td>{{ carpentary.material }}</td>
+                                    <td>{{ carpentary.quality }}</td>
+                                    <td>{{ carpentary.cfl }}</td>
+                                    <td>{{ carpentary.total }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
