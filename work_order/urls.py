@@ -19,5 +19,8 @@ urlpatterns = [
     re_path(r'^carpentary_list/', views.carpentary_list, name='carpentary_list'),
     re_path(r'^assign_carpentary/(?P<pk>.*)/$', views.assign_carpentary, name='assign_carpentary'),
     re_path(r'^allocated_carpentary/(?P<pk>.*)/$', views.allocated_carpentary, name='allocated_carpentary'),
+    #-----------------Polish--------------------------
+    re_path(r'^polish_list/', views.polish_list, name='polish_list'),
+    re_path(r'^polish_carpentary/(?P<pk>.*)/$', views.assign_polish, name='assign_polish'),
+    re_path(r'^polish_carpentary/(?P<pk>.*)/$', views.allocated_polish, name='allocated_polish'),
 ]
-    

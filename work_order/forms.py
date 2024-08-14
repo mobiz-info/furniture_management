@@ -6,7 +6,7 @@ from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInp
 
 from product.models import *
 from customer.models import Customer
-from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary
+from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -95,3 +95,16 @@ class CarpentaryAssignForm(forms.ModelForm):
         }
        
 CarpentaryAssignFormSet = inlineformset_factory(WorkOrder, Carpentary, form=CarpentaryAssignForm, extra=1)
+
+class PolishAssignForm(forms.ModelForm):
+    
+    class Meta:
+        model = Polish
+        fields = ['material', 'quality', 'quantity', 'rate']
+        widgets = {
+            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'quality': TextInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+PolishAssignFormSet = inlineformset_factory(WorkOrder, Polish, form=PolishAssignForm, extra=1)

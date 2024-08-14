@@ -628,4 +628,86 @@ def polish_list(request):
         'polish': polish,
     }
     
-    return render(request, 'admin_panel/pages/wood/polish_list.html', context) 
+    return render(request, 'admin_panel/pages/polish/polish_list.html', context) 
+
+def assign_polish(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    
+    PolishAssignFormSet = inlineformset_factory(
+        WorkOrder, Polish, 
+        form=PolishAssignForm, 
+        extra=1, 
+        can_delete=True
+    )
+    
+    if request.method == 'POST':
+        formset = PolishAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        message = ''
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    instances = formset.save(commit=False)
+                    for instance in instances:
+                        instance.auto_id = get_auto_id(Polish)
+                        instance.creator = request.user
+                        instance.save()
+                    work_order.status = "018"
+                    work_order.is_assigned = True
+                    work_order.save()
+
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Polish assigned successfully.",
+                        "redirect": "true",
+                        "redirect_url": reverse('work_order:polish_list')
+                    }
+            except IntegrityError as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+            except Exception as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+        else:
+            message = generate_form_errors(formset, formset=True)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        formset = PolishAssignFormSet(instance=work_order, prefix='formset')
+        context = {
+            'polish_formset': formset,
+            'page_name': 'Polish Assign',
+            'page_title': 'Polish Assign',
+            'work_order': work_order,
+            'url': reverse('work_order:assign_polish', args=[pk]),
+            'is_need_select2': True,
+        }
+        
+        return render(request, 'admin_panel/pages/polish/assign_polish.html', context)
+    
+
+def allocated_polish(request, pk):
+    
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    polish = Polish.objects.filter(work_order=work_order)
+    
+    context = {
+        'work_order': work_order,
+        'assign_polish': polish,
+    }
+
+    html = render_to_string('admin_panel/pages/polish/allocated_polish.html', context, request=request)
+    return JsonResponse({'html': html})

@@ -1,0 +1,23 @@
+<h4>Allocated Polish - Work Order: {{ work_order.order_no }}</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sl No</th>
+            <th>Wood</th>
+            <th>Quality</th>
+            <th>CFL</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for wood in assign_polish %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ wood.material }}</td>
+            <td>{{ wood.quality }}</td>
+            <td>{{ wood.cfl }}</td>
+            <td>{{ wood.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
