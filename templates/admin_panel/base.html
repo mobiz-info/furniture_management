@@ -47,7 +47,7 @@
         <link href="{% static 'admin_panel/assets/sweet/sweetalert2.css' %}" rel="stylesheet" type="text/css" />        
         <link href="{% static 'admin_panel/assets/js/lightbox/magnific-popup.css' %}" rel="stylesheet" type="text/css" /> 
         <link rel="stylesheet" href="{% static 'admin_panel/assets/remix_icons/remixicon.css' %}">   
-        <link rel="stylesheet" href="{% static 'date/jquery.datepicker.css' %}">
+        {% comment %} <link rel="stylesheet" href="{% static 'date/jquery.datepicker.css' %}"> {% endcomment %}
         <style>
             /* Custom CSS for the overlay */
             .overlay {
@@ -168,12 +168,12 @@
             text-align: center !important;
         }
     </style>
-    <script>
+    {% comment %} <script>
         function showLoader() {
             document.getElementById("loader-container").style.display = "block";
         }
         $(document).ready(function(){
             document.getElementById("loader-container").style.display = "none";
         });
-    </script>    
+    </script>     {% endcomment %}
 </html>

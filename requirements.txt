@@ -37,3 +37,35 @@ typing_extensions==4.12.2
 Unidecode==1.1.2
 urllib3==2.2.2
 webencodings==0.5.1
+
+
+# /home/mobiz/webapp/vinayakha/live
+# /home/mobiz/webapp/vinayakha/vinayakha.sock
+# sudo systemctl start vinayakha.socket
+# sudo systemctl enable vinayakha.socket
+# sudo journalctl -u vinayakha.socket
+# sudo systemctl status vinayakha
+# curl --unix-socket /home/mobiz/webapp/vinayakha/vinayakha.sock localhost
+
+# sudo systemctl daemon-reload
+# sudo systemctl restart vinayakha
+
+# server {
+#     listen 80;
+#     server_name 139.59.90.44;
+
+#     location = /favicon.ico { access_log off; log_not_found off; }
+#     location /static/ {
+#         root /home/mobiz/webapp/vinayakha/live;
+#     }
+
+#     location / {
+#         include proxy_params;
+#         proxy_pass http://unix:/home/mobiz/webapp/vinayakha/vinayakha.sock;
+#     }
+# }
+
+# sudo ln -s /etc/nginx/sites-available/vinayakha /etc/nginx/sites-enabled
+
+# sudo systemctl daemon-reload
+# sudo systemctl restart vinayakha.socket vinayakha.service
