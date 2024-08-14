@@ -616,3 +616,16 @@ def allocated_carpentary(request, pk):
 
     html = render_to_string('admin_panel/pages/wood/allocated_carpentary.html', context, request=request)
     return JsonResponse({'html': html})
+
+#-----------------------Polish-------------------------------------------------------------------
+
+def polish_list(request):
+    
+    polish = WorkOrder.objects.filter(status="018")
+    context = {
+        'page_name' : 'Polish',
+        'page_title': 'Polish',
+        'polish': polish,
+    }
+    
+    return render(request, 'admin_panel/pages/wood/polish_list.html', context) 
