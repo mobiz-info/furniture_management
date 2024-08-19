@@ -214,11 +214,11 @@
     document.querySelectorAll('.view-assignments').forEach(function(element) {
             element.addEventListener('click', function(event) {
                 var orderId = event.target.getAttribute('data-order-id');
-                fetchAssignedCarpentaryDetails(orderId);
+                fetchAssignedPolishDetails(orderId);
             });
         });
 
-        function fetchAssignedDetails(orderId) {
+        function fetchPolishDetails(orderId) {
             var url = "{% url 'work_order:allocated_polish' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())
