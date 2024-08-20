@@ -17,6 +17,7 @@ WORK_ORDER_CHOICES = (
     ('022', 'Packing'),
     ('024', 'Dispatch'),
     ('028', 'Other Works'),
+    ('030', 'Sold'),
 )
 
 class ModelNumberBasedProducts(BaseModel):
@@ -98,6 +99,17 @@ class WoodWorkAssign(BaseModel):
 
     def __str__(self):
         return f'WorkAssign {self.work_order.order_no}'
+    
+class WorkOrderStatus(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    status = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
+    description = models.TextField()
+    
+    class Meta:
+        db_table = 'WorkOrderStatus'
+
+    def __str__(self):
+        return f'Work Order {self.work_order.order_no}'
 
 class Carpentary(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
