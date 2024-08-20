@@ -37,7 +37,7 @@
                     <div class="card">
                         <div class="card-header d-flex" style="flex-direction: row; justify-content: space-between; align-items: center;">
                             <div class="col-lg-2">
-                                <h4 class="card-title">Polish view</h4>
+                                <h4 class="card-title">Packing view</h4>
                             </div>
                             <div class="col-md-4 mt-3 text-center">
                                 <div class="toggle-search">
@@ -97,12 +97,12 @@
                                             <th class="font-weight-bold text-center">Customer Name</th>
                                             <th class="font-weight-bold text-center">No of Items</th>
                                             <th class="font-weight-bold text-center">Delivery Date</th>
-                                            <th class="font-weight-bold text-center">Polish Assigned</th>
+                                            <th class="font-weight-bold text-center">Packing Assigned</th>
                                             <th class="font-weight-bold text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="work-orders-table">
-                                        {% for order in polish %}
+                                        {% for order in packing %}
                                         <tr class="{% if order.is_assigned %}assigned{% else %}unassigned{% endif %}">
                                             <td class="text-center">{{forloop.counter}}</td>
                                             <td class="text-center">{{ order.order_no }}</td>
@@ -118,7 +118,7 @@
                                             </td>
                                             <td class="text-center">
                                                 {% if not order.is_assigned %}
-                                                <a href="{% url 'work_order:assign_polish' order.id %}">Assign Polish</a>
+                                                <a href="{% url 'work_order:assign_packing' order.id %}">Assign Packing</a>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -138,7 +138,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="assignModalLabel">Assigned Polish Details</h5>
+                    <h5 class="modal-title" id="assignModalLabel">Assigned Packing Details</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -147,9 +147,9 @@
                     <div class="table-responsive">
                         
                     </div>
-                    <div id="assigned-polish-details">
+                    <div id="assigned-packing-details">
                         
-                        <h4>Allocated Polish -  Work Order: {{ order.order_no }}</h4>
+                        <h4>Allocated Packing -  Work Order: {{ order.order_no }}</h4>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -161,14 +161,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for polish in assign_polish %}
+                                {% for packing in assign_packing %}
                                 <tr>
-                                    {{ polish.id }}
+                                    {{ packing.id }}
                                     <td class="text-center">{{forloop.counter}}</td>
-                                    <td>{{ polish.material }}</td>
-                                    <td>{{ polish.quality }}</td>
-                                    <td>{{ polish.cfl }}</td>
-                                    <td>{{ polish.total }}</td>
+                                    <td>{{ packing.material }}</td>
+                                    <td>{{ packing.quality }}</td>
+                                    <td>{{ packing.cfl }}</td>
+                                    <td>{{ packing.total }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -214,23 +214,23 @@
     document.querySelectorAll('.view-assignments').forEach(function(element) {
             element.addEventListener('click', function(event) {
                 var orderId = event.target.getAttribute('data-order-id');
-                fetchAssignedPolishDetails(orderId);
+                fetchAssignedPackingDetails(orderId);
             });
         });
 
-        function fetchPolishDetails(orderId) {
-            var url = "{% url 'work_order:allocated_polish' 0 %}".replace('0', orderId);
+        function fetchPackingDetails(orderId) {
+            var url = "{% url 'work_order:allocated_packing' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.html) {
-                        document.getElementById('assigned-polish-details').innerHTML = data.html;
+                        document.getElementById('assigned-packing-details').innerHTML = data.html;
                     } else {
                         console.error('No HTML content received');
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching assigned polish details:', error);
+                    console.error('Error fetching assigned packing details:', error);
                 });
         }
         });

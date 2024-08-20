@@ -130,3 +130,33 @@ class Polish(BaseModel):
 
     def __str__(self):
         return f'Polish {self.work_order}'
+    
+class Glass(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    quality = models.CharField(max_length=255)
+    quantity = models.CharField(max_length=255)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        db_table = 'Glass'
+
+    def __str__(self):
+        return f'Glass {self.work_order}'
+    
+class Packing(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    quality = models.CharField(max_length=255)
+    quantity = models.CharField(max_length=255)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        db_table = 'Packing'
+
+    def __str__(self):
+        return f'Packing {self.work_order}'

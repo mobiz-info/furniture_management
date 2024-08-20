@@ -21,6 +21,14 @@ urlpatterns = [
     re_path(r'^allocated_carpentary/(?P<pk>.*)/$', views.allocated_carpentary, name='allocated_carpentary'),
     #-----------------Polish--------------------------
     re_path(r'^polish_list/', views.polish_list, name='polish_list'),
-    re_path(r'^polish_carpentary/(?P<pk>.*)/$', views.assign_polish, name='assign_polish'),
-    re_path(r'^polish_carpentary/(?P<pk>.*)/$', views.allocated_polish, name='allocated_polish'),
+    re_path(r'^assign_polish/(?P<pk>.*)/$', views.assign_polish, name='assign_polish'),
+    re_path(r'^allocated_polish/(?P<pk>.*)/$', views.allocated_polish, name='allocated_polish'),
+    #-------------Glass/Upholstory-------------------------------------------------------
+    re_path(r'^glass_list/', views.glass_list, name='glass_list'),
+    re_path(r'^assign_glass/(?P<pk>.*)/$', views.assign_glass, name='assign_glass'),
+    re_path(r'^allocated_glass/(?P<pk>.*)/$', views.allocated_glass, name='allocated_glass'),
+    #-------------Packing-------------------------------------------------------
+    re_path(r'^packing_list/', views.packing_list, name='packing_list'),
+    re_path(r'^assign_packing/(?P<pk>.*)/$', views.assign_packing, name='assign_packing'),
+    re_path(r'^allocated_packing/(?P<pk>.*)/$', views.allocated_packing, name='allocated_packing'),
 ]

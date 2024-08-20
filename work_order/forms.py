@@ -6,7 +6,7 @@ from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInp
 
 from product.models import *
 from customer.models import Customer
-from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish
+from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -108,3 +108,29 @@ class PolishAssignForm(forms.ModelForm):
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 PolishAssignFormSet = inlineformset_factory(WorkOrder, Polish, form=PolishAssignForm, extra=1)
+
+class GlassAssignForm(forms.ModelForm):
+    
+    class Meta:
+        model = Glass
+        fields = ['material', 'quality', 'quantity', 'rate']
+        widgets = {
+            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'quality': TextInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+GlassAssignFormSet = inlineformset_factory(WorkOrder, Glass, form=GlassAssignForm, extra=1)
+
+class PackingAssignForm(forms.ModelForm):
+    
+    class Meta:
+        model = Packing
+        fields = ['material', 'quality', 'quantity', 'rate']
+        widgets = {
+            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'quality': TextInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+PackingAssignFormSet = inlineformset_factory(WorkOrder, Packing, form=PackingAssignForm, extra=1)

@@ -711,3 +711,195 @@ def allocated_polish(request, pk):
 
     html = render_to_string('admin_panel/pages/polish/allocated_polish.html', context, request=request)
     return JsonResponse({'html': html})
+
+
+#--------------------------------Glass----------------------------------------------------
+
+
+def glass_list(request):
+    
+    glass = WorkOrder.objects.filter(status="020")
+    context = {
+        'page_name' : 'Glass',
+        'page_title': 'Glass',
+        'glass': glass,
+    }
+    
+    return render(request, 'admin_panel/pages/glass/glass_list.html', context) 
+
+def assign_glass(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    
+    GlassAssignFormSet = inlineformset_factory(
+        WorkOrder, Glass, 
+        form=GlassAssignForm, 
+        extra=1, 
+        can_delete=True
+    )
+    
+    if request.method == 'POST':
+        formset = GlassAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        message = ''
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    instances = formset.save(commit=False)
+                    for instance in instances:
+                        instance.auto_id = get_auto_id(Glass)
+                        instance.creator = request.user
+                        instance.save()
+                    work_order.status = "020"
+                    work_order.is_assigned = True
+                    work_order.save()
+
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Glass assigned successfully.",
+                        "redirect": "true",
+                        "redirect_url": reverse('work_order:glass_list')
+                    }
+            except IntegrityError as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+            except Exception as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+        else:
+            message = generate_form_errors(formset, formset=True)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        formset = GlassAssignFormSet(instance=work_order, prefix='formset')
+        context = {
+            'glass_formset': formset,
+            'page_name': 'Glass Assign',
+            'page_title': 'Glass Assign',
+            'work_order': work_order,
+            'url': reverse('work_order:assign_glass', args=[pk]),
+            'is_need_select2': True,
+        }
+        
+        return render(request, 'admin_panel/pages/glass/assign_glass.html', context)
+    
+
+def allocated_glass(request, pk):
+    
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    glass = Glass.objects.filter(work_order=work_order)
+    
+    context = {
+        'work_order': work_order,
+        'assign_glass': glass,
+    }
+
+    html = render_to_string('admin_panel/pages/glass/allocated_glass.html', context, request=request)
+    return JsonResponse({'html': html})
+
+
+#----------------------------Packing--------------------------------------------------------------------
+def packing_list(request):
+    
+    packing = WorkOrder.objects.filter(status="022")
+    context = {
+        'page_name' : 'Packing',
+        'page_title': 'Packing',
+        'packing': packing,
+    }
+    
+    return render(request, 'admin_panel/pages/packing/packing_list.html', context) 
+
+def assign_packing(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    
+    PackingAssignFormSet = inlineformset_factory(
+        WorkOrder, Packing, 
+        form=PackingAssignForm, 
+        extra=1, 
+        can_delete=True
+    )
+    
+    if request.method == 'POST':
+        formset = PackingAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        message = ''
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    instances = formset.save(commit=False)
+                    for instance in instances:
+                        instance.auto_id = get_auto_id(Packing)
+                        instance.creator = request.user
+                        instance.save()
+                    work_order.status = "022"
+                    work_order.is_assigned = True
+                    work_order.save()
+
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Packing assigned successfully.",
+                        "redirect": "true",
+                        "redirect_url": reverse('work_order:packing_list')
+                    }
+            except IntegrityError as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+            except Exception as e:
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+        else:
+            message = generate_form_errors(formset, formset=True)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        formset = PackingAssignFormSet(instance=work_order, prefix='formset')
+        context = {
+            'packing_formset': formset,
+            'page_name': 'Packing Assign',
+            'page_title': 'Packing Assign',
+            'work_order': work_order,
+            'url': reverse('work_order:assign_packing', args=[pk]),
+            'is_need_select2': True,
+        }
+        
+        return render(request, 'admin_panel/pages/packing/assign_packing.html', context)
+    
+
+def allocated_packing(request, pk):
+    
+    work_order = get_object_or_404(WorkOrder, id=pk)
+    packing = Packing.objects.filter(work_order=work_order)
+    
+    context = {
+        'work_order': work_order,
+        'assign_packing': packing,
+    }
+
+    html = render_to_string('admin_panel/pages/packing/allocated_packing.html', context, request=request)
+    return JsonResponse({'html': html})
