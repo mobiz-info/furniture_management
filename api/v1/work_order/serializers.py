@@ -22,3 +22,13 @@ class PolishSerializer(serializers.ModelSerializer):
     class Meta:
         model=Polish
         fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+
+class GlassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Glass
+        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+
+class PackingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Packing
+        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
