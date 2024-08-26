@@ -15,10 +15,10 @@ from rest_framework import status
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder
-from .serializers import WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer
+from .serializers import WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
-from work_order.models import WoodWorkAssign,Carpentary,Polish
+from work_order.models import WoodWorkAssign,Carpentary,Polish,Glass,Packing
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -85,6 +85,41 @@ def polish_details(request,id=None):
             return Response(serializer.data)
         queryset=Polish.objects.all()
         serializer=PolishSerializer(queryset,many=True)
+        return Response(serializer.data)
+    except  Exception as e:
+        print(e)
+        return Response({'status': False, 'message': 'Something went wrong!'})
+    
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+
+def glass_details(request,id=None):
+    try:
+        if id:
+            queryset=Glass.objects.get(id=id)
+            serializer=GlassSerializer(queryset)
+            return Response(serializer.data)
+        queryset=Glass.objects.all()
+        serializer=GlassSerializer(queryset,many=True)
+        return Response(serializer.data)
+    except  Exception as e:
+        print(e)
+        return Response({'status': False, 'message': 'Something went wrong!'})
+    
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+
+def packing_details(request,id=None):
+    try:
+        if id:
+            queryset=Packing.objects.get(id=id)
+            serializer=PackingSerializer(queryset)
+            return Response(serializer.data)
+        queryset=Packing.objects.all()
+        serializer=PackingSerializer(queryset,many=True)
         return Response(serializer.data)
     except  Exception as e:
         print(e)
