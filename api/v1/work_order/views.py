@@ -4,6 +4,10 @@ from django.utils.html import strip_tags
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from django.forms import formset_factory
+from django.db import transaction, IntegrityError
+from django.urls import reverse
 
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.response import Response
@@ -19,6 +23,8 @@ from .serializers import WorkOrderSerializer,WoodWorkAssignSerializer,Carpentary
 from rest_framework.views import APIView
 from django.db.models import Q
 from work_order.models import WoodWorkAssign,Carpentary,Polish,Glass,Packing
+from work_order.forms import WoodWorksAssignForm
+from main.functions import generate_form_errors, get_auto_id
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -53,7 +59,65 @@ def get_work_wood_assign(request,id=None):
     except  Exception as e:
         print(e)
         return Response({'status': False, 'message': 'Something went wrong!'})
-    
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def assign_wood_api(request, pk=None):
+    try:
+        if pk:
+            work_order = get_object_or_404(WorkOrder, id=pk)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Request",
+                "message": "Work order ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = WoodWorkAssignSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                        wood_assign = serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(WoodWorkAssign),
+                        creator=request.user
+                    )
+
+                work_order.status = "012"
+                work_order.is_assigned = True
+                work_order.save()
+
+                    
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Wood assigned successfully.",
+                    }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    "status": "false",
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
