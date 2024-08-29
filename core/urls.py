@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/v1/auth/', include(('api.v1.authentication.urls','authentication'), namespace='api_v1_authentication')),
     path('api/v1/product/', include(('api.v1.product.urls','product'), namespace='api_v1_product')),
     path('api/v1/work-order/', include(('api.v1.work_order.urls','work_order'), namespace='api_v1_work_order')),
+    path('api/v1/customer/',include(('customer.urls','customer'),namespace='customer')),
 
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})

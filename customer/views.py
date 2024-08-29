@@ -1,3 +1,19 @@
-from django.shortcuts import render
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from .models import Customer
+from .serializers import CustomerSerializer
 
-# Create your views here.
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def customer_details(request, mobile_number=None):
+    try:
+        if mobile_number:
+            customer = Customer.objects.get(mobile_number=mobile_number)
+            serializer = CustomerSerializer(customer)
+            return Response(serializer.data)
+    except  Exception as e:
+        print(e)
+        return Response({'status': False, 'message': 'Something went wrong!'})

@@ -42,6 +42,8 @@ def get_work_order(request,id=None):
     except  Exception as e:
         print(e)
         return Response({'status': False, 'message': 'Something went wrong!'})
+    
+#-------------------------------wood Assign----------------------------------------------
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -118,6 +120,8 @@ def assign_wood_api(request, pk=None):
             "title": "Failed",
             "message": "Something went wrong: " + str(e),
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+#-----------------------------------carpenter_api-------------------------------------------
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -137,6 +141,65 @@ def carpentary_details(request,id=None):
         return Response({'status': False, 'message': 'Something went wrong!'})
     
 
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def assign_carpentary_api(request, pk=None):
+    try:
+        if pk:
+            work_order = get_object_or_404(WorkOrder, id=pk)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Request",
+                "message": "Work order ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = CarpentarySerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                        carpentrary_assign = serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(Carpentary),
+                        creator=request.user
+                    )
+
+                work_order.status = "015"
+                work_order.is_assigned = True
+                work_order.save()
+
+                    
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Carpentary assigned successfully.",
+                    }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    "status": "false",
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+#----------------------------polish-------------------------------------------------------
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
@@ -154,7 +217,65 @@ def polish_details(request,id=None):
         print(e)
         return Response({'status': False, 'message': 'Something went wrong!'})
     
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def assign_polish_api(request, pk=None):
+    try:
+        if pk:
+            work_order = get_object_or_404(WorkOrder, id=pk)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Request",
+                "message": "Work order ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        serializer = PolishSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                        polish_assign = serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(Polish),
+                        creator=request.user
+                    )
+
+                work_order.status = "018"
+                work_order.is_assigned = True
+                work_order.save()
+
+                    
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": " assigned successfully.",
+                    }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    "status": "false",
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+#-------------------------------glass_api------------------------------------------
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
@@ -172,6 +293,66 @@ def glass_details(request,id=None):
         print(e)
         return Response({'status': False, 'message': 'Something went wrong!'})
     
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def assign_glass_api(request, pk=None):
+    try:
+        if pk:
+            work_order = get_object_or_404(WorkOrder, id=pk)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Request",
+                "message": "Work order ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = GlassSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                        glass_assign = serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(Glass),
+                        creator=request.user
+                    )
+
+                work_order.status = "020"
+                work_order.is_assigned = True
+                work_order.save()
+
+                    
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Glass assigned successfully.",
+                    }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    "status": "false",
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#---------------------------------packing_api----------------------------------------------   
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
@@ -188,3 +369,62 @@ def packing_details(request,id=None):
     except  Exception as e:
         print(e)
         return Response({'status': False, 'message': 'Something went wrong!'})
+    
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def assign_packing_api(request, pk=None):
+    try:
+        if pk:
+            work_order = get_object_or_404(WorkOrder, id=pk)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Request",
+                "message": "Work order ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PackingSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                        packing_assign = serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(Packing),
+                        creator=request.user
+                    )
+
+                work_order.status = "022"
+                work_order.is_assigned = True
+                work_order.save()
+
+                    
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Assigned",
+                        "message": "Packing assigned successfully.",
+                    }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    "status": "false",
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
