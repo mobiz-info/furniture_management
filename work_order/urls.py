@@ -10,6 +10,7 @@ urlpatterns = [
     re_path(r'edit-work-order/(?P<pk>.*)/$', views.edit_work_order, name='edit_work_order'),
     re_path(r'delete-work-order/(?P<pk>.*)/$', views.delete_work_order, name='delete_work_order'),
     re_path(r'delete-work-order-image/(?P<pk>.*)/$', views.delete_work_order_image, name='delete_work_order_image'),
+    re_path(r'assign-work-order/$', views.assign_work_order, name='assign_work_order'),
     
     #-----------------Wood Section---------------------
     re_path(r'^wood_work_orders_list/', views.wood_work_orders_list, name='wood_work_orders_list'),

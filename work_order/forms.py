@@ -6,7 +6,7 @@ from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInp
 
 from product.models import *
 from customer.models import Customer
-from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing
+from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing, WorkOrderStatus
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -32,6 +32,17 @@ class WorkOrderForm(forms.ModelForm):
                 'total_estimate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'delivery_date': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
             }
+        
+class WorkOrderStatusForm(forms.ModelForm):
+    
+    class Meta:
+        model = WorkOrderStatus
+        fields = ['to_section', 'description']
+        
+        widgets = {
+            'to_section': Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Status'}),
+            'description': Textarea(attrs={'class': 'form-control','rows':'2'}),
+        }
         
 class WorkOrderItemsForm(forms.ModelForm):
 

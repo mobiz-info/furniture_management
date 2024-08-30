@@ -1,6 +1,6 @@
 {% extends 'admin_panel/base.html' %}
 {% load static %}
-
+{% load work_order_templatetags %}
 {% block content %}
     <!-- Page Content-->
     <div class="page-content">
@@ -145,30 +145,18 @@
                       <span aria-hidden="true">×</span>
                     </button>
                   </div>
-                  <form action="" method="POST" enctype="multipart/form-data" class="ajax redirect">
+                  <form action="{% url 'work_order:assign_work_order' %}" method="POST" enctype="multipart/form-data" class="ajax redirect">
                       <div class="modal-body">
                           {% csrf_token %}
+                          {% work_order_status_assign_form as workstatusassignform %}
                           <input type="hidden" name="order_id" class="form-control" id="orderIdModalField">
-                          {% comment %} {{status_form.export_id}} {% endcomment %}
                           <div class="form-group">
                               <label for="recipient-name" class="col-form-label">Status:</label>
-                              {% comment %} {{status_form.status}} {% endcomment %}
-                              <select class="form-control" id="orderStatusField">
-                                  <option value="">Select Status</option>
-                                  <option value="010">New</option>
-                                  <option value="012">Wood Section</option>
-                                  <option value="015">Carperntry</option>
-                                  <option value="018">Polishing</option>
-                                  <option value="020">Glass/Upholstory</option>
-                                  <option value="022">Packing</option>
-                                  <option value="024">Dispatch</option>
-                                  <option value="028">Other </option>
-                              </select>
+                              {{workstatusassignform.to_section}}
                           </div>
                           <div class="form-group">
                               <label for="message-text" class="col-form-label">Caption:</label>
-                              {% comment %} {{status_form.caption}} {% endcomment %}
-                              <textarea class="form-control" id="message-text"></textarea>
+                              {{workstatusassignform.description}}
                           </div>
                       </div>
                       <div class="modal-footer">
@@ -188,11 +176,14 @@
 <script>
     function handleButtonClick(button) {
         $('#WorkAssignModal').modal('show');
+        var orderId = $(button).attr("data-unique_id");
+        $("#orderIdModalField").val(orderId);
     };
     function clearForm() {
         // Clear the form fields
         document.getElementById('orderIdModalField').value = '';
-        document.getElementById('orderStatusField').value = '';
+        document.getElementById('id_status').value = '';
+        document.getElementById('id_description').value = '';
         $('#WorkAssignModal').modal('hide');
       }
 </script>

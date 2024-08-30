@@ -428,11 +428,76 @@ def delete_work_order_image(request,pk):
     
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
+@login_required
+@role_required(['superadmin'])
+def assign_work_order(request):
+    """
+    Assign operation of work_order
+    :param request:
+    :param pk:
+    :return:
+    """
+    if request.method == 'POST':
+        form = WorkOrderStatusForm(request.POST)
+
+        if form.is_valid() :
+            try:
+                with transaction.atomic():
+                    # Update data
+                    work_order = WorkOrder.objects.get(pk=request.POST.get('order_id'))
+                    
+                    data = form.save(commit=False)
+                    data.auto_id = get_auto_id(WorkOrderStatus)
+                    data.creator = request.user
+                    data.work_order = work_order
+                    data.from_section = work_order.status
+                    data.save()
+                    
+                    work_order.status = data.to_section
+                    work_order.save()
+
+                    response_data = {
+                        "status": "true",
+                        "title": "Successfully Updated",
+                        "message": "Assign Work Orders updated successfully.",
+                        "redirect": "true",
+                        "redirect_url": reverse('work_order:work_order_list'),
+                    }
+
+            except IntegrityError as e:
+                # Handle database integrity error
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+
+            except Exception as e:
+                # Handle other exceptions
+                response_data = {
+                    "status": "false",
+                    "title": "Failed",
+                    "message": str(e),
+                }
+
+        else:
+            message = generate_form_errors(form, formset=False)
+
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
 
 #----------------------------Wood Section---------------------------
 def wood_work_orders_list(request):
     
-    work_orders = WorkOrder.objects.filter(status="012")
+    work_order_ids = WorkOrderStatus.objects.filter(to_section="012").values_list("work_order__pk")
+    
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
     context = {
         'page_name' : 'Wood Work Orders',
@@ -523,12 +588,13 @@ def allocated_wood(request, pk):
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
     
-    carpentary = WorkOrder.objects.filter(status="015")
-    # carpentary=Carpentary.objects.all()
+    work_order_ids = WorkOrderStatus.objects.filter(to_section="015").values_list("work_order__pk")
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    
     context = {
         'page_name' : 'Carpentary',
         'page_title': 'Carpentary',
-        'carpentary': carpentary,
+        'carpentary': work_orders,
     }
     
     return render(request, 'admin_panel/pages/wood/carpentary_list.html', context) 
@@ -620,12 +686,13 @@ def allocated_carpentary(request, pk):
 #-----------------------Polish-------------------------------------------------------------------
 
 def polish_list(request):
+    work_order_ids = WorkOrderStatus.objects.filter(to_section="018").values_list("work_order__pk")
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
-    polish = WorkOrder.objects.filter(status="018")
     context = {
         'page_name' : 'Polish',
         'page_title': 'Polish',
-        'polish': polish,
+        'polish': work_orders,
     }
     
     return render(request, 'admin_panel/pages/polish/polish_list.html', context) 
@@ -717,12 +784,13 @@ def allocated_polish(request, pk):
 
 
 def glass_list(request):
+    work_order_ids = WorkOrderStatus.objects.filter(to_section="020").values_list("work_order__pk")
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
-    glass = WorkOrder.objects.filter(status="020")
     context = {
         'page_name' : 'Glass',
         'page_title': 'Glass',
-        'glass': glass,
+        'glass': work_orders,
     }
     
     return render(request, 'admin_panel/pages/glass/glass_list.html', context) 
@@ -812,12 +880,13 @@ def allocated_glass(request, pk):
 
 #----------------------------Packing--------------------------------------------------------------------
 def packing_list(request):
+    work_order_ids = WorkOrderStatus.objects.filter(to_section="022").values_list("work_order__pk")
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
-    packing = WorkOrder.objects.filter(status="022")
     context = {
         'page_name' : 'Packing',
         'page_title': 'Packing',
-        'packing': packing,
+        'packing': work_orders,
     }
     
     return render(request, 'admin_panel/pages/packing/packing_list.html', context) 

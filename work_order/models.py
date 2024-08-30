@@ -102,7 +102,8 @@ class WoodWorkAssign(BaseModel):
     
 class WorkOrderStatus(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    status = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
+    from_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
+    to_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     description = models.TextField()
     
     class Meta:
