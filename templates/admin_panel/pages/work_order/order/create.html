@@ -287,4 +287,36 @@
         });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        $("#id_mobile_number").on("keyup", function() {
+            var mobile_number = $(this).val();
+            if (mobile_number.length === 10) {
+                $.ajax({
+                    url: "{% url 'work_order:fetch_customer_details' %}",
+                    data: {
+                        customer_mobile_no: mobile_number
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === "true") {
+                            // Fill in the corresponding fields with the fetched data
+                            $("#id_name").val(response.data.name);
+                            $("#id_email").val(response.data.email);
+                            $("#id_gst_no").val(response.data.gst_no);
+                            $("#id_address").val(response.data.address);
+                        } else {
+                            // Handle case where no customer data was found
+                            alert("No customer data found for this mobile number.");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error: " + error);
+                    }
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}
