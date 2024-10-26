@@ -57,3 +57,40 @@ class Staff(BaseModel):
         first_name = self.first_name[0] if self.first_name else ''
         last_name = self.last_name[0] if self.last_name else ''
         return first_name + last_name
+    
+
+ATTENDANCE_CHOICES = (
+    ('010', 'Present'),
+    ('015', 'Absent'),
+    ('020', 'Sick Leave'),
+    ('025', 'Casual Leave'),
+    ('030', 'Paid Leave'),
+    ('035', 'Other'),
+)
+
+LEAVE_DURATION_CHOICES = (
+    ('010', 'Half Day'),
+    ('015', 'Full Day'),
+)
+
+LEAVE_STATUS_CHOICES = (
+    ('101', 'Requested'),
+    ('105', 'Approved'),
+    ('108', 'Rejected'),
+    ('110', 'Cancelled'),
+)
+
+class Attendance(BaseModel):
+    date = models.DateField()
+    attendance = models.CharField(max_length=3, choices=ATTENDANCE_CHOICES)
+    punchin_time = models.TimeField(blank=True, null=True)
+    punchout_time = models.TimeField(blank=True, null= True)
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="attendance_staff")
+    class Meta:
+        db_table = 'attendance'
+        verbose_name = ('Attendance')
+        verbose_name_plural = ('Attendance')
+        unique_together = ('staff', 'date')
+
+    def __str__(self):
+        return f'{self.staff.user.username} - {self.attendance}'

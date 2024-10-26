@@ -23,4 +23,14 @@ urlpatterns = [
     re_path(r'staff_create/$', views.staff_create, name='staff_create'),
     re_path(r'staff_edit/(?P<pk>.*)/$', views.staff_edit, name='staff_edit'),
     re_path(r'staff_delete/(?P<pk>.*)/$', views.staff_delete, name='staff_delete'),
+    
+    #------------------------------- Attendence -------------------------
+    re_path(r'attendence_list/$', views.attendence_list, name='attendence_list'),
+    re_path(r'attendence_create/$', views.attendence_create, name='attendence_create'),
+    re_path(r'attendence_edit/(?P<pk>.*)/$', views.attendence_edit, name='attendence_edit'),
+    re_path(r'attendance_delete/(?P<pk>.*)/$', views.attendance_delete, name='attendance_delete'),
+    
+    re_path(r'get_staffs', views.get_staffs, name='get_staffs'),
+    re_path(r'add_staff_to_list', views.add_staff_to_list, name='add_staff_to_list'),
+    re_path(r'adding_attendence', views.adding_attendence, name='adding_attendence'),
 ]

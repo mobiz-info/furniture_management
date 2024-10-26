@@ -53,3 +53,18 @@ class StaffForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
             'employee_id': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter Employee ID'}),
         }
+        
+        
+
+class AttendenceForm(forms.ModelForm):
+    class Meta:
+        model = Attendance
+        fields = ['date', 'punchin_time', 'punchout_time', 'attendance']
+        
+        widgets = {
+            'date' : forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Enter Date', 'readonly': True}),
+            'punchin_time' : forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Select Time'}),
+            'punchout_time' : forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Select Time'}),
+            'attendance' : forms.Select(attrs={'class': 'form-control', 'placeholder': 'Select Attendece Type'}),
+        }
+    

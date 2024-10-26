@@ -1,0 +1,83 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">{{ page_title }}</h4>
+                        </div><!-- end col -->
+                    </div><!-- end row -->
+                </div><!-- end page-title-box -->
+            </div><!-- end col -->
+        </div><!-- end row -->
+        <!-- end page title end breadcrumb -->
+
+        <form action="{{ url }}" method="POST" class="ajax redirect">
+            <div class="row">
+                <div class="col-12">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body bootstrap-select-1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">{{ form.date.label }} :</label>
+                                        {{ form.date }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">{{ form.attendance.label }} :</label>
+                                        {{ form.attendance }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+                            </div><!-- end row -->
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">{{ form.punchin_time.label }} :</label>
+                                        {{ form.punchin_time }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">{{ form.punchout_time.label }} :</label>
+                                        {{ form.punchout_time }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+                            </div><!-- end row -->
+
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+
+                    <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light">Save Changes</button>
+                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
+                </div><!-- end col -->
+            </div><!-- end row -->
+        </form><!-- end form -->
+    </div><!-- container -->
+</div><!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+<!-- Additional styles if necessary -->
+{{ form.media }}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .form-control {
+        height: calc(2.8em + .75rem + 2px);
+    }
+</style>
+
+{% endblock %}

@@ -2,7 +2,7 @@ import io
 import json
 import random
 import datetime
-from datetime import timezone
+from datetime import timezone, datetime
 #django
 from django.urls import reverse
 from django.http import HttpResponse
@@ -12,6 +12,7 @@ from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
+from django.http import JsonResponse
 # rest framework
 from rest_framework import status
 #local
@@ -501,7 +502,8 @@ def staff_create(request):
         }
         
         return render(request,'admin_panel/pages/staff/staff_create.html',context)
-    
+
+
 @login_required
 @role_required(['superadmin'])
 def staff_edit(request,pk):
@@ -557,7 +559,8 @@ def staff_edit(request,pk):
         }
 
         return render(request, 'admin_panel/pages/staff/staff_create.html',context)    
-    
+
+
 @login_required
 @role_required(['superadmin'])
 def staff_delete(request, pk):
@@ -581,3 +584,182 @@ def staff_delete(request, pk):
     }
 
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+
+@login_required
+@role_required(['superadmin'])
+def attendence_list(request):
+    
+    if request.method == "GET":
+        current_date = datetime.now()
+        formatted_date = current_date.strftime('%Y-%m-%d')
+        instances = Attendance.objects.filter(is_deleted=False, date = formatted_date)
+
+        context = {
+            'instances': instances,
+            'page_name' : 'Attendence List',
+            'page_title' : 'Attendence List'
+        }
+        return render(request, 'admin_panel/pages/attendence/attendence_list.html', context)
+    
+
+
+
+def get_staffs(request):
+    if request.method == "GET":
+        search_name = request.GET.get('input_name')
+        relate_names = Staff.objects.filter(first_name__icontains=search_name)
+        names = list(relate_names.values())
+        dat = {'names': names}
+        return JsonResponse(dat)
+
+
+def add_staff_to_list(request):
+    if request.method == "GET":
+        search_name = request.GET.get('input_name')
+        relate_names = Staff.objects.filter(auto_id=search_name)
+        names_list = list(relate_names.values())
+        dat = {'names_list': names_list}
+        return JsonResponse(dat)
+
+
+def adding_attendence(request):
+    if request.method == "GET":
+        search_name = request.GET.get('checked_items')
+        print(search_name,"########################")
+        auto_id_list = search_name.split(",") if "," in search_name else list(search_name)
+        print("auto_id_list", auto_id_list)
+        relate_names = Staff.objects.filter(auto_id=search_name)
+        names_list = list(relate_names.values())
+        dat = {'names_list': names_list}
+        # return JsonResponse(dat)
+        message = "bijoy"
+        response_data = {
+        "status": "false",
+        "title": "Failed",
+        "message": message}
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+
+
+@login_required
+@role_required(['superadmin'])
+def attendence_create(request):
+    if request.method == "GET":
+        context = {
+            'page_name' : 'Create Staff',
+            'page_title': 'Create Staffs',
+            'url': reverse('staff:attendence_create'),
+            'staff_page': True,
+            'is_need_select': True,
+        }
+        return render(request,'admin_panel/pages/attendence/attendence_create.html',context)
+    
+    if request.method == "POST":
+        checked_list = request.POST.getlist('staff_checkbox')
+        print("checked_list", checked_list)
+        
+        success_count = 0
+        unsuccess_count = 0
+        for check in checked_list:
+            staff_instance = Staff.objects.get(auto_id = check)
+            max_attendence = Attendance.objects.aggregate(Max('auto_id'))['auto_id__max']
+            max_attendence = 0 if max_attendence == None else max_attendence
+            current_date = datetime.now()
+            formatted_date = current_date.strftime('%Y-%m-%d')
+            existsts = Attendance.objects.filter(staff__auto_id = staff_instance.auto_id , date = formatted_date).exists()
+            print("aaaaaaaaaaa", existsts)
+            if existsts:
+                unsuccess_count += 1
+            else:
+                Attendance.objects.create(
+                    creator = request.user,
+                    auto_id = int(max_attendence) + 1,
+                    attendance = '010',
+                    punchin_time =  datetime.now().time(),
+                    date = datetime.now().date(),
+                    staff = staff_instance
+                )
+                success_count += 1
+        
+        if len(checked_list) == (success_count + unsuccess_count):
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Attendence Added successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('staff:attendence_list')
+            }
+        
+        else:
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": "Something went Wrong, Please try again later !",
+            }
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+ 
+@login_required
+@role_required(['superadmin'])
+def attendence_edit(request, pk):
+    
+    instance = get_object_or_404(Attendance, pk=pk)
+    message = ''
+    
+    if request.method == "GET":
+        form = AttendenceForm(instance=instance)
+
+        context = {
+            'form': form,
+            'page_name' : 'Edit Attendence',
+            'page_title' : 'Edit Attendence',
+            'url' : reverse('staff:attendence_edit', kwargs={'pk': pk}),
+            'is_need_datetime_picker': True,
+            'is_need_forms': True,
+        }
+        return render(request, 'admin_panel/pages/attendence/attendence_edit.html',context)
+    
+    if request.method == 'POST':
+        form = AttendenceForm(request.POST, instance=instance)
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.date_updated = datetime.today()
+            data.updater = request.user
+            data.save()
+                    
+            response_data = {
+                "status": "true", 
+                "title": "Successfully Created", 
+                "message": "Attendence Update successfully.", 
+                'redirect': 'true',
+                "redirect_url": reverse('staff:attendence_list')
+            }
+        else:
+            message = generate_form_errors(form ,formset=False)
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+
+@login_required
+@role_required(['superadmin'])
+def attendance_delete(request, pk):
+    
+    instance = Attendance.objects.get(pk=pk)
+    instance.is_deleted = True
+    instance.save()
+    
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Attendance Successfully Deleted.",
+        "redirect": "true",
+        "redirect_url": reverse('staff:attendence_list'),
+    }
+
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+

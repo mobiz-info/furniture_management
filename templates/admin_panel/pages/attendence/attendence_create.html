@@ -1,0 +1,174 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Page Content -->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">{{ page_title }}</h4>
+                        </div><!-- end col -->
+                    </div><!-- end row -->
+                </div><!-- end page-title-box -->
+            </div><!-- end col -->
+        </div><!-- end row -->
+        <!-- end page title end breadcrumb -->
+
+        <form action="{{ url }}" method="POST" class="ajax redirect">
+            <div class="row">
+                <div class="col-12">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body bootstrap-select-1">
+
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <!-- <label for="name"> Search Name </label> -->
+                                        <input class="form-control" type="text" name="inp_name" id="inp_id" placeholder="search name">
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <input type="button" onclick="get_sttaff_names();" value="Search" class="form-control">
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+
+                            </div><!-- end row -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select id="search_id" class="form-control" name="search_name">
+                                            <option value=""> ----- select ----- </option>
+                                        </select>
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <input type="button" onclick="add_staff_list();" value="Submit" class="form-control">
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
+
+                            </div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+
+                    <!-- list  -->
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table mb-0" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="font-weight-bold text-center">#</th>
+                                        <th class="font-weight-bold text-left">Staff</th>
+                                        <th class="font-weight-bold text-right">Select</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list_tab_body" name="name_tab_body">
+                                </tbody>
+                            </table>
+                            <!--end /table-->
+                        </div>
+                        <!--end /tableresponsive-->
+                        <!-- pagination -->
+                    <div class="mt-5"></div>
+                    <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light" >Save Changes</button>
+                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
+                </div><!-- end col -->
+            </div><!-- end row -->
+        </form><!-- end form -->
+    </div><!-- container -->
+</div><!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+<!-- Additional styles if necessary -->
+{{ form.media }}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .form-control {
+        height: calc(2.8em + .75rem + 2px);
+    }
+</style>
+
+
+<script>
+    function get_sttaff_names()
+    {
+    var name = document.getElementById('inp_id').value
+    $.ajax({
+        type:'GET',
+        url: 'get_staffs',
+        data:{input_name : name},
+        datatype:'json',
+        success:function(data)
+        {
+            console.log(data);
+            $('#search_id').find('option').remove();
+              $.each(data.names, function(i=1, value) {
+                $('#search_id').append('<option value="'+ value.auto_id +'">'+ value.first_name + ' ' + value.last_name + '</option>');
+                });
+        },
+        });
+    }
+
+    function add_staff_list()
+    {
+    var drop_name = document.getElementById('search_id').value
+    $.ajax({
+        type:'GET',
+        url: 'add_staff_to_list',
+        data:{input_name : drop_name},
+        datatype:'json',
+        success:function(data)
+        {
+            console.log(data);
+            $.each(data.names_list, function(i=1, value) {
+                let row = `
+                    <tr>
+                        <td class="text-left">${value.first_name} ${value.last_name}</td>
+                        <td class="text-left">
+                            <input type="checkbox" class="form-control" name="staff_checkbox" value="${value.auto_id}">
+                        </td>
+                    </tr>`;
+                $('#list_tab_body').append(row);
+        });
+        },
+        });
+    }
+
+    function submitCheckedItems() {
+        let checkedItems = [];
+        $("input[name='staff_checkbox']:checked").each(function() {
+            checkedItems.push($(this).val());
+        });
+        console.log("aaaaaaaaaaa"+checkedItems)
+    
+        $.ajax({
+            type: 'GET',
+            url: 'adding_attendence',
+            data: {'checked_items': checkedItems},
+            datatype:'json',
+            success:function(data)
+            {
+                console.log(data);
+            },
+        });
+    }
+</script>
+
+{% endblock %}
