@@ -13,7 +13,7 @@ class MaterialsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Materials
-        fields = ['id','name','is_subcategory','image']
+        fields = ['id','name','is_subcategory','image','sub_materials']
     
     def get_sub_materials(self,obj):
         instances = MaterialsType.objects.filter(material=obj,is_deleted=False)
@@ -25,7 +25,7 @@ class SubMaterialsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MaterialsType
-        fields = ['id','name','is_subcategory']
+        fields = ['id','name','is_subcategory','sub_material_type']
         
     def get_sub_material_type(self,obj):
         instances = MaterialTypeCategory.objects.filter(material_type=obj,is_deleted=False)
