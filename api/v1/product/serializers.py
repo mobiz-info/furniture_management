@@ -44,7 +44,7 @@ class ProductCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProductCategory
-        fields = ['id','name','is_subcategory','image']
+        fields = ['id','name','is_subcategory','image','sub_categories']
     
     def get_sub_categories(self,obj):
         instances = ProductSubCategory.objects.filter(product_category=obj,is_deleted=False)
