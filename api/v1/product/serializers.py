@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
+
 from rest_framework import serializers
+
+from staff.models import *
+from customer.models import Customer
+from work_order.models import ModelNumberBasedProducts, WorkOrder, WorkOrderImages, WorkOrderItems
 from product.models import Product,MaterialTypeCategory, Materials, MaterialsType, ProductCategory, ProductSubCategory
 
 # write code here
@@ -59,9 +64,6 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
     
     
 #  staff attendence ------------------------
-
-from staff.models import *
-
 class Staff_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Staff
@@ -72,3 +74,6 @@ class Staff_Attendecne_List_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = ['id', 'auto_id', 'date', 'attendance', 'punchin_time', 'punchout_time', 'staff']
+        
+
+

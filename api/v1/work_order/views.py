@@ -422,9 +422,23 @@ def assign_packing_api(request, pk=None):
             }, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
-        print(e)
+        # print(e)
         return Response({
             "status": "false",
             "title": "Failed",
             "message": "Something went wrong: " + str(e),
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+@api_view(['POST'])
+def work_order_create(request):
+    """
+    POST: Create a new work order with nested items and images.
+    """
+    if request.method == 'POST':
+        # Create a new work order
+        serializer = WorkOrderSerializer(data=request.data,context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
