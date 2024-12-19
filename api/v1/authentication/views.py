@@ -61,7 +61,7 @@ def login(request):
                 staff_serializer = StaffSerializer(staff_instance, many=False, context={'request': request})
 
                 # Fetch tiles based on designation
-                designation = staff_instance.designation.name
+                designation = staff_instance.department.name
                 tiles = DESIGNATION_TILES.get(designation, [])  # Default to empty list if designation not found
 
                 # Construct response
