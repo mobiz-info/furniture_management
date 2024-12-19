@@ -16,7 +16,7 @@ from rest_framework import status
 from main.functions import decrypt_message, encrypt_message, get_otp
 from api.v1.authentication.serializers import  ResetPasswordSerializer, StaffSerializer, UserSerializer, LogInSerializer, UserTokenObtainPairSerializer
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
-from staff.models import Staff
+from staff.models import Department, Staff
 
 
 class UserTokenObtainPairView(TokenObtainPairView):
@@ -61,7 +61,10 @@ def login(request):
                 staff_serializer = StaffSerializer(staff_instance, many=False, context={'request': request})
 
                 # Fetch tiles based on designation
-                designation = staff_instance.department.name
+                if request.user.is_superuser:
+                    designation = [department.name for department in Department.objects.all()]
+                else:
+                    designation = staff_instance.department.name
                 tiles = DESIGNATION_TILES.get(designation, [])  # Default to empty list if designation not found
 
                 # Construct response
