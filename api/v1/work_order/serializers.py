@@ -49,7 +49,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['name', 'mobile_number', 'address', 'email', 'gst_no']
-
+        
 
 class WorkOrderItemsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,7 +67,7 @@ class WorkOrderImagesSerializer(serializers.ModelSerializer):
         fields = ['image', 'remark']
 
 
-class WorkOrderSerializer(serializers.ModelSerializer):
+class CreateWorkOrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     work_order_items = WorkOrderItemsSerializer(many=True)
     work_order_images = WorkOrderImagesSerializer(many=True, required=False)
@@ -93,7 +93,7 @@ class WorkOrderSerializer(serializers.ModelSerializer):
             # Create a new user for the customer
             user_data = User.objects.create_user(
                 username=mobile_number,
-                password=f'{customer_data.get('name')}@123',
+                password=f'{customer_data.get("name")}@123',
                 is_active=True,
             )
 

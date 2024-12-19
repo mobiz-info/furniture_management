@@ -61,10 +61,10 @@ def login(request):
                 staff_serializer = StaffSerializer(staff_instance, many=False, context={'request': request})
 
                 # Fetch tiles based on designation
-                if request.user.is_superuser:
-                    designation = [department.name for department in Department.objects.all()]
-                else:
-                    designation = staff_instance.department.name
+                # if request.user.is_superuser:
+                #     designation = [department.name for department in Department.objects.all()]
+                # else:
+                designation = staff_instance.department.name
                 tiles = DESIGNATION_TILES.get(designation, [])  # Default to empty list if designation not found
 
                 # Construct response

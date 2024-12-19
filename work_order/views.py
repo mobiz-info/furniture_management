@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 # rest framework
-from customer.serializers import CustomerSerializer
+from api.v1.customers.serializers import CustomerSerializer
 from rest_framework import status
 #local
 from .forms import *

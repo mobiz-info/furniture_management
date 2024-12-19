@@ -2,8 +2,9 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from .models import Customer
-from ..api.v1.customers.serializers import CustomerSerializer
+
+from customer.models import Customer
+from api.v1.customers.serializers import CustomerSerializer
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

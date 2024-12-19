@@ -19,7 +19,7 @@ from rest_framework import status
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder
-from .serializers import WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from .serializers import CreateWorkOrderSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
 from work_order.models import WoodWorkAssign,Carpentary,Polish,Glass,Packing
@@ -30,7 +30,7 @@ from main.functions import generate_form_errors, get_auto_id
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 
-def get_work_order(request,id=None):
+def work_order(request,id=None):
     try:
         if id:
             queryset=WorkOrder.objects.get(id=id)
@@ -49,7 +49,7 @@ def get_work_order(request,id=None):
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 
-def get_work_wood_assign(request,id=None):
+def work_wood_assign(request,id=None):
     try:
         if id:
             queryset=WoodWorkAssign.objects.get(id=id)
@@ -437,7 +437,7 @@ def work_order_create(request):
     """
     if request.method == 'POST':
         # Create a new work order
-        serializer = WorkOrderSerializer(data=request.data,context={'request': request})
+        serializer = CreateWorkOrderSerializer(data=request.data,context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
