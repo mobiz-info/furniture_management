@@ -78,10 +78,12 @@ class StaffSerializer(serializers.ModelSerializer):
     group_names = serializers.SerializerMethodField()
     initial = serializers.SerializerMethodField()
     profile_image = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
+    designation_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Staff
-        fields = ['employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','group_names','initial']
+        fields = ['employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','group_names','initial','department_name','designation_name']
         
     def get_group_names(self, obj):
         group_names = obj.user.groups.all()
@@ -94,6 +96,12 @@ class StaffSerializer(serializers.ModelSerializer):
         if obj.image:
             request = self.context.get('request')
             return request.build_absolute_uri(obj.image.url)
+        
+    def get_department_name(self,obj):
+        return obj.department.name
+    
+    def get_designation_name(self,obj):
+        return obj.designation.name
         
 class UserSerializer(serializers.Serializer):
     group_names = serializers.SerializerMethodField()
