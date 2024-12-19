@@ -31,17 +31,17 @@ from main.functions import generate_form_errors, get_auto_id
 @renderer_classes((JSONRenderer,))
 
 def work_order(request,id=None):
-    try:
-        if id:
-            queryset=WorkOrder.objects.get(id=id)
-            serializer=WorkOrderSerializer(queryset)
-            return Response(serializer.data)
-        queryset=WorkOrder.objects.all()
-        serializer=WorkOrderSerializer(queryset,many=True)
+    # try:
+    if id:
+        queryset=WorkOrder.objects.get(id=id)
+        serializer=WorkOrderSerializer(queryset)
         return Response(serializer.data)
-    except  Exception as e:
-        print(e)
-        return Response({'status': False, 'message': 'Something went wrong!'})
+    queryset=WorkOrder.objects.all()
+    serializer=WorkOrderSerializer(queryset,many=True)
+    return Response(serializer.data)
+    # except  Exception as e:
+    #     print(e)
+    #     return Response({'status': False, 'message': 'Something went wrong!'})
     
 #-------------------------------wood Assign----------------------------------------------
 

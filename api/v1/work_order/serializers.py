@@ -14,7 +14,7 @@ class WorkOrderSerializer(serializers.ModelSerializer):
         fields=['order_no','customer','status','delivery_date','total_estimate','status_value','customer_name']
         
     def get_status_value(self,obj):
-        return obj.status.display()
+        return obj.get_status_display()
     
     def get_customer_name(self,obj):
         return obj.customer.name
