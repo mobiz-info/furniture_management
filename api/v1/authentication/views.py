@@ -29,7 +29,7 @@ DESIGNATION_TILES = {
     "Wood": ["wood", "Status", "Delayed works"],
     "Carpentry": ["Carpentry", "Status", "Delayed works"],
     "Polishing": ["Polishing", "Status", "Delayed works"],
-    "Glass": ["Glass", "Status", "Delayed works"],
+    "Glass works": ["Glass", "Status", "Delayed works"],
     "Upholstery": ["Upholstery", "Status", "Delayed works"],
     "Packing Section": ["Packing", "Status", "Delayed works"],
     "Dispatch": ["Dispatch", "Status", "Delayed works"],
