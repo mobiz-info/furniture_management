@@ -25,7 +25,7 @@ def customer_details(request, mobile_number=None):
 @renderer_classes((JSONRenderer,))
 def customer_mobile_nos(request):
     customer = Customer.objects.filter(is_deleted=False)
-    serializer = CustomerMobileNosSerializer(customer)
+    serializer = CustomerMobileNosSerializer(customer,many=True)
     
     status_code = status.HTTP_200_OK
     response_data = {
