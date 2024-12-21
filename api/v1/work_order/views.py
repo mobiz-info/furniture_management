@@ -19,10 +19,10 @@ from rest_framework import status
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder
-from .serializers import CreateWorkOrderSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from .serializers import CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
-from work_order.models import WoodWorkAssign,Carpentary,Polish,Glass,Packing
+from work_order.models import ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing
 from work_order.forms import WoodWorksAssignForm
 from main.functions import generate_form_errors, get_auto_id
 
@@ -48,7 +48,6 @@ def work_order(request,id=None):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-
 def work_wood_assign(request,id=None):
     try:
         if id:
@@ -442,3 +441,20 @@ def work_order_create(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def model_number_based_products(request,model_no):
+    queryset=ModelNumberBasedProducts.objects.filter(model_no=model_no,is_deleted=False)
+    serializer=ModelNumberBasedProductsSerializer(queryset,many=True)
+    
+    status_code = status.HTTP_200_OK
+    response_data = {
+        "StatusCode": 200,
+        "status": status_code,
+        "data": serializer.data,
+    }
+        
+    return Response(response_data, status=status_code)

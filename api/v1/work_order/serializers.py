@@ -1,5 +1,4 @@
-from email.headerregistry import Group
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 
 from main.functions import get_auto_id
 from rest_framework import serializers
@@ -149,3 +148,16 @@ class CreateWorkOrderSerializer(serializers.ModelSerializer):
                 )
 
         return work_order
+    
+    
+class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
+    category_id = serializers.CharField(source='category.pk', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    sub_category_id = serializers.CharField(source='sub_category.pk', read_only=True)
+    sub_category_name = serializers.CharField(source='sub_category.name', read_only=True)
+    material_type_id = serializers.CharField(source='material_type.pk', read_only=True)
+    material_type_name = serializers.CharField(source='material_type.name', read_only=True)
+    
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = ['model_no','category_id','sub_category_id','material_id','sub_material_id','material_type_id','color','category_name','sub_category_name','material_name','sub_material_name','material_type_name']
