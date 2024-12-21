@@ -4,7 +4,8 @@ from . import views
 app_name = 'api_v1_work_order'
 
 urlpatterns = [
-    re_path(r'model-no-based-products/(?P<model_no>[0-9a-f-]+)/$',views.model_number_based_products),
+    re_path(r'model-no-based-products/(?P<model_no>/$',views.model_number_based_products),
+    re_path(r'order-model-numbers/$',views.order_model_numbers),
     
     re_path(r'create-work-orders', views.work_order_create),
     re_path(r'workorder-details', views.work_order),

@@ -68,8 +68,8 @@ class WorkOrderImagesSerializer(serializers.ModelSerializer):
 
 class CreateWorkOrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
-    work_order_items = WorkOrderItemsSerializer(many=True)
-    work_order_images = WorkOrderImagesSerializer(many=True, required=False)
+    work_order_items = WorkOrderItemsSerializer(many=True, read_only=True)
+    work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkOrder
@@ -78,78 +78,6 @@ class CreateWorkOrderSerializer(serializers.ModelSerializer):
             'delivery_date', 'work_order_items', 'work_order_images'
         ]
 
-    def create(self, validated_data):
-        request = self.context['request']
-        
-        customer_data = validated_data.pop('customer')
-        work_order_items_data = validated_data.pop('work_order_items')
-        work_order_images_data = validated_data.pop('work_order_images', [])
-
-        mobile_number = customer_data.get('mobile_number')
-        if (customer_instance:=Customer.objects.filter(mobile_number=mobile_number)).exists():
-            customer_instance = customer_data.first()
-        else:
-            # Create a new user for the customer
-            user_data = User.objects.create_user(
-                username=mobile_number,
-                password=f'{customer_data.get("name")}@123',
-                is_active=True,
-            )
-
-            # Add the user to the customer group
-            group, created = Group.objects.get_or_create(name="customer")
-            user_data.groups.add(group)
-            
-            customer_instance = Customer.objects.create(
-            mobile_number=mobile_number,
-            name=customer_data.get('name'),
-            address=customer_data.get('address'),
-            email=customer_data.get('email'),
-            gst_no=customer_data.get('gst_no'),
-            auto_id = get_auto_id(Customer),
-            user = user_data,
-            creator = request.user,
-        )
-
-        work_order = WorkOrder.objects.create(
-            customer=customer_instance,
-            auto_id = get_auto_id(WorkOrder),
-            creator = request.user,
-            **validated_data
-            )
-
-        for item_data in work_order_items_data:
-            work_order_item = WorkOrderItems.objects.create(
-                work_order=work_order,
-                auto_id = get_auto_id(WorkOrderItems),
-                creator = request.user,
-                **item_data
-                )
-
-            if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
-                ModelNumberBasedProducts.objects.create(
-                    auto_id=get_auto_id(ModelNumberBasedProducts),
-                    creator=request.user,
-                    model_no=work_order_item.model_no,
-                    category=work_order_item.category,
-                    sub_category=work_order_item.sub_category,
-                    material=work_order_item.material,
-                    sub_material=work_order_item.sub_material,
-                    material_type=work_order_item.material_type,
-                    color=work_order_item.color,
-                )
-
-        for image_data in work_order_images_data:
-            WorkOrderImages.objects.create(
-                work_order=work_order, 
-                auto_id=get_auto_id(WorkOrderImages),
-                creator=request.user,
-                **image_data
-                )
-
-        return work_order
-    
-    
 class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
     category_id = serializers.CharField(source='category.pk', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -161,3 +89,10 @@ class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ModelNumberBasedProducts
         fields = ['model_no','category_id','sub_category_id','material_id','sub_material_id','material_type_id','color','category_name','sub_category_name','material_name','sub_material_name','material_type_name']
+        
+        
+class ModelOrderNumbersSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = ['model_no']
