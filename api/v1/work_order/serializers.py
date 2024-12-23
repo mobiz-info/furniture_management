@@ -83,6 +83,8 @@ class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     sub_category_id = serializers.CharField(source='sub_category.pk', read_only=True)
     sub_category_name = serializers.CharField(source='sub_category.name', read_only=True)
+    material_id = serializers.CharField(source='material.pk', read_only=True)
+    material_name = serializers.CharField(source='material.name', read_only=True)
     material_type_id = serializers.CharField(source='material_type.pk', read_only=True)
     material_type_name = serializers.CharField(source='material_type.name', read_only=True)
     
