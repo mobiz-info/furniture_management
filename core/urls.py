@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/v1/product/', include(('api.v1.product.urls','product'), namespace='api_v1_product')),
     path('api/v1/work-order/', include(('api.v1.work_order.urls','work_order'), namespace='api_v1_work_order')),
     path('api/v1/customer/',include(('api.v1.customers.urls','customer'),namespace='customer')),
+    path('api/v1/staff/',include(('api.v1.staff.urls','customer'),namespace='staff')),
 
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})

@@ -22,9 +22,9 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder
-from .serializers import CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from .serializers import CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderAssignSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
 from django.db.models import Q
-from work_order.models import ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems
+from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
 from main.functions import generate_form_errors, get_auto_id
 
@@ -33,7 +33,6 @@ from main.functions import generate_form_errors, get_auto_id
 @renderer_classes((JSONRenderer,))
 
 def work_order(request,id=None):
-    # try:
     if id:
         queryset=WorkOrder.objects.get(id=id)
         serializer=WorkOrderSerializer(queryset)
@@ -41,27 +40,53 @@ def work_order(request,id=None):
     queryset=WorkOrder.objects.all()
     serializer=WorkOrderSerializer(queryset,many=True)
     return Response(serializer.data)
-    # except  Exception as e:
-    #     print(e)
-    #     return Response({'status': False, 'message': 'Something went wrong!'})
     
 #-------------------------------wood Assign----------------------------------------------
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-def work_wood_assign(request,id=None):
-    try:
-        if id:
-            queryset=WoodWorkAssign.objects.get(id=id)
-            serializer=WoodWorkAssignSerializer(queryset)
-            return Response(serializer.data)
-        queryset=WoodWorkAssign.objects.all()
-        serializer=WoodWorkAssignSerializer(queryset,many=True)
-        return Response(serializer.data)
-    except  Exception as e:
-        print(e)
-        return Response({'status': False, 'message': 'Something went wrong!'})
+def work_assign_status(request):
+    choices = [{"key": key, "value": value} for key, value in WORK_ORDER_CHOICES]
+    
+    status_code = status.HTTP_200_OK
+    response_data = {
+        "StatusCode": 200,
+        "status": status_code,
+        "data": choices,
+    }
+        
+    return Response(response_data, status=status_code)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def work_order_assign(request,pk):
+    work_order = WorkOrder.objects.get(pk=pk)
+    serializer = WorkOrderAssignSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        data = serializer.save(
+        work_order=work_order,
+        auto_id=get_auto_id(WorkOrderStatus),
+        creator=request.user
+        )
+        work_order.status = data.to_section
+        work_order.save()
+        response_data = {
+                "status": "true",
+                "title": "Successfully Assigned",
+                "message": f'Work assigned successfully completed from {data.get_from_section_display()} to {data.get_to_section_display()}.',
+            }
+        return Response(response_data, status=status.HTTP_200_OK)
+    
+    else:
+        return Response({
+            "status": "false",
+            "title": "Invalid Data",
+            "message": serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -486,71 +511,60 @@ def work_order_create(request):
 
         # Create WorkOrder
         try:
-            work_order = WorkOrder.objects.create(
-                customer=customer_instance,
-                order_no=data.get('order_no'),
-                remark=data.get('remark'),
-                total_estimate=data.get('total_estimate'),
-                delivery_date=data.get('delivery_date'),
-                auto_id=get_auto_id(WorkOrder),
-                creator=request.user,
-            )
+            with transaction.atomic():
+                work_order = WorkOrder.objects.create(
+                    customer=customer_instance,
+                    order_no=data.get('order_no'),
+                    remark=data.get('remark'),
+                    total_estimate=data.get('total_estimate'),
+                    delivery_date=data.get('delivery_date'),
+                    auto_id=get_auto_id(WorkOrder),
+                    creator=request.user,
+                )
+               
+                # Create WorkOrder Items
+                work_order_items = data.get('work_order_items', [])
+                for item in work_order_items:
+                    WorkOrderItems.objects.create(
+                        work_order=work_order,
+                        category=ProductCategory.objects.get(pk=item.get('category')),
+                        sub_category=ProductSubCategory.objects.get(pk=item.get('sub_category')),
+                        model_no=item.get('model_no'),
+                        material=Materials.objects.get(pk=item.get('material')),
+                        sub_material=MaterialsType.objects.get(pk=item.get('sub_material')),
+                        material_type=MaterialTypeCategory.objects.get(pk=item.get('material_type')),
+                        quantity=item.get('quantity'),
+                        estimate_rate=item.get('estimate_rate'),
+                        size=item.get('size'),
+                        color=item.get('color'),
+                        remark=item.get('remark'),
+                        auto_id=get_auto_id(WorkOrderItems),
+                        creator=request.user,
+                    )
+                
+                # Create WorkOrder Images
+                work_order_images = data.get('work_order_images', [])
+                for image in work_order_images:
+                    WorkOrderImages.objects.create(
+                        work_order=work_order,
+                        image=image.get('image'),
+                        auto_id=get_auto_id(WorkOrderImages),
+                        creator=request.user,
+                    )
+
+                return Response({
+                    "status": "true",
+                    "title": "Work Order Created",
+                    "work_order_id": work_order.id
+                }, status=status.HTTP_201_CREATED)
+                
         except Exception as e:
-            return Response({
-                "status": "false",
-                "title": "Creation Failed",
-                "message": str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create WorkOrder Items
-        work_order_items = data.get('work_order_items', [])
-        for item in work_order_items:
-            try:
-                WorkOrderItems.objects.create(
-                    work_order=work_order,
-                    category=ProductCategory.objects.get(pk=item.get('category')),
-                    sub_category=ProductSubCategory.objects.get(pk=item.get('sub_category')),
-                    model_no=item.get('model_no'),
-                    material=Materials.objects.get(pk=item.get('material')),
-                    sub_material=MaterialTypeCategory.objects.get(pk=item.get('sub_material')),
-                    material_type=MaterialsType.objects.get(pk=item.get('material_type')),
-                    quantity=item.get('quantity'),
-                    estimate_rate=item.get('estimate_rate'),
-                    size=item.get('size'),
-                    color=item.get('color'),
-                    remark=item.get('remark'),
-                    auto_id=get_auto_id(WorkOrderItems),
-                    creator=request.user,
-                )
-            except Exception as e:
                 return Response({
                     "status": "false",
-                    "title": "Item Creation Failed",
-                    "message": str(e)
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create WorkOrder Images
-        work_order_images = data.get('work_order_images', [])
-        for image in work_order_images:
-            try:
-                WorkOrderImages.objects.create(
-                    work_order=work_order,
-                    image=image.get('image'),
-                    auto_id=get_auto_id(WorkOrderImages),
-                    creator=request.user,
-                )
-            except Exception as e:
-                return Response({
-                    "status": "false",
-                    "title": "Image Upload Failed",
-                    "message": str(e)
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({
-            "status": "true",
-            "title": "Work Order Created",
-            "work_order_id": work_order.id
-        }, status=status.HTTP_201_CREATED)
+                    "title": "Failed",
+                    "message": "An unexpected error occurred: " + str(e),
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 
 @api_view(['GET'])

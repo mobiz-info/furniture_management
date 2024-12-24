@@ -10,13 +10,19 @@ class WorkOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = WorkOrder
-        fields=['order_no','customer','status','delivery_date','total_estimate','status_value','customer_name']
+        fields=['id','order_no','customer','status','delivery_date','total_estimate','status_value','customer_name']
+        read_only_fields=['id']
         
     def get_status_value(self,obj):
         return obj.get_status_display()
     
     def get_customer_name(self,obj):
         return obj.customer.name
+
+class WorkOrderAssignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=WorkOrderStatus
+        fields=['to_section','description']
 
 class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:
