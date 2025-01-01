@@ -83,7 +83,7 @@ class StaffSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Staff
-        fields = ['employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','group_names','initial','department_name','designation_name']
+        fields = ['employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','group_names','initial','department_name','designation_name','auto_id']
         
     def get_group_names(self, obj):
         group_names = obj.user.groups.all()
