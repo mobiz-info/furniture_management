@@ -11,4 +11,5 @@ urlpatterns = [
     # staff attendence ------------------------------------------
     re_path(r'staff-attendence-list', views.staff_attendence_list),
     re_path(r'staff-attendence-punchin', views.staff_attendence_punchin),
+    re_path(r'staff-attendence-punchout', views.staff_attendence_punchout),
 ]

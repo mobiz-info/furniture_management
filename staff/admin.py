@@ -4,4 +4,16 @@ from . models import *
 admin.site.register(Department),
 admin.site.register(Designation),
 admin.site.register(Attendance),
-admin.site.register(Staff)
+
+
+
+class StaffAdmin(admin.ModelAdmin):
+    list_display = ('id', 'get_fullname', 'employee_id', 'phone', 'email', 'department', 'designation','creator','auto_id')
+    list_filter = ('department', 'designation')
+    search_fields = ('first_name', 'last_name', 'employee_id', 'phone', 'email')
+    ordering = ('-id',)
+    fields = ('first_name', 'last_name', 'phone', 'address', 'email', 
+              'employee_id', 'date_of_birth', 'image', 
+              'user', 'department', 'designation')
+
+admin.site.register(Staff, StaffAdmin)

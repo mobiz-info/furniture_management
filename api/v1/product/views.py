@@ -160,3 +160,48 @@ def staff_attendence_punchin(request, pk=None):
             "title": "Failed",
             "message": "Something went wrong: " + str(e),
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def staff_attendence_punchout(request, pk=None):
+    try:
+        input_data = request.data
+        success_count = 0
+        unsuccess_count = 0
+        
+        for input in input_data:
+            staff_instance = Staff.objects.get(auto_id=input)
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            
+            try:
+                attendance_entry = Attendance.objects.get(
+                    staff__auto_id=staff_instance.auto_id, 
+                    date=current_date
+                )
+                
+                if attendance_entry.punchout_time is None:
+                    attendance_entry.punchout_time = datetime.now().time()
+                    attendance_entry.save()
+                    success_count += 1
+                else:
+                    unsuccess_count += 1  
+                
+            except Attendance.DoesNotExist:
+                unsuccess_count += 1 
+        
+        if len(input_data) == (success_count + unsuccess_count):
+            response_data = {
+                "status": "true",
+                "title": "Punch-Out Completed",
+                "message": f"Successfully punched out {success_count} staff. {unsuccess_count} could not be punched out.",
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            "status": "false",
+            "title": "Failed",
+            "message": "Something went wrong: " + str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
