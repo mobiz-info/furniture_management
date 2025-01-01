@@ -124,41 +124,46 @@ def staff_attendence_punchin(request, pk=None):
         input_data = request.data
         success_count = 0
         unsuccess_count = 0
-        
-        for input in input_data:
-            staff_instance = Staff.objects.get(auto_id = input)
+
+        for staff_pk in input_data:
+            try:
+                staff_instance = Staff.objects.get(pk=staff_pk)
+            except Staff.DoesNotExist:
+                unsuccess_count += 1
+                continue
+            
             max_attendence = Attendance.objects.aggregate(Max('auto_id'))['auto_id__max']
-            max_attendence = 0 if max_attendence == None else max_attendence
-            current_date = datetime.now()
-            formatted_date = current_date.strftime('%Y-%m-%d')
-            existsts = Attendance.objects.filter(staff__auto_id = staff_instance.auto_id , date = formatted_date).exists()
-            if existsts:
+            max_attendence = 0 if max_attendence is None else max_attendence
+
+            current_date = datetime.now().date()
+
+            exists = Attendance.objects.filter(staff__pk=staff_instance.pk, date=current_date).exists()
+            if exists:
                 unsuccess_count += 1
             else:
                 Attendance.objects.create(
-                    creator = request.user,
-                    auto_id = int(max_attendence) + 1,
-                    attendance = '010',
-                    punchin_time =  datetime.now().time(),
-                    date = datetime.now().date(),
-                    staff = staff_instance
+                    creator=request.user,
+                    auto_id=int(max_attendence) + 1,
+                    attendance='010',
+                    punchin_time=datetime.now().time(),
+                    date=current_date,
+                    staff=staff_instance
                 )
                 success_count += 1
-        
+
         if len(input_data) == (success_count + unsuccess_count):
             response_data = {
-                    "status": "true",
-                    "title": "Successfully Assigned",
-                    "message": "Staff Attendence added successfully.",
-                }
+                "status": "true",
+                "title": "Successfully Assigned",
+                "message": "Staff Attendance added successfully.",
+            }
             return Response(response_data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        # print(e)
         return Response({
             "status": "false",
             "title": "Failed",
-            "message": "Something went wrong: " + str(e),
+            "message": f"Something went wrong: {e}",
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         
@@ -167,30 +172,35 @@ def staff_attendence_punchin(request, pk=None):
 @renderer_classes((JSONRenderer,))
 def staff_attendence_punchout(request, pk=None):
     try:
-        input_data = request.data
+        input_data = request.data  
         success_count = 0
         unsuccess_count = 0
-        
-        for input in input_data:
-            staff_instance = Staff.objects.get(auto_id=input)
-            current_date = datetime.now().strftime('%Y-%m-%d')
+
+        for staff_pk in input_data:
+            try:
+                staff_instance = Staff.objects.get(pk=staff_pk)
+            except Staff.DoesNotExist:
+                unsuccess_count += 1
+                continue
             
+            current_date = datetime.now().date()
+
             try:
                 attendance_entry = Attendance.objects.get(
-                    staff__auto_id=staff_instance.auto_id, 
+                    staff=staff_instance,
                     date=current_date
                 )
-                
+
                 if attendance_entry.punchout_time is None:
                     attendance_entry.punchout_time = datetime.now().time()
                     attendance_entry.save()
                     success_count += 1
                 else:
                     unsuccess_count += 1  
-                
+
             except Attendance.DoesNotExist:
-                unsuccess_count += 1 
-        
+                unsuccess_count += 1  
+
         if len(input_data) == (success_count + unsuccess_count):
             response_data = {
                 "status": "true",
@@ -198,10 +208,10 @@ def staff_attendence_punchout(request, pk=None):
                 "message": f"Successfully punched out {success_count} staff. {unsuccess_count} could not be punched out.",
             }
             return Response(response_data, status=status.HTTP_200_OK)
-        
+
     except Exception as e:
         return Response({
             "status": "false",
             "title": "Failed",
-            "message": "Something went wrong: " + str(e),
+            "message": f"Something went wrong: {e}",
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
