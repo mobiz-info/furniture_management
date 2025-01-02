@@ -5,6 +5,27 @@ from versatileimagefield.fields import VersatileImageField
 
 from main.models import BaseModel
 
+ATTENDANCE_CHOICES = (
+    ('010', 'Present'),
+    ('015', 'Absent'),
+    ('020', 'Sick Leave'),
+    ('025', 'Casual Leave'),
+    ('030', 'Paid Leave'),
+    ('035', 'Other'),
+)
+
+LEAVE_DURATION_CHOICES = (
+    ('010', 'Half Day'),
+    ('015', 'Full Day'),
+)
+
+LEAVE_STATUS_CHOICES = (
+    ('101', 'Requested'),
+    ('105', 'Approved'),
+    ('108', 'Rejected'),
+    ('110', 'Cancelled'),
+)
+
 # Create your models here.
 class Department(BaseModel):
     name = models.CharField(max_length=255)
@@ -57,28 +78,6 @@ class Staff(BaseModel):
         first_name = self.first_name[0] if self.first_name else ''
         last_name = self.last_name[0] if self.last_name else ''
         return first_name + last_name
-    
-
-ATTENDANCE_CHOICES = (
-    ('010', 'Present'),
-    ('015', 'Absent'),
-    ('020', 'Sick Leave'),
-    ('025', 'Casual Leave'),
-    ('030', 'Paid Leave'),
-    ('035', 'Other'),
-)
-
-LEAVE_DURATION_CHOICES = (
-    ('010', 'Half Day'),
-    ('015', 'Full Day'),
-)
-
-LEAVE_STATUS_CHOICES = (
-    ('101', 'Requested'),
-    ('105', 'Approved'),
-    ('108', 'Rejected'),
-    ('110', 'Cancelled'),
-)
 
 class Attendance(BaseModel):
     date = models.DateField()
