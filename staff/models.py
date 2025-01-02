@@ -85,6 +85,7 @@ class Attendance(BaseModel):
     punchin_time = models.TimeField(blank=True, null=True)
     punchout_time = models.TimeField(blank=True, null= True)
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="attendance_staff")
+
     class Meta:
         db_table = 'attendance'
         verbose_name = ('Attendance')

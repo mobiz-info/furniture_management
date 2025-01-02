@@ -9,7 +9,8 @@ urlpatterns = [
     
     re_path(r'workorder-details', views.work_order),
     re_path(r'create-work-orders', views.work_order_create),
-    re_path(r'workorder-details/(?P<pk>.*)/$',views.work_order),
+    # re_path(r'workorder-details/(?P<pk>.*)/$',views.work_order),
+    re_path(r'workorder-details/(?P<id>\d+)/$', views.work_order),
     
     re_path(r'work-assign-status',views.work_assign_status),
     re_path(r'work-order-assign/(?P<pk>.*)/$',views.work_order_assign),

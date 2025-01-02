@@ -37,9 +37,11 @@ def work_order(request,id=None):
         queryset=WorkOrder.objects.get(id=id)
         serializer=WorkOrderSerializer(queryset)
         return Response(serializer.data)
-    queryset=WorkOrder.objects.all()
-    serializer=WorkOrderSerializer(queryset,many=True)
-    return Response(serializer.data)
+    else:
+        # Fetch all work orders
+        queryset = WorkOrder.objects.all()
+        serializer=WorkOrderSerializer(queryset,many=True)
+        return Response(serializer.data)
     
 #-------------------------------wood Assign----------------------------------------------
 

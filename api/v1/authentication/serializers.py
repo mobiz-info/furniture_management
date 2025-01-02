@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from datetime import datetime
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -6,7 +7,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from six import text_type
 
-from staff.models import Staff
+from staff.models import Attendance, Staff
 
 class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -75,20 +76,20 @@ class ResetPasswordSerializer(serializers.Serializer):
     
     
 class StaffSerializer(serializers.ModelSerializer):
-    group_names = serializers.SerializerMethodField()
     initial = serializers.SerializerMethodField()
     profile_image = serializers.SerializerMethodField()
     department_name = serializers.SerializerMethodField()
     designation_name = serializers.SerializerMethodField()
+    attendance_status = serializers.SerializerMethodField()
+    attendance_key = serializers.SerializerMethodField()
+    attendance_value = serializers.SerializerMethodField()
+    punchin_time = serializers.SerializerMethodField()
+    punchout_time = serializers.SerializerMethodField()
     
     class Meta:
         model = Staff
-        fields = ['employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','group_names','initial','department_name','designation_name']
+        fields = ['id','employee_id','first_name','last_name','email','phone','date_of_birth','department','designation','profile_image','initial','department_name','designation_name','attendance_status','attendance_key','attendance_value','punchin_time','punchout_time']
         
-    def get_group_names(self, obj):
-        group_names = obj.user.groups.all()
-        return [group.name for group in group_names]
-    
     def get_initial(self,obj):
         return obj.get_initial().upper()
     
@@ -102,7 +103,34 @@ class StaffSerializer(serializers.ModelSerializer):
     
     def get_designation_name(self,obj):
         return obj.designation.name
-        
+    
+    def get_attendance_status(self,obj):
+        return Attendance.objects.filter(staff=obj,date=datetime.today().date()).exists()
+    
+    def get_attendance_key(self,obj):
+        key = ""
+        if (instances:=Attendance.objects.filter(staff=obj,date=datetime.today().date())).exists():
+            key = instances.first().attendance
+        return key
+    
+    def get_attendance_value(self,obj):
+        value = ""
+        if (instances:=Attendance.objects.filter(staff=obj,date=datetime.today().date())).exists():
+            value = instances.first().get_attendance_display()
+        return value
+    
+    def get_punchin_time(self,obj):
+        time = ""
+        if (instances:=Attendance.objects.filter(staff=obj,date=datetime.today().date())).exists():
+            time = instances.first().punchin_time.strftime("%I:%M %p")
+        return time
+    
+    def get_punchout_time(self,obj):
+        time = ""
+        if (instances:=Attendance.objects.filter(staff=obj,date=datetime.today().date())).exists() and instances.first().punchout_time != None :
+            time = instances.first().punchout_time.strftime("%I:%M %p")
+        return time
+    
 class UserSerializer(serializers.Serializer):
     group_names = serializers.SerializerMethodField()
     initial = serializers.SerializerMethodField()
