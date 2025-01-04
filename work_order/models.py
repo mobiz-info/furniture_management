@@ -25,8 +25,8 @@ class ModelNumberBasedProducts(BaseModel):
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
     sub_category = models.ForeignKey(ProductSubCategory, null=True, blank=True, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     color = models.CharField(max_length=100,null=True, blank=True)
 
     class Meta:
