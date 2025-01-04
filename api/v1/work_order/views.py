@@ -527,7 +527,7 @@ def work_order_create(request):
                 # Create WorkOrder Items
                 work_order_items = data.get('work_order_items', [])
                 for item in work_order_items:
-                    WorkOrderItems.objects.create(
+                    work_order_item = WorkOrderItems.objects.create(
                         work_order=work_order,
                         category=ProductCategory.objects.get(pk=item.get('category')),
                         sub_category=ProductSubCategory.objects.get(pk=item.get('sub_category')),
@@ -543,6 +543,19 @@ def work_order_create(request):
                         auto_id=get_auto_id(WorkOrderItems),
                         creator=request.user,
                     )
+                    
+                    if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
+                        ModelNumberBasedProducts.objects.create(
+                            auto_id=get_auto_id(ModelNumberBasedProducts),
+                            creator=request.user,
+                            model_no=work_order_item.model_no,
+                            category=work_order_item.category,
+                            sub_category=work_order_item.sub_category,
+                            material=work_order_item.material,
+                            sub_material=work_order_item.sub_material,
+                            material_type=work_order_item.material_type,
+                            color=work_order_item.color,
+                        )
                 
                 # Create WorkOrder Images
                 work_order_images = data.get('work_order_images', [])
