@@ -666,7 +666,6 @@ def work_order_staff_assign(request, pk):
 @renderer_classes([JSONRenderer])
 def add_accessory_to_work_order(request, pk):
     try:
-        # Retrieve the work order object
         work_order = WorkOrder.objects.get(pk=pk)
     except WorkOrder.DoesNotExist:
         return Response({
@@ -675,32 +674,34 @@ def add_accessory_to_work_order(request, pk):
             "message": "Work order not found.",
         }, status=status.HTTP_404_NOT_FOUND)
 
-    # Initialize the serializer with the request data
-    serializer = WorkOrderItemSerializer(data=request.data)
+    serializer = WoodWorkAssignSerializer(data=request.data)
 
-    # Check if the serializer data is valid
     if serializer.is_valid():
-        # Create a new accessory for the work order
-        accessory = serializer.save(
-            work_order=work_order,
-            auto_id=get_auto_id(WorkOrderItems),  # Assuming this function generates a unique ID for accessories
-            creator=request.user
-        )
+        try:
+            accessory = serializer.save(
+                work_order=work_order,  
+                auto_id=get_auto_id(WoodWorkAssign),  
+                creator=request.user  
+            )
 
-        # Update the work order's status if required
-        if not work_order.is_assigned:
-            work_order.is_assigned = True
-            work_order.save()
+            if not work_order.is_assigned:
+                work_order.is_assigned = True
+                work_order.save()
 
-        # Response data on successful accessory addition
-        response_data = {
-            "status": "true",
-            "title": "Successfully Added",
-            "message": f'Accessory {accessory.accessory_name} has been successfully added to Work Order {work_order.order_no}.',
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
+            response_data = {
+                "status": "true",
+                "title": "Successfully Added",
+                "message": f'Accessory {accessory.material} has been successfully added to Work Order {work_order.order_no}.',
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
 
-    # If data is invalid, return errors
+        except Exception as e:
+            return Response({
+                "status": "false",
+                "title": "Failed",
+                "message": str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return Response({
         "status": "false",
         "title": "Invalid Data",

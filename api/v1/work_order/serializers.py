@@ -28,6 +28,9 @@ class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:
         model=WoodWorkAssign
         fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        extra_kwargs = {
+            'work_order': {'required': False} 
+        }
 
 class CarpentarySerializer(serializers.ModelSerializer):
     class Meta:
