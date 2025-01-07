@@ -17,16 +17,12 @@ from api.v1.staff.serializers import Staff_Attendecne_List_Serializer
 @renderer_classes((JSONRenderer,))
 def staff(request, pk=None):
     try:
-        # Queryset to fetch all non-deleted staff members
         queryset = Staff.objects.filter(is_deleted=False)
 
-        # If no 'pk' is provided, show all staff list
         if not pk:
-            # Check if pagination is required (via 'page' query parameter)
             page_number = request.query_params.get('page', None)
 
             if not page_number:
-                # No pagination, return all staff
                 serializer = StaffSerializer(queryset, many=True)
                 response_data = {
                     "StatusCode": 200,
@@ -34,15 +30,13 @@ def staff(request, pk=None):
                     "data": serializer.data,
                 }
             else:
-                # Pagination logic
                 paginator = PageNumberPagination()
-                paginator.page_size = 20  # Define page size
+                paginator.page_size = 20  
                 paginated_queryset = paginator.paginate_queryset(queryset, request)
                 serializer = StaffSerializer(paginated_queryset, many=True)
                 response_data = paginator.get_paginated_response(serializer.data).data
 
         else:
-            # If a 'pk' is provided, return the specific staff member
             staff_instance = Staff.objects.get(pk=pk, is_deleted=False)
             serializer = StaffSerializer(staff_instance)
             response_data = {

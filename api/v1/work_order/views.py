@@ -625,9 +625,8 @@ def order_model_numbers(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-def work_order_assign(request, pk):
+def work_order_staff_assign(request, pk):
     try:
-        # Get the work order by primary key
         work_order = WorkOrder.objects.get(pk=pk)
     except WorkOrder.DoesNotExist:
         return Response({
@@ -636,18 +635,15 @@ def work_order_assign(request, pk):
             "message": "Work order not found.",
         }, status=status.HTTP_404_NOT_FOUND)
 
-    # Deserialize request data
     serializer = WorkOrderStaffAssignSerializer(data=request.data)
 
     if serializer.is_valid():
-        # Save the assignment with the validated data
         assignment = serializer.save(
             work_order=work_order,
             auto_id=get_auto_id(WorkOrderStaffAssign),
             creator=request.user
         )
 
-        # Set the work order as assigned (optional, depending on your logic)
         work_order.is_assigned = True
         work_order.save()
 
@@ -658,7 +654,6 @@ def work_order_assign(request, pk):
         }
         return Response(response_data, status=status.HTTP_200_OK)
 
-    # Handle invalid data
     return Response({
         "status": "false",
         "title": "Invalid Data",
