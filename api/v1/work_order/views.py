@@ -659,3 +659,50 @@ def work_order_staff_assign(request, pk):
         "title": "Invalid Data",
         "message": serializer.errors,
     }, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@renderer_classes([JSONRenderer])
+def add_accessory_to_work_order(request, pk):
+    try:
+        # Retrieve the work order object
+        work_order = WorkOrder.objects.get(pk=pk)
+    except WorkOrder.DoesNotExist:
+        return Response({
+            "status": "false",
+            "title": "Not Found",
+            "message": "Work order not found.",
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    # Initialize the serializer with the request data
+    serializer = WorkOrderItemSerializer(data=request.data)
+
+    # Check if the serializer data is valid
+    if serializer.is_valid():
+        # Create a new accessory for the work order
+        accessory = serializer.save(
+            work_order=work_order,
+            auto_id=get_auto_id(WorkOrderItems),  # Assuming this function generates a unique ID for accessories
+            creator=request.user
+        )
+
+        # Update the work order's status if required
+        if not work_order.is_assigned:
+            work_order.is_assigned = True
+            work_order.save()
+
+        # Response data on successful accessory addition
+        response_data = {
+            "status": "true",
+            "title": "Successfully Added",
+            "message": f'Accessory {accessory.accessory_name} has been successfully added to Work Order {work_order.order_no}.',
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+    # If data is invalid, return errors
+    return Response({
+        "status": "false",
+        "title": "Invalid Data",
+        "message": serializer.errors,
+    }, status=status.HTTP_400_BAD_REQUEST)

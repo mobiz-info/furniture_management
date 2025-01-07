@@ -187,3 +187,4 @@ class WorkOrderStaffAssign(BaseModel):
 
     def __str__(self):
         return f"{self.work_order.order_no} - {self.staff.get_fullname()}"
+    
