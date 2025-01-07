@@ -122,3 +122,15 @@ class WorkOrderStaffAssignSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return WorkOrderStaffAssign.objects.create(**validated_data)
+    
+class StaffAssignListSerializer(serializers.ModelSerializer):
+    staff_id = serializers.PrimaryKeyRelatedField(queryset=Staff.objects.all(), source='staff')
+    time_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    wage = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = WorkOrderStaffAssign
+        fields = ['staff_id', 'time_spent', 'wage', 'work_order']
+
+    def create(self, validated_data):
+        return WorkOrderStaffAssign.objects.create(**validated_data)

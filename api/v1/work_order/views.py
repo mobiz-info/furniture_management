@@ -22,7 +22,7 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder, WorkOrderStaffAssign
-from .serializers import WorkOrderStaffAssignSerializer, CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderAssignSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from .serializers import *
 from django.db.models import Q
 from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
@@ -622,7 +622,7 @@ def order_model_numbers(request):
         
     return Response(response_data, status=status_code)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def work_order_staff_assign(request, pk):
@@ -635,30 +635,41 @@ def work_order_staff_assign(request, pk):
             "message": "Work order not found.",
         }, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = WorkOrderStaffAssignSerializer(data=request.data)
-
-    if serializer.is_valid():
-        assignment = serializer.save(
-            work_order=work_order,
-            auto_id=get_auto_id(WorkOrderStaffAssign),
-            creator=request.user
-        )
-
-        work_order.is_assigned = True
-        work_order.save()
-
-        response_data = {
+    if request.method == 'GET':
+        assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        serializer = StaffAssignListSerializer(assignments, many=True)
+        return Response({
             "status": "true",
-            "title": "Successfully Assigned",
-            "message": f'Staff {assignment.staff.get_fullname()} has been successfully assigned to Work Order {work_order.order_no}.',
-        }
-        return Response(response_data, status=status.HTTP_200_OK)
+            "title": "Staff Assignments",
+            "data": serializer.data,
+        }, status=status.HTTP_200_OK)
 
-    return Response({
-        "status": "false",
-        "title": "Invalid Data",
-        "message": serializer.errors,
-    }, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'POST':
+
+        serializer = WorkOrderStaffAssignSerializer(data=request.data)
+
+        if serializer.is_valid():
+            assignment = serializer.save(
+                work_order=work_order,
+                auto_id=get_auto_id(WorkOrderStaffAssign),
+                creator=request.user
+            )
+
+            work_order.is_assigned = True
+            work_order.save()
+
+            response_data = {
+                "status": "true",
+                "title": "Successfully Assigned",
+                "message": f'Staff {assignment.staff.get_fullname()} has been successfully assigned to Work Order {work_order.order_no}.',
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        return Response({
+            "status": "false",
+            "title": "Invalid Data",
+            "message": serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
     
     
 @api_view(['POST'])
