@@ -15,7 +15,7 @@ urlpatterns = [
     re_path(r'work-assign-status',views.work_assign_status),
     re_path(r'work-order-assign/(?P<pk>.*)/$',views.work_order_assign),
     
-    re_path(r'work_order_staff_assign/$',views.work_order_staff_assign),
+    re_path(r'work_order_staff_assign/(?P<pk>.*)/$',views.work_order_staff_assign),
     
     # re_path(r'carpentary-details',views.carpentary_details),
     # re_path(r'carpentary-assign/(?P<pk>.*)/$',views.assign_carpentary_api),
