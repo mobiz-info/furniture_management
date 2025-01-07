@@ -7,6 +7,7 @@ from versatileimagefield.fields import VersatileImageField
 from main.models import BaseModel
 from customer.models import Customer
 from product.models import *
+from staff.models import Staff
 
 WORK_ORDER_CHOICES = (
     ('010', 'New'),
@@ -173,3 +174,16 @@ class Packing(BaseModel):
 
     def __str__(self):
         return f'Packing {self.work_order}'
+    
+    
+class WorkOrderStaffAssign(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, related_name="staff_assign")
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+    time_spent = models.DecimalField(max_digits=5, decimal_places=2, help_text="Time spent in hours or days")
+    wage = models.DecimalField(max_digits=10, decimal_places=2, help_text="Wage for the work done")
+    
+    class Meta:
+        db_table = 'WorkOrderStaffAssign'
+
+    def __str__(self):
+        return f"{self.work_order.order_no} - {self.staff.get_fullname()}"

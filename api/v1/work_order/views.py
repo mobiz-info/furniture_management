@@ -21,8 +21,8 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
-from work_order.views import WorkOrder
-from .serializers import CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderAssignSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from work_order.views import WorkOrder, WorkOrderStaffAssign
+from .serializers import WorkOrderStaffAssignSerializer, CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderAssignSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
 from django.db.models import Q
 from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
@@ -33,14 +33,22 @@ from main.functions import generate_form_errors, get_auto_id
 @renderer_classes((JSONRenderer,))
 
 def work_order(request,id=None):
+    status_value = request.query_params.get('status_value')  
+
     if id:
-        queryset=WorkOrder.objects.get(id=id)
-        serializer=WorkOrderSerializer(queryset)
-        return Response(serializer.data)
+        try:
+            queryset = WorkOrder.objects.get(id=id)
+            serializer = WorkOrderSerializer(queryset)
+            return Response(serializer.data)
+        except WorkOrder.DoesNotExist:
+            return Response({"error": "Work order not found."}, status=404)
     else:
-        # Fetch all work orders
         queryset = WorkOrder.objects.all()
-        serializer=WorkOrderSerializer(queryset,many=True)
+
+        if status_value:
+            queryset = queryset.filter(status=status_value)
+
+        serializer = WorkOrderSerializer(queryset, many=True)
         return Response(serializer.data)
     
 #-------------------------------wood Assign----------------------------------------------
@@ -613,3 +621,46 @@ def order_model_numbers(request):
     }
         
     return Response(response_data, status=status_code)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def work_order_assign(request, pk):
+    try:
+        # Get the work order by primary key
+        work_order = WorkOrder.objects.get(pk=pk)
+    except WorkOrder.DoesNotExist:
+        return Response({
+            "status": "false",
+            "title": "Not Found",
+            "message": "Work order not found.",
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    # Deserialize request data
+    serializer = WorkOrderStaffAssignSerializer(data=request.data)
+
+    if serializer.is_valid():
+        # Save the assignment with the validated data
+        assignment = serializer.save(
+            work_order=work_order,
+            auto_id=get_auto_id(WorkOrderStaffAssign),
+            creator=request.user
+        )
+
+        # Set the work order as assigned (optional, depending on your logic)
+        work_order.is_assigned = True
+        work_order.save()
+
+        response_data = {
+            "status": "true",
+            "title": "Successfully Assigned",
+            "message": f'Staff {assignment.staff.get_fullname()} has been successfully assigned to Work Order {work_order.order_no}.',
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    # Handle invalid data
+    return Response({
+        "status": "false",
+        "title": "Invalid Data",
+        "message": serializer.errors,
+    }, status=status.HTTP_400_BAD_REQUEST)
