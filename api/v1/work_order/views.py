@@ -645,31 +645,38 @@ def work_order_staff_assign(request, pk):
         }, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
+        data = request.data 
+        if not isinstance(data, list):
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": "Expected a list of staff assignments.",
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = WorkOrderStaffAssignSerializer(data=request.data)
+        errors = []
+        success_count = 0
 
-        if serializer.is_valid():
-            assignment = serializer.save(
-                work_order=work_order,
-                auto_id=get_auto_id(WorkOrderStaffAssign),
-                creator=request.user
-            )
+        for staff_data in data:
+            serializer = WorkOrderStaffAssignSerializer(data=staff_data)
+            if serializer.is_valid():
+                serializer.save(
+                    work_order=work_order,
+                    auto_id=get_auto_id(WorkOrderStaffAssign),
+                    creator=request.user
+                )
+                success_count += 1
+            else:
+                errors.append(serializer.errors)
 
-            work_order.is_assigned = True
-            work_order.save()
-
-            response_data = {
-                "status": "true",
-                "title": "Successfully Assigned",
-                "message": f'Staff {assignment.staff.get_fullname()} has been successfully assigned to Work Order {work_order.order_no}.',
-            }
-            return Response(response_data, status=status.HTTP_200_OK)
+        work_order.is_assigned = True
+        work_order.save()
 
         return Response({
-            "status": "false",
-            "title": "Invalid Data",
-            "message": serializer.errors,
-        }, status=status.HTTP_400_BAD_REQUEST)
+            "status": "true" if success_count > 0 else "false",
+            "title": "Staff Assignments Processed",
+            "message": f"{success_count} staff members assigned successfully.",
+            "errors": errors if errors else None,
+        }, status=status.HTTP_200_OK if success_count > 0 else status.HTTP_400_BAD_REQUEST)
     
     
 @api_view(['GET', 'POST'])
