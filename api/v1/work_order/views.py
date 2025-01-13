@@ -696,7 +696,7 @@ def add_accessory_to_work_order(request, pk):
         accessories = WoodWorkAssign.objects.filter(work_order=work_order)
         accessory_details = [
             {
-                "material": accessory.material.name, 
+                "material": accessory.material.name,
                 "sub_material": accessory.sub_material.name if accessory.sub_material else None,
                 "material_type": accessory.material_type.name if accessory.material_type else None,
                 "quality": accessory.quality,
@@ -709,11 +709,11 @@ def add_accessory_to_work_order(request, pk):
         work_order_details = {
             "order_no": work_order.order_no,
             "customer": str(work_order.customer),
-            "status": work_order.get_status_display(),  
+            "status": work_order.get_status_display(),
             "delivery_date": work_order.delivery_date,
             "total_estimate": work_order.total_estimate,
             "is_assigned": work_order.is_assigned,
-            "accessories": accessory_details,  
+            "accessories": accessory_details,
         }
 
         return Response({
@@ -723,53 +723,52 @@ def add_accessory_to_work_order(request, pk):
         }, status=status.HTTP_200_OK)
 
     if request.method == 'POST':
-        valid_statuses = [choice[0] for choice in WORK_ORDER_CHOICES]
-        if work_order.status not in valid_statuses:
-            return Response({
-                "status": "false",
-                "title": "Invalid Status",
-                "message": f"The current work order status '{work_order.status}' is not valid.",
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        if work_order.status == "030":
+        if work_order.status == "030":  # Example: 'Sold' status
             return Response({
                 "status": "false",
                 "title": "Action Not Allowed",
                 "message": "Cannot add accessories to a work order with status 'Sold'.",
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = WoodWorkAssignSerializer(data=request.data)
+        data = request.data
+        if not isinstance(data, list):
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": "Expected a list of accessories.",
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.is_valid():
-            try:
-                accessory = serializer.save(
-                    work_order=work_order,
-                    auto_id=get_auto_id(WoodWorkAssign),
-                    creator=request.user
-                )
+        errors = []
+        success_count = 0
 
-                if not work_order.is_assigned:
-                    work_order.is_assigned = True
-                    work_order.save()
+        for accessory_data in data:
+            serializer = WoodWorkAssignSerializer(data=accessory_data)
+            if serializer.is_valid():
+                try:
+                    serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(WoodWorkAssign),
+                        creator=request.user
+                    )
+                    success_count += 1
+                except Exception as e:
+                    errors.append({
+                        "data": accessory_data,
+                        "error": str(e),
+                    })
+            else:
+                errors.append({
+                    "data": accessory_data,
+                    "errors": serializer.errors,
+                })
 
-                response_data = {
-                    "status": "true",
-                    "title": "Successfully Added",
-                    "message": f'Accessory {accessory.material} has been successfully added to Work Order {work_order.order_no}.',
-                }
-                return Response(response_data, status=status.HTTP_201_CREATED)
-
-            except Exception as e:
-                return Response({
-                    "status": "false",
-                    "title": "Failed",
-                    "message": str(e),
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if not work_order.is_assigned and success_count > 0:
+            work_order.is_assigned = True
+            work_order.save()
 
         return Response({
-            "status": "false",
-            "title": "Invalid Data",
-            "message": serializer.errors,
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-        
+            "status": "true" if success_count > 0 else "false",
+            "title": "Accessories Processed",
+            "message": f"{success_count} accessories added successfully.",
+            "errors": errors if errors else None,
+        }, status=status.HTTP_201_CREATED if success_count > 0 else status.HTTP_400_BAD_REQUEST)
