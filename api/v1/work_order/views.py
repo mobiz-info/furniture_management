@@ -21,8 +21,8 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
-from work_order.views import WorkOrder
-from .serializers import CreateWorkOrderSerializer, ModelNumberBasedProductsSerializer, ModelOrderNumbersSerializer, WorkOrderAssignSerializer, WorkOrderSerializer,WoodWorkAssignSerializer,CarpentarySerializer,PolishSerializer,GlassSerializer,PackingSerializer
+from work_order.views import WorkOrder, WorkOrderStaffAssign
+from .serializers import *
 from django.db.models import Q
 from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
@@ -33,14 +33,22 @@ from main.functions import generate_form_errors, get_auto_id
 @renderer_classes((JSONRenderer,))
 
 def work_order(request,id=None):
+    status_value = request.query_params.get('status_value')  
+
     if id:
-        queryset=WorkOrder.objects.get(id=id)
-        serializer=WorkOrderSerializer(queryset)
-        return Response(serializer.data)
+        try:
+            queryset = WorkOrder.objects.get(id=id)
+            serializer = WorkOrderSerializer(queryset)
+            return Response(serializer.data)
+        except WorkOrder.DoesNotExist:
+            return Response({"error": "Work order not found."}, status=404)
     else:
-        # Fetch all work orders
         queryset = WorkOrder.objects.all()
-        serializer=WorkOrderSerializer(queryset,many=True)
+
+        if status_value:
+            queryset = queryset.filter(status=status_value)
+
+        serializer = WorkOrderSerializer(queryset, many=True)
         return Response(serializer.data)
     
 #-------------------------------wood Assign----------------------------------------------
@@ -613,3 +621,224 @@ def order_model_numbers(request):
     }
         
     return Response(response_data, status=status_code)
+
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def work_order_staff_assign(request, pk):
+    try:
+        work_order = WorkOrder.objects.get(pk=pk)
+    except WorkOrder.DoesNotExist:
+        return Response({
+            "status": "false",
+            "title": "Not Found",
+            "message": "Work order not found.",
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        serializer = StaffAssignListSerializer(assignments, many=True)
+        return Response({
+            "status": "true",
+            "title": "Staff Assignments",
+            "data": serializer.data,
+        }, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        data = request.data 
+        if not isinstance(data, list):
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": "Expected a list of staff assignments.",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        errors = []
+        success_count = 0
+
+        for staff_data in data:
+            serializer = WorkOrderStaffAssignSerializer(data=staff_data)
+            if serializer.is_valid():
+                serializer.save(
+                    work_order=work_order,
+                    auto_id=get_auto_id(WorkOrderStaffAssign),
+                    creator=request.user
+                )
+                success_count += 1
+            else:
+                errors.append(serializer.errors)
+
+        work_order.is_assigned = True
+        work_order.save()
+
+        return Response({
+            "status": "true" if success_count > 0 else "false",
+            "title": "Staff Assignments Processed",
+            "message": f"{success_count} staff members assigned successfully.",
+            "errors": errors if errors else None,
+        }, status=status.HTTP_200_OK if success_count > 0 else status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+@renderer_classes([JSONRenderer])
+def add_accessory_to_work_order(request, pk):
+    try:
+        work_order = WorkOrder.objects.get(pk=pk)
+    except WorkOrder.DoesNotExist:
+        return Response({
+            "status": "false",
+            "title": "Not Found",
+            "message": "Work order not found.",
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        accessories = WoodWorkAssign.objects.filter(work_order=work_order)
+        accessory_details = [
+            {
+                "material": accessory.material.name,
+                "sub_material": accessory.sub_material.name if accessory.sub_material else None,
+                "material_type": accessory.material_type.name if accessory.material_type else None,
+                "quality": accessory.quality,
+                "quantity": accessory.quantity,
+                "rate": accessory.rate,
+            }
+            for accessory in accessories
+        ]
+
+        work_order_details = {
+            "order_no": work_order.order_no,
+            "customer": str(work_order.customer),
+            "status": work_order.get_status_display(),
+            "delivery_date": work_order.delivery_date,
+            "total_estimate": work_order.total_estimate,
+            "is_assigned": work_order.is_assigned,
+            "accessories": accessory_details,
+        }
+
+        return Response({
+            "status": "true",
+            "title": "Work Order Details",
+            "message": work_order_details,
+        }, status=status.HTTP_200_OK)
+
+    if request.method == 'POST':
+        if work_order.status == "030":  
+            return Response({
+                "status": "false",
+                "title": "Action Not Allowed",
+                "message": "Cannot add accessories to a work order with status 'Sold'.",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
+        if not isinstance(data, list):
+            return Response({
+                "status": "false",
+                "title": "Invalid Data",
+                "message": "Expected a list of accessories.",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        errors = []
+        success_count = 0
+
+        for accessory_data in data:
+            serializer = WoodWorkAssignSerializer(data=accessory_data)
+            if serializer.is_valid():
+                try:
+                    serializer.save(
+                        work_order=work_order,
+                        auto_id=get_auto_id(WoodWorkAssign),
+                        creator=request.user
+                    )
+                    success_count += 1
+                except Exception as e:
+                    errors.append({
+                        "data": accessory_data,
+                        "error": str(e),
+                    })
+            else:
+                errors.append({
+                    "data": accessory_data,
+                    "errors": serializer.errors,
+                })
+
+        if not work_order.is_assigned and success_count > 0:
+            work_order.is_assigned = True
+            work_order.save()
+
+        return Response({
+            "status": "true" if success_count > 0 else "false",
+            "title": "Accessories Processed",
+            "message": f"{success_count} accessories added successfully.",
+            "errors": errors if errors else None,
+        }, status=status.HTTP_201_CREATED if success_count > 0 else status.HTTP_400_BAD_REQUEST)
+        
+        
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def dispatch_details(request, pk=None):
+    try:
+        if request.method == 'GET':
+            if pk:
+                queryset = Dispatch.objects.filter(work_order__pk=pk)
+                serializer = DispatchSerializer(queryset, many=True)
+            else:
+                queryset = Dispatch.objects.all()
+                serializer = DispatchSerializer(queryset, many=True)
+            
+            status_code = status.HTTP_200_OK
+            response_data = {
+                "StatusCode": 200,
+                "status": status_code,
+                "data": serializer.data,
+            }
+        
+        elif request.method == 'POST':
+            try:
+                work_order = WorkOrder.objects.get(pk=pk, status="024")  
+            except WorkOrder.DoesNotExist:
+                return Response({
+                    "StatusCode": 404,
+                    "status": status.HTTP_404_NOT_FOUND,
+                    "message": "WorkOrder not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = DispatchSerializer(data=request.data)
+            if serializer.is_valid():
+                
+                serializer.save(
+                    work_order=work_order,
+                    auto_id = get_auto_id(Dispatch),
+                    creator=request.user
+                )
+                work_order.status = '030'  
+                work_order.save()
+                
+                status_code = status.HTTP_201_CREATED
+                response_data = {
+                    "StatusCode": 201,
+                    "status": status_code,
+                    "message": "Dispatch details saved successfully.",
+                    "data": serializer.data,
+                }
+            else:
+                status_code = status.HTTP_400_BAD_REQUEST
+                response_data = {
+                    "StatusCode": 400,
+                    "status": status_code,
+                    "message": "Invalid data.",
+                    "errors": serializer.errors,
+                }
+        
+        return Response(response_data, status=status_code)
+    
+    except Exception as e:
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        response_data = {
+            "StatusCode": 500,
+            "status": status_code,
+            "message": "An error occurred.",
+            "error": str(e),
+        }
+        return Response(response_data, status=status_code)

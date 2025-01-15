@@ -99,6 +99,7 @@
                                             <th class="font-weight-bold text-center">No of Items</th>
                                             <th class="font-weight-bold text-center">Delivery Date</th>
                                             <th class="font-weight-bold text-center">Carpentary Assigned</th>
+                                            <th class="font-weight-bold text-center">Staff Assign</th>
                                             <th class="font-weight-bold text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -115,6 +116,7 @@
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
                                                 {% else %}
                                                 {% endif %}
+                                                <td class="text-center"><a href="{% url 'work_order:carpentar_order_staff_assign' order.id %}">Assign staff</a></td>
                                                 <td class="text-center">
                                                     <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{order.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
                                                     <a href="{% url 'work_order:work_order_info' pk=order.pk %}"><i class="las la-eye text-success font-18"></i></a>

@@ -17,22 +17,34 @@ from api.v1.staff.serializers import Staff_Attendecne_List_Serializer
 @renderer_classes((JSONRenderer,))
 def staff(request, pk=None):
     try:
+        queryset = Staff.objects.filter(is_deleted=False)
+
         if not pk:
-            queryset = Staff.objects.filter(is_deleted=False)
-            paginator = PageNumberPagination()
-            paginator.page_size = 20
-            paginated_queryset = paginator.paginate_queryset(queryset, request)
-            serializer = StaffSerializer(paginated_queryset, many=True)
-            response_data = paginator.get_paginated_response(serializer.data).data
+            page_number = request.query_params.get('page', None)
+
+            if not page_number:
+                serializer = StaffSerializer(queryset, many=True)
+                response_data = {
+                    "StatusCode": 200,
+                    "status": status.HTTP_200_OK,
+                    "data": serializer.data,
+                }
+            else:
+                paginator = PageNumberPagination()
+                paginator.page_size = 20  
+                paginated_queryset = paginator.paginate_queryset(queryset, request)
+                serializer = StaffSerializer(paginated_queryset, many=True)
+                response_data = paginator.get_paginated_response(serializer.data).data
+
         else:
-            queryset = Staff.objects.get(pk=pk, is_deleted=False)
-            serializer = StaffSerializer(queryset, many=False)
+            staff_instance = Staff.objects.get(pk=pk, is_deleted=False)
+            serializer = StaffSerializer(staff_instance)
             response_data = {
                 "StatusCode": 200,
                 "status": status.HTTP_200_OK,
                 "data": serializer.data,
             }
-        
+
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Staff.DoesNotExist:
@@ -41,7 +53,7 @@ def staff(request, pk=None):
             "status": status.HTTP_404_NOT_FOUND,
             "message": "Staff not found.",
         }, status=status.HTTP_404_NOT_FOUND)
-
+        
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

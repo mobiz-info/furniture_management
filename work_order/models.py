@@ -7,6 +7,7 @@ from versatileimagefield.fields import VersatileImageField
 from main.models import BaseModel
 from customer.models import Customer
 from product.models import *
+from staff.models import Staff
 
 WORK_ORDER_CHOICES = (
     ('010', 'New'),
@@ -88,8 +89,8 @@ class WorkOrderImages(BaseModel):
 class WoodWorkAssign(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -115,8 +116,8 @@ class WorkOrderStatus(BaseModel):
 class Carpentary(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -132,8 +133,8 @@ class Carpentary(BaseModel):
 class Polish(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -147,8 +148,8 @@ class Polish(BaseModel):
 class Glass(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -162,8 +163,8 @@ class Glass(BaseModel):
 class Packing(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -173,3 +174,29 @@ class Packing(BaseModel):
 
     def __str__(self):
         return f'Packing {self.work_order}'
+
+class Dispatch(BaseModel):
+    work_order = models.OneToOneField(WorkOrder, on_delete=models.CASCADE, related_name="dispatch_details")
+    mode = models.CharField(max_length=255)  
+    remark = models.TextField(null=True, blank=True)
+    reference_no = models.CharField(max_length=100, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    class Meta:
+        db_table = 'Dispatch'
+
+    def __str__(self):
+        return f'Dispatch for {self.work_order.order_no}'    
+    
+class WorkOrderStaffAssign(BaseModel):
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, related_name="staff_assign")
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+    time_spent = models.DecimalField(max_digits=5, decimal_places=2, help_text="Time spent in hours or days")
+    wage = models.DecimalField(max_digits=10, decimal_places=2, help_text="Wage for the work done")
+    
+    class Meta:
+        db_table = 'WorkOrderStaffAssign'
+
+    def __str__(self):
+        return f"{self.work_order.order_no} - {self.staff.get_fullname()}"
+    

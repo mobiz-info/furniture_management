@@ -28,6 +28,9 @@ class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:
         model=WoodWorkAssign
         fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        extra_kwargs = {
+            'work_order': {'required': False} 
+        }
 
 class CarpentarySerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,7 +96,7 @@ class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
     material_name = serializers.CharField(source='material.name', read_only=True)
     material_type_id = serializers.CharField(source='material_type.pk', read_only=True)
     material_type_name = serializers.CharField(source='material_type.name', read_only=True)
-    sub_material_id = serializers.CharField(source='sub_material.name', read_only=True)
+    sub_material_id = serializers.CharField(source='sub_material.pk', read_only=True)
     sub_material_name = serializers.CharField(source='sub_material.name', read_only=True)
     
     class Meta:
@@ -106,3 +109,36 @@ class ModelOrderNumbersSerializer(serializers.ModelSerializer):
     class Meta:
         model = ModelNumberBasedProducts
         fields = ['model_no']
+        
+        
+class WorkOrderStaffAssignSerializer(serializers.ModelSerializer):
+    staff_id = serializers.PrimaryKeyRelatedField(queryset=Staff.objects.all(), source='staff')
+    time_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    wage = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = WorkOrderStaffAssign
+        fields = ['staff_id', 'time_spent', 'wage']
+
+    def create(self, validated_data):
+        return WorkOrderStaffAssign.objects.create(**validated_data)
+    
+class StaffAssignListSerializer(serializers.ModelSerializer):
+    staff_id = serializers.PrimaryKeyRelatedField(queryset=Staff.objects.all(), source='staff')
+    time_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    wage = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = WorkOrderStaffAssign
+        fields = ['staff_id', 'time_spent', 'wage', 'work_order']
+
+    def create(self, validated_data):
+        return WorkOrderStaffAssign.objects.create(**validated_data)
+    
+class DispatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dispatch
+        fields = ['work_order', 'mode', 'remark', 'reference_no', 'amount']
+        extra_kwargs = {
+            'work_order': {'required': False} 
+        }
