@@ -1,0 +1,104 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load work_order_templatetags %}
+{% block content %}
+   
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">Order Detail</h4>
+                            <ol class="breadcrumb">
+    
+                                <li class="breadcrumb-item active">Detail</li>
+                            </ol>
+                        </div><!--end col-->
+                       
+                    </div><!--end row-->                                                              
+                </div><!--end page-title-box-->
+            </div><!--end col-->
+        </div><!--end row-->
+        <!-- end page title end breadcrumb -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6 align-self-start">
+                                <div class="single-pro-detail">
+                                    <p class="mb-1">Order Details</p>
+                                    <div class="custom-border mb-3"></div>
+                                    <h3 class="pro-title text-capitalize">{{ instance.order_no }}</h3>
+                                    <p class="text-muted mb-0">Customer Name: {{ instance.customer.name }}</p>
+                                    <p class="text-muted mb-0">Delivery Date: {{ instance.delivery_date|date:"d-M-Y" }}</p>
+                                    <p class="text-muted mb-0">Remark: {{ instance.remark }}</p>
+                                </div>
+                            </div><!--end col-->
+                        </div><!--end row-->
+                    </div><!--end card-body-->
+                </div><!--end card-->
+            </div><!--end col-->
+        </div><!--end row-->
+
+        <div class="row">
+            <form method="post">
+                {% csrf_token %}
+                <h4 class="mb-1">Staff Assigining</h4> <br>
+                <div class="">
+                    <select name="staff" style="width: 1100px;height: 40px;border-color: rgb(222, 233, 238);border-radius: 5px;" class="form-select form-select-lg mb-3" aria-label="Large select example">
+                        <option selected>select the staff</option>
+                        {%for s in staff%}
+                        <option value="{{s.id}}">{{s}}</option>
+                        {%endfor%}
+                      </select>
+                      <div class="form-group">
+                        <label for="exampleInputEmail1">Time Spent</label>
+                        <input type="number" class="form-control" name="time" aria-describedby="emailHelp" placeholder="Enter time spend in hours or days">
+                       
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputEmail1">Wage</label>
+                        <input type="number" class="form-control" name="wage" aria-describedby="emailHelp" placeholder="Enter the wage">
+                       
+                      </div>
+                  
+                </div> <br>
+                <button type="submit" class="btn btn-primary">Add</button>
+              </form>
+        </div>
+
+        <div class="row my-3">
+            <h3>Assigned Staffs</h3>
+        </div>
+
+
+        <form> <table class="table"> 
+            <thead class="border rounded"> 
+                <tr> <th>Assigned Staffs</th> 
+                    <th>Time Spent</th>
+                    <th>Wage</th>
+                </tr> </thead> 
+                <tbody> 
+                    {%for s in staffs%}
+                    <tr> 
+                    <td>
+                    <input type="text" disabled  class="form-control" placeholder="{{s}}"></td> 
+                    <td>
+                    <input disabled type="text" class="form-control" placeholder="{{s.time_spent}}"></td> 
+                    <td>
+                    <input disabled type="number" class="form-control" placeholder="{{s.wage}}"></input></td> 
+                </tr> 
+                {%endfor%}
+                 </tbody> 
+            </table> 
+        </form>
+
+        
+    </div><!-- container -->
+</div>
+
+{% endblock content %}

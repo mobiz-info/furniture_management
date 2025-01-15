@@ -7,7 +7,7 @@ from django.db.models import Q,Sum,Min,Max
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User, Group
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render,redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
@@ -1005,3 +1005,128 @@ def allocated_packing(request, pk):
 
     html = render_to_string('admin_panel/pages/packing/allocated_packing.html', context, request=request)
     return JsonResponse({'html': html})
+
+
+
+#---------------------------------------- assigning staff in wood section----------------------------#
+def wood_order_staff_assign(request,pk):
+
+    work_order=get_object_or_404(WorkOrder,id=pk)
+
+    if request.method=="GET":
+        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        staff=Staff.objects.filter(department__name="wood")
+
+        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
+    
+    elif request.method=="POST":
+        staff_id=request.POST.get("staff")
+        time=request.POST.get("time")
+        wage=request.POST.get("wage")
+        staff=Staff.objects.get(id=staff_id)
+        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
+                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
+                                            time_spent=time,wage=wage
+                                            )
+
+        return redirect('work_order:wood_work_orders_list')
+    
+    
+#------------- assigning staff in carpentary section---------------------#
+def carpentary_order_staff_assign(request,pk):
+
+    work_order=get_object_or_404(WorkOrder,id=pk)
+
+    if request.method=="GET":
+        staff=Staff.objects.filter(department__name="carpentary")
+        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
+    
+    elif request.method=="POST":
+        staff_id=request.POST.get("staff")
+        time=request.POST.get("time")
+        wage=request.POST.get("wage")
+        staff=Staff.objects.get(id=staff_id)
+        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
+                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
+                                            time_spent=time,wage=wage
+                                            )
+
+        return redirect('work_order:carpentary_list')
+    
+
+#-----------------------assiging staff for polish section--------------------------------#
+def polish_order_staff_assign(request,pk):
+
+    work_order=get_object_or_404(WorkOrder,id=pk)
+
+    if request.method=="GET":
+        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        staff=Staff.objects.filter(department__name="polish")
+
+        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
+    
+    elif request.method=="POST":
+        staff_id=request.POST.get("staff")
+        time=request.POST.get("time")
+        wage=request.POST.get("wage")
+        staff=Staff.objects.get(id=staff_id)
+        staffs=Staff.objects.filter(department__name="wood")
+        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
+                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
+                                            time_spent=time,wage=wage
+                                            )
+
+
+        return redirect('work_order:polish_list')    
+
+#----------------------------------assigning staff for glass/upholstory section-----------#
+def glass_order_staff_assign(request,pk):
+
+    work_order=get_object_or_404(WorkOrder,id=pk)
+
+    if request.method=="GET":
+        staff=Staff.objects.filter(department__name="glass/upholstory")
+        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
+    
+    elif request.method=="POST":
+        staff_id=request.POST.get("staff")
+        time=request.POST.get("time")
+        wage=request.POST.get("wage")
+        staff=Staff.objects.get(id=staff_id)
+        staffs=Staff.objects.filter(department__name="wood")
+        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
+                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
+                                            time_spent=time,wage=wage
+                                            )
+
+        return redirect('work_order:glass_list')       
+
+
+#-------------------------assigning staff for packing section-------------#
+def packing_order_staff_assign(request,pk):
+
+    work_order=get_object_or_404(WorkOrder,id=pk)
+
+    if request.method=="GET":
+        staff=Staff.objects.filter(department__name="packing")
+        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
+    
+    elif request.method=="POST":
+        staff_id=request.POST.get("staff")
+        time=request.POST.get("time")
+        wage=request.POST.get("wage")
+        staff=Staff.objects.get(id=staff_id)
+        staffs=Staff.objects.filter(department__name="wood")
+        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
+                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
+                                            time_spent=time,wage=wage
+                                            )
+        
+
+        return redirect('work_order:packing_list')

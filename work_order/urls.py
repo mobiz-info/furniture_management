@@ -33,4 +33,10 @@ urlpatterns = [
     re_path(r'^packing_list/', views.packing_list, name='packing_list'),
     re_path(r'^assign_packing/(?P<pk>.*)/$', views.assign_packing, name='assign_packing'),
     re_path(r'^allocated_packing/(?P<pk>.*)/$', views.allocated_packing, name='allocated_packing'),
+    #--------- staff assigning for various work sections---------------------
+    re_path(r'^wood_order_staff_assign/(?P<pk>.*)/$',views.wood_order_staff_assign,name='wood-order-staff-assign'),
+    re_path(r'^carpentar_order_staff_assign/(?P<pk>.*)/$',views.carpentary_order_staff_assign,name='carpentar_order_staff_assign'),
+    re_path(r'polish_order_staff_assign/(?P<pk>.*)/$',views.polish_order_staff_assign,name='polish_order_staff_assign'),
+    re_path(r'glass_order_staff_assign/(?P<pk>.*)/$',views.glass_order_staff_assign,name='glass_order_staff_assign'),
+    re_path(r'packing_order_staff_assign/(?P<pk>.*)/$',views.packing_order_staff_assign,name='packing_order_staff_assign'),
 ]
