@@ -174,7 +174,19 @@ class Packing(BaseModel):
 
     def __str__(self):
         return f'Packing {self.work_order}'
-    
+
+class Dispatch(BaseModel):
+    work_order = models.OneToOneField(WorkOrder, on_delete=models.CASCADE, related_name="dispatch_details")
+    mode = models.CharField(max_length=255)  
+    remark = models.TextField(null=True, blank=True)
+    reference_no = models.CharField(max_length=100, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    class Meta:
+        db_table = 'Dispatch'
+
+    def __str__(self):
+        return f'Dispatch for {self.work_order.order_no}'    
     
 class WorkOrderStaffAssign(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, related_name="staff_assign")

@@ -18,6 +18,9 @@ urlpatterns = [
     re_path(r'work_order_staff_assign/(?P<pk>.*)/$',views.work_order_staff_assign),
     
     re_path(r'add_accessory_to_work_order/(?P<pk>.*)/$',views.add_accessory_to_work_order),
+    
+    re_path(r'^dispatch/$', views.dispatch_details),
+    re_path(r'^dispatch_details/(?P<pk>.*)/$', views.dispatch_details),
     # re_path(r'carpentary-assign/(?P<pk>.*)/$',views.assign_carpentary_api),
     
     # re_path(r'polish-details',views.polish_details),

@@ -723,7 +723,7 @@ def add_accessory_to_work_order(request, pk):
         }, status=status.HTTP_200_OK)
 
     if request.method == 'POST':
-        if work_order.status == "030":  # Example: 'Sold' status
+        if work_order.status == "030":  
             return Response({
                 "status": "false",
                 "title": "Action Not Allowed",
@@ -772,3 +772,73 @@ def add_accessory_to_work_order(request, pk):
             "message": f"{success_count} accessories added successfully.",
             "errors": errors if errors else None,
         }, status=status.HTTP_201_CREATED if success_count > 0 else status.HTTP_400_BAD_REQUEST)
+        
+        
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def dispatch_details(request, pk=None):
+    try:
+        if request.method == 'GET':
+            if pk:
+                queryset = Dispatch.objects.filter(work_order__pk=pk)
+                serializer = DispatchSerializer(queryset, many=True)
+            else:
+                queryset = Dispatch.objects.all()
+                serializer = DispatchSerializer(queryset, many=True)
+            
+            status_code = status.HTTP_200_OK
+            response_data = {
+                "StatusCode": 200,
+                "status": status_code,
+                "data": serializer.data,
+            }
+        
+        elif request.method == 'POST':
+            try:
+                work_order = WorkOrder.objects.get(pk=pk, status="024")  
+            except WorkOrder.DoesNotExist:
+                return Response({
+                    "StatusCode": 404,
+                    "status": status.HTTP_404_NOT_FOUND,
+                    "message": "WorkOrder not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = DispatchSerializer(data=request.data)
+            if serializer.is_valid():
+                
+                serializer.save(
+                    work_order=work_order,
+                    auto_id = get_auto_id(Dispatch),
+                    creator=request.user
+                )
+                work_order.status = '030'  
+                work_order.save()
+                
+                status_code = status.HTTP_201_CREATED
+                response_data = {
+                    "StatusCode": 201,
+                    "status": status_code,
+                    "message": "Dispatch details saved successfully.",
+                    "data": serializer.data,
+                }
+            else:
+                status_code = status.HTTP_400_BAD_REQUEST
+                response_data = {
+                    "StatusCode": 400,
+                    "status": status_code,
+                    "message": "Invalid data.",
+                    "errors": serializer.errors,
+                }
+        
+        return Response(response_data, status=status_code)
+    
+    except Exception as e:
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        response_data = {
+            "StatusCode": 500,
+            "status": status_code,
+            "message": "An error occurred.",
+            "error": str(e),
+        }
+        return Response(response_data, status=status_code)
