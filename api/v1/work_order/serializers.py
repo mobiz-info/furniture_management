@@ -134,3 +134,11 @@ class StaffAssignListSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return WorkOrderStaffAssign.objects.create(**validated_data)
+    
+class DispatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dispatch
+        fields = ['work_order', 'mode', 'remark', 'reference_no', 'amount']
+        extra_kwargs = {
+            'work_order': {'required': False} 
+        }
