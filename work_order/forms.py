@@ -19,6 +19,9 @@ class CustomerForm(forms.ModelForm):
         model = Customer
         fields = ['name', 'mobile_number', 'address', 'email', 'gst_no']
 
+class DateInput(forms.DateInput):
+    input_type='date'
+
 
 class WorkOrderForm(forms.ModelForm):
 
@@ -30,7 +33,7 @@ class WorkOrderForm(forms.ModelForm):
                 'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'total_estimate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
-                'delivery_date': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
+                'delivery_date': DateInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
             }
         
 class WorkOrderStatusForm(forms.ModelForm):

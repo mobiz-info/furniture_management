@@ -56,6 +56,7 @@ def work_order_info(request,pk):
     instance = WorkOrder.objects.get(pk=pk)
     items_instances = WorkOrderItems.objects.filter(work_order=instance)
     images_instances = WorkOrderImages.objects.filter(work_order=instance)
+    work_section_details=WorkOrderStaffAssign.objects.filter(work_order=instance)
 
     context = {
         'instance': instance,
@@ -64,6 +65,7 @@ def work_order_info(request,pk):
         
         'page_name' : 'Work Order Info',
         'page_title' : 'Work Order Info',
+        'section_details':work_section_details,
     }
 
     return render(request, 'admin_panel/pages/work_order/order/info.html', context)
@@ -1072,7 +1074,7 @@ def polish_order_staff_assign(request,pk):
         time=request.POST.get("time")
         wage=request.POST.get("wage")
         staff=Staff.objects.get(id=staff_id)
-        staffs=Staff.objects.filter(department__name="wood")
+        
         WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
                                             creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
                                             time_spent=time,wage=wage
@@ -1097,7 +1099,7 @@ def glass_order_staff_assign(request,pk):
         time=request.POST.get("time")
         wage=request.POST.get("wage")
         staff=Staff.objects.get(id=staff_id)
-        staffs=Staff.objects.filter(department__name="wood")
+        
         WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
                                             creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
                                             time_spent=time,wage=wage
@@ -1122,7 +1124,7 @@ def packing_order_staff_assign(request,pk):
         time=request.POST.get("time")
         wage=request.POST.get("wage")
         staff=Staff.objects.get(id=staff_id)
-        staffs=Staff.objects.filter(department__name="wood")
+        
         WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
                                             creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
                                             time_spent=time,wage=wage
