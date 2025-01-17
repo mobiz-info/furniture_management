@@ -21,6 +21,7 @@ WORK_ORDER_CHOICES = (
     ('030', 'Sold'),
 )
 
+
 class Color(models.Model):
     name = models.CharField(max_length=100)
 
@@ -59,7 +60,7 @@ class WorkOrder(BaseModel):
 
     def __str__(self):
         return f'WorkOrder {self.order_no}'
-
+   
     
 class WorkOrderItems(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
@@ -83,7 +84,7 @@ class WorkOrderItems(BaseModel):
 
 
 class WorkOrderImages(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrderItems, on_delete=models.CASCADE)
     image = VersatileImageField(upload_to='work_order_images')
     remark = models.CharField(max_length=100,null=True, blank=True)
 

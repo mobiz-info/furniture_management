@@ -17,7 +17,16 @@
             <li>
                 <a href="{% url 'app' %}"> <i data-feather="home" class="align-self-center menu-icon"></i><span>Dashboard</span></a>
             </li>
-            
+            <li>
+                <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Master</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:color_list' %}"><i class="ti-control-record"></i>Color</a>
+                        <a class="nav-link" href="{% url 'work_order:create_color' %}"><i class="ti-plus"></i></a>
+                    </li>
+                    
+                </ul>
+            </li>
             <li>
                 <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Staff</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">

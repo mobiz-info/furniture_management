@@ -39,4 +39,8 @@ urlpatterns = [
     re_path(r'polish_order_staff_assign/(?P<pk>.*)/$',views.polish_order_staff_assign,name='polish_order_staff_assign'),
     re_path(r'glass_order_staff_assign/(?P<pk>.*)/$',views.glass_order_staff_assign,name='glass_order_staff_assign'),
     re_path(r'packing_order_staff_assign/(?P<pk>.*)/$',views.packing_order_staff_assign,name='packing_order_staff_assign'),
+    
+    re_path(r'^create_color/$', views.create_color, name='create_color'), 
+    re_path(r'^color_list/$', views.color_list, name='color_list'),
+    re_path(r'^delete_color/(?P<pk>.*)/$', views.delete_color, name='delete_color'),
 ]
