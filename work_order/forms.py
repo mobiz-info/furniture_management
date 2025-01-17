@@ -151,3 +151,11 @@ class PackingAssignForm(forms.ModelForm):
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 PackingAssignFormSet = inlineformset_factory(WorkOrder, Packing, form=PackingAssignForm, extra=1)
+
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Enter color name', 'class': 'form-control'}),
+        }

@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404, render,redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
+from django.contrib import messages
+
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
 from rest_framework import status
@@ -1133,3 +1135,78 @@ def packing_order_staff_assign(request,pk):
         
 
         return redirect('work_order:packing_list')
+    
+
+@login_required
+@role_required(['superadmin'])    
+def create_color(request):
+    
+    if request.method == 'POST':
+        form = ColorForm(request.POST)
+        
+        if form.is_valid():
+            color = form.save(commit=False)
+            color.creator = request.user 
+            color.auto_id = get_auto_id(Color)
+            color.save()
+        
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Color created successfully.",
+                "redirect": "true",
+                "redirect_url": reverse('work_order:color_list') 
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        else:
+            message = generate_form_errors(form, formset=False)
+        
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    else:
+        form = ColorForm()
+
+        context = {
+            'form': form,
+            'page_name': 'Create Color',
+            'page_title': 'Create Color',
+            'url': reverse('work_order:create_color')  # URL for form action.
+        }
+        return render(request, 'admin_panel/pages/work_order/create_color.html', context)
+
+
+@login_required
+@role_required(['superadmin'])
+def color_list(request):
+    colors = Color.objects.all()
+
+    context = {
+        'colors': colors,
+        'page_name': 'Color List',
+        'page_title': 'List of Colors',
+        'url': redirect('work_order:color_list'),  
+    }
+
+    return render(request, 'admin_panel/pages/work_order/color_list.html', context)
+
+@login_required
+@role_required(['superadmin'])
+def delete_color(request, pk):
+    color = get_object_or_404(Color, pk=pk)
+    
+    color.delete()
+
+    response_data = {
+            "status": "true",
+            "title": "Successfully Deleted",
+            "message": "Color deleted successfully.",
+            "redirect": "true",
+            "redirect_url": reverse('work_order:color_list')  
+        }
+    return JsonResponse(response_data)
+    
+    
