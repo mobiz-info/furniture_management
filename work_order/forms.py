@@ -50,8 +50,6 @@ class WorkOrderStatusForm(forms.ModelForm):
         }
         
 class WorkOrderItemsForm(forms.ModelForm):
-    color= forms.ModelMultipleChoiceField(queryset=Color.objects.all(),widget=SelectMultiple(attrs={'class': 'select2-multi form-control custom-select'}))
-
     class Meta:
         model = WorkOrderItems
         fields = ['category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'remark','estimate_rate','size','color']
@@ -67,7 +65,7 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
                 'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
-                  
+                'color':Select(attrs={'class': 'select2 form-control custom-select'})
             }
 
 

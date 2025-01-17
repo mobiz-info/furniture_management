@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, render,redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
+from django.views.decorators.csrf import csrf_exempt
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
 from rest_framework import status
@@ -154,10 +155,9 @@ def create_work_order(request):
                         work_order_item.creator = request.user
                         work_order_item.work_order = work_order_data
                         work_order_item.save()
-                        form.save_m2m()
-
+    
                         if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
-                            ModelNumberBasedProducts.objects.create(
+                            model_number_based_product=ModelNumberBasedProducts.objects.create(
                                 auto_id=get_auto_id(ModelNumberBasedProducts),
                                 creator=request.user,
                                 model_no=work_order_item.model_no,
@@ -166,8 +166,14 @@ def create_work_order(request):
                                 material=work_order_item.material,
                                 sub_material=work_order_item.sub_material,
                                 material_type=work_order_item.material_type,
-                                color=work_order_item.color,
+                                
                             )
+                            model_number_based_product.color.add(work_order_item.color)
+                            model_number_based_product.save()
+                        else:
+                            model_number_based_product = ModelNumberBasedProducts.objects.get(model_no=work_order_item.model_no)
+                            model_number_based_product.color.add(work_order_item.color)
+                            model_number_based_product.save()
 
                     # Save work order images
                     for form in work_order_images_formset:
