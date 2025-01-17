@@ -37,6 +37,13 @@ class ModelNumberBasedProducts(BaseModel):
         return f'{self.id}'
 
 
+class Color(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class WorkOrder(BaseModel):
     order_no = models.CharField(max_length=255, null=False, blank=False)
     customer = models.ForeignKey(Customer, related_name='orders', on_delete=models.CASCADE)
@@ -63,7 +70,7 @@ class WorkOrderItems(BaseModel):
     model_no = models.CharField(max_length=255, null=True, blank=True)
     size = models.CharField(max_length=100,null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
-    color = models.CharField(max_length=100,null=True, blank=True)
+    color = models.ManyToManyField(Color)
     quantity = models.PositiveIntegerField(default=0)
     estimate_rate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
 

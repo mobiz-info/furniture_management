@@ -154,6 +154,7 @@ def create_work_order(request):
                         work_order_item.creator = request.user
                         work_order_item.work_order = work_order_data
                         work_order_item.save()
+                        form.save_m2m()
 
                         if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
                             ModelNumberBasedProducts.objects.create(
@@ -1017,7 +1018,7 @@ def wood_order_staff_assign(request,pk):
 
     if request.method=="GET":
         assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
-        staff=Staff.objects.filter(department__name="wood")
+        staff=Staff.objects.filter(department__name="Wood Section")
 
         return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
     
@@ -1040,7 +1041,7 @@ def carpentary_order_staff_assign(request,pk):
     work_order=get_object_or_404(WorkOrder,id=pk)
 
     if request.method=="GET":
-        staff=Staff.objects.filter(department__name="carpentary")
+        staff=Staff.objects.filter(department__name="Carpentary")
         assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
         return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
@@ -1065,7 +1066,7 @@ def polish_order_staff_assign(request,pk):
 
     if request.method=="GET":
         assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
-        staff=Staff.objects.filter(department__name="polish")
+        staff=Staff.objects.filter(department__name="Polish")
 
         return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
     
@@ -1089,7 +1090,7 @@ def glass_order_staff_assign(request,pk):
     work_order=get_object_or_404(WorkOrder,id=pk)
 
     if request.method=="GET":
-        staff=Staff.objects.filter(department__name="glass/upholstory")
+        staff=Staff.objects.filter(department__name="Glass/Upholstory")
         assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
         return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
@@ -1114,7 +1115,7 @@ def packing_order_staff_assign(request,pk):
     work_order=get_object_or_404(WorkOrder,id=pk)
 
     if request.method=="GET":
-        staff=Staff.objects.filter(department__name="packing")
+        staff=Staff.objects.filter(department__name="Packing")
         assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
         return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})

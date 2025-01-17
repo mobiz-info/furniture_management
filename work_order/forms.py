@@ -7,6 +7,8 @@ from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInp
 from product.models import *
 from customer.models import Customer
 from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing, WorkOrderStatus
+from work_order.models import Color
+from django.forms.widgets import SelectMultiple
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -48,6 +50,7 @@ class WorkOrderStatusForm(forms.ModelForm):
         }
         
 class WorkOrderItemsForm(forms.ModelForm):
+    color= forms.ModelMultipleChoiceField(queryset=Color.objects.all(),widget=SelectMultiple(attrs={'class': 'select2-multi form-control custom-select'}))
 
     class Meta:
         model = WorkOrderItems
@@ -64,7 +67,7 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
                 'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
-                'color': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Color'}),
+                  
             }
 
 
