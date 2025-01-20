@@ -223,7 +223,7 @@ def create_work_order(request):
 
     else:
         customer_form = CustomerForm()
-        work_order_form = WorkOrderForm()
+        work_order_form = WorkOrderForm(initial={'order_no': WorkOrder.generate_order_no()})
         work_order_items_formset = WorkOrderItemsFormFormset(prefix='work_order_items_formset')
         work_order_images_formset = WorkOrderImagesFormFormset(prefix='work_order_images_formset')
 
@@ -1213,5 +1213,4 @@ def delete_color(request, pk):
             "redirect_url": reverse('work_order:color_list')  
         }
     return JsonResponse(response_data)
-    
     

@@ -60,6 +60,19 @@ class WorkOrder(BaseModel):
 
     def __str__(self):
         return f'WorkOrder {self.order_no}'
+    
+    def save(self, *args, **kwargs):
+        if not self.order_no:
+            self.order_no = self.generate_order_no()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_order_no():
+        while True:
+            order_no = str(uuid.uuid4()).split('-')[0]
+            if not WorkOrder.objects.filter(order_no=order_no).exists():
+                return order_no
+
    
     
 class WorkOrderItems(BaseModel):

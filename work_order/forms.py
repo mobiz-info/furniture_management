@@ -32,7 +32,7 @@ class WorkOrderForm(forms.ModelForm):
         fields = ['order_no','remark','total_estimate','delivery_date']
         
         widgets = {
-                'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
+                'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No','readonly': 'readonly'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'total_estimate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'delivery_date': DateInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
