@@ -8,6 +8,8 @@ from main.models import BaseModel
 from customer.models import Customer
 from product.models import *
 from staff.models import Staff
+from django.utils import timezone
+import random
 
 WORK_ORDER_CHOICES = (
     ('010', 'New'),
@@ -69,7 +71,9 @@ class WorkOrder(BaseModel):
     @staticmethod
     def generate_order_no():
         while True:
-            order_no = str(uuid.uuid4()).split('-')[0]
+            date_part=timezone.now().strftime('%Y%m%d')
+            random_part=str(random.randint(1000,9999))
+            order_no = f'WO-{date_part}-{random_part}'
             if not WorkOrder.objects.filter(order_no=order_no).exists():
                 return order_no
 
