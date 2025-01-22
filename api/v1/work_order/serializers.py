@@ -58,33 +58,33 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['name', 'mobile_number', 'address', 'email', 'gst_no']
         
-
-class WorkOrderItemsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkOrderItems
-        fields = [
-            'category', 'sub_category', 'model_no', 'material', 
-            'sub_material', 'material_type', 'quantity', 'remark', 
-            'estimate_rate', 'size', 'color'
-        ]
-
-
 class WorkOrderImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkOrderImages
         fields = ['image', 'remark']
 
 
+
+class WorkOrderItemsSerializer(serializers.ModelSerializer):
+    work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
+    class Meta:
+        model = WorkOrderItems
+        fields = [
+            'category', 'sub_category', 'model_no', 'material', 
+            'sub_material', 'material_type', 'quantity', 'remark', 
+            'estimate_rate', 'size', 'color','work_order_images'
+        ]
+
+
 class CreateWorkOrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     work_order_items = WorkOrderItemsSerializer(many=True, read_only=True)
-    work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkOrder
         fields = [
             'customer', 'order_no', 'remark', 'total_estimate', 
-            'delivery_date', 'work_order_items', 'work_order_images'
+            'delivery_date', 'work_order_items'
         ]
 
 class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):

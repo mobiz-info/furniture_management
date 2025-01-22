@@ -546,14 +546,14 @@ def work_order_create(request):
                         quantity=item.get('quantity'),
                         estimate_rate=item.get('estimate_rate'),
                         size=item.get('size'),
-                        color=item.get('color'),
+                        color=Color.objects.get(pk=item.get('color')),
                         remark=item.get('remark'),
                         auto_id=get_auto_id(WorkOrderItems),
                         creator=request.user,
                     )
                     
                     if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
-                        ModelNumberBasedProducts.objects.create(
+                        model_number_based_product=ModelNumberBasedProducts.objects.create(
                             auto_id=get_auto_id(ModelNumberBasedProducts),
                             creator=request.user,
                             model_no=work_order_item.model_no,
@@ -562,18 +562,27 @@ def work_order_create(request):
                             material=work_order_item.material,
                             sub_material=work_order_item.sub_material,
                             material_type=work_order_item.material_type,
-                            color=work_order_item.color,
+                            
                         )
-                
-                # Create WorkOrder Images
-                work_order_images = data.get('work_order_images', [])
-                for image in work_order_images:
-                    WorkOrderImages.objects.create(
-                        work_order=work_order,
-                        image=image.get('image'),
-                        auto_id=get_auto_id(WorkOrderImages),
-                        creator=request.user,
+                        model_number_based_product.color.add(work_order_item.color)
+                        model_number_based_product.save()
+                    else:
+                        model_number_based_product = ModelNumberBasedProducts.objects.get(model_no=work_order_item.model_no)
+                        model_number_based_product.color.add(work_order_item.color)
+                        model_number_based_product.save()
+
+
+                    # Create WorkOrder Images
+                    work_order_images = item.get('work_order_images', [])
+                    for image in work_order_images:
+                        WorkOrderImages.objects.create(
+                            work_order=work_order_item,
+                            image=image.get('image'),
+                            auto_id=get_auto_id(WorkOrderImages),
+                            creator=request.user,
                     )
+                
+                
 
                 return Response({
                     "status": "true",

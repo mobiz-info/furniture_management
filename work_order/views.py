@@ -57,7 +57,7 @@ def work_order_info(request,pk):
     
     instance = WorkOrder.objects.get(pk=pk)
     items_instances = WorkOrderItems.objects.filter(work_order=instance)
-    images_instances = WorkOrderImages.objects.filter(work_order=instance)
+    images_instances = WorkOrderImages.objects.filter(work_order=items_instances.first())
     work_section_details=WorkOrderStaffAssign.objects.filter(work_order=instance)
 
     context = {
