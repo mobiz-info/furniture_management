@@ -64,7 +64,7 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'quantity': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
-                'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
+                'size': Select(attrs={'class': 'select2 form-control custom-select'}),
                 'color':Select(attrs={'class': 'select2 form-control custom-select'})
             }
 
