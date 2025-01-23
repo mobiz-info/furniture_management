@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.contrib.auth.models import User
 
 from versatileimagefield.fields import VersatileImageField
 
@@ -29,6 +30,13 @@ class Color(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Size(models.Model):
+    size=models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.size
 
 
 class ModelNumberBasedProducts(BaseModel):
@@ -39,6 +47,7 @@ class ModelNumberBasedProducts(BaseModel):
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     color = models.ManyToManyField(Color)
+    size=models.ManyToManyField(Size)
 
     class Meta:
         db_table = 'ModelNumberBasedProducts'
@@ -87,7 +96,7 @@ class WorkOrderItems(BaseModel):
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     model_no = models.CharField(max_length=255, null=True, blank=True)
-    size = models.CharField(max_length=100,null=True, blank=True)
+    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE)
     remark = models.TextField(null=True, blank=True)
     color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
@@ -101,7 +110,7 @@ class WorkOrderItems(BaseModel):
 
 
 class WorkOrderImages(BaseModel):
-    work_order = models.ForeignKey(WorkOrderItems, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(ModelNumberBasedProducts,on_delete=models.CASCADE,null=True, blank=True)
     image = VersatileImageField(upload_to='work_order_images')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
@@ -109,7 +118,7 @@ class WorkOrderImages(BaseModel):
         db_table = 'WorkOrderImages'
 
     def __str__(self):
-        return f'WorkOrderImage {self.work_order.order_no}'
+        return f'WorkOrderImage {self.work_order.model_no}'
 
 
 class WoodWorkAssign(BaseModel):

@@ -1214,3 +1214,177 @@ def delete_color(request, pk):
         }
     return JsonResponse(response_data)
     
+
+@login_required
+@role_required(['superadmin'])
+def size_list(request):
+    sizes = Size.objects.all()
+    return render(request, 'admin_panel/pages/work_order/size_list.html', {'sizes': sizes})
+
+
+@login_required
+@role_required(['superadmin'])
+def size_create(request):
+    if request.method == 'POST':
+        form = SizeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('work_order:size-list')
+    else:
+        form = SizeForm()
+    return render(request, 'admin_panel/pages/work_order/size_create.html', {'form': form})
+
+
+@login_required
+@role_required(['superadmin'])
+def size_delete(request, pk):
+    size= get_object_or_404(Size, pk=pk)
+    
+    size.delete()
+
+    response_data = {
+            "status": "true",
+            "title": "Successfully Deleted",
+            "message": "Size deleted successfully.",
+            "redirect": "true",
+            "redirect_url": reverse('work_order:color_list')  
+        }
+    return JsonResponse(response_data)
+
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_list(request):
+    
+    instances = ModelNumberBasedProducts.objects.all().order_by("-id")
+    
+    context = {
+        'instances': instances,
+        'page_name': 'ModelNumberBasedProducts List',
+        'page_title': 'ModelNumberBasedProducts List',
+    }
+
+    return render(request, 'admin_panel/pages/work_order/model_list.html', context)
+
+
+def get_auto_id(model):
+    max_id = model.objects.all().aggregate(models.Max('auto_id'))['auto_id__max']
+    return max_id + 1 if max_id is not None else 1
+
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_create(request):
+    title='Model Create'
+    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=4)
+    if request.method == 'POST':
+        form = ModelNumberBasedProductsForm(request.POST)
+        formset = WorkOrderImagesFormSet(request.POST, request.FILES)
+        model_no = request.POST.get('model_no')
+
+        if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
+            form.add_error('model_no', 'Model number already exists.')
+        else:
+            if form.is_valid() and formset.is_valid():
+                auto_id = get_auto_id(ModelNumberBasedProducts)
+                product = ModelNumberBasedProducts.objects.create(
+                    auto_id=auto_id,
+                    creator=request.user,
+                    model_no=form.cleaned_data['model_no'],
+                    category=form.cleaned_data['category'],
+                    sub_category=form.cleaned_data['sub_category'],
+                    material=form.cleaned_data['material'],
+                    sub_material=form.cleaned_data['sub_material'],
+                    material_type=form.cleaned_data['material_type']
+                )
+                product.color.set(form.cleaned_data['color'])
+                product.size.set(form.cleaned_data['size'])
+                product.save()
+
+                for form in formset:
+                    image = form.save(commit=False)
+                    image.work_order = product
+                    image.auto_id =get_auto_id(WorkOrderImages)
+                    image.creator=request.user
+                    image.save()
+
+                return redirect('work_order:model-list')
+
+    else:
+        form = ModelNumberBasedProductsForm()
+        formset = WorkOrderImagesFormSet()
+
+    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
+
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_update(request,pk):
+    product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
+    title='Model Update'
+    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=4)
+    
+    if request.method == 'POST':
+        form = ModelNumberBasedProductsForm(request.POST, instance=product)
+        formset = WorkOrderImagesFormSet(request.POST, request.FILES)
+        model_no = request.POST.get('model_no')
+
+        if not ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
+            form.add_error('model_no', 'Model number does not exists.')
+        else:
+            if form.is_valid() and formset.is_valid():
+                product = ModelNumberBasedProducts.objects.filter(model_no=form.cleaned_data['model_no']).update(
+                    auto_id=get_auto_id(ModelNumberBasedProducts),
+                    creator=request.user,
+                    model_no=form.cleaned_data['model_no'],
+                    category=form.cleaned_data['category'],
+                    sub_category=form.cleaned_data['sub_category'],
+                    material=form.cleaned_data['material'],
+                    sub_material=form.cleaned_data['sub_material'],
+                    material_type=form.cleaned_data['material_type']
+                )
+                product = ModelNumberBasedProducts.objects.get(pk=pk)
+                product.color.set(form.cleaned_data['color'])
+                product.size.set(form.cleaned_data['size'])
+                product.save()
+
+                for form in formset:
+                    if form.cleaned_data:
+                        image = form.save(commit=False)
+                        image.work_order = product
+                        image.auto_id = get_auto_id(WorkOrderImages)
+                        image.creator = request.user
+                        image.save()
+
+                return redirect('work_order:model-list')
+    else:
+        form = ModelNumberBasedProductsForm(instance=product)
+        formset = WorkOrderImagesFormSet()
+
+    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
+
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_delete(request, pk):
+    model = get_object_or_404(ModelNumberBasedProducts, pk=pk)
+    model.delete()
+    
+
+    return redirect('work_order:model-list')
+
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_info(request,pk):
+    model=get_object_or_404(ModelNumberBasedProducts,pk=pk)
+    images=WorkOrderImages.objects.filter(work_order=model)
+
+    context = {
+        'model':model,
+        'images_instances': images,
+        'page_name' : 'Model Info',
+        'page_title' : 'Model Info',
+    }
+
+    return render(request, 'admin_panel/pages/work_order/model_info.html', context)

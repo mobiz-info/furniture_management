@@ -6,8 +6,8 @@ from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInp
 
 from product.models import *
 from customer.models import Customer
-from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing, WorkOrderStatus
-from work_order.models import Color
+from .models import WorkOrder, WoodWorkAssign, WorkOrderItems,WorkOrderImages, Carpentary, Polish, Glass, Packing, WorkOrderStatus
+from work_order.models import Color,Size,ModelNumberBasedProducts
 from django.forms.widgets import SelectMultiple
 
 class CustomerForm(forms.ModelForm):
@@ -156,4 +156,32 @@ class ColorForm(forms.ModelForm):
         fields = ['name']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Enter color name', 'class': 'form-control'}),
+        }
+
+
+class SizeForm(forms.ModelForm):
+    class Meta:
+        model = Size
+        fields = ['size']
+        widgets = {
+            'size': forms.TextInput(attrs={'placeholder': 'Enter size', 'class': 'form-control'}),
+        }
+
+
+class ModelNumberBasedProductsForm(forms.ModelForm):
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = [
+            'model_no', 'category', 'sub_category', 'material', 
+            'sub_material', 'material_type', 'color', 'size'
+        ]
+        widgets = {
+            'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model Number'}),
+            'category': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'sub_category': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'color': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
+            'size': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
         }
