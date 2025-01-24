@@ -545,7 +545,7 @@ def work_order_create(request):
                         material_type=MaterialTypeCategory.objects.get(pk=item.get('material_type')),
                         quantity=item.get('quantity'),
                         estimate_rate=item.get('estimate_rate'),
-                        size=item.get('size'),
+                        size=Size.objects.get(pk=item.get('size')),
                         color=Color.objects.get(pk=item.get('color')),
                         remark=item.get('remark'),
                         auto_id=get_auto_id(WorkOrderItems),
@@ -565,22 +565,24 @@ def work_order_create(request):
                             
                         )
                         model_number_based_product.color.add(work_order_item.color)
+                        model_number_based_product.size.add(work_order_item.size)
                         model_number_based_product.save()
                     else:
                         model_number_based_product = ModelNumberBasedProducts.objects.get(model_no=work_order_item.model_no)
                         model_number_based_product.color.add(work_order_item.color)
+                        model_number_based_product.size.add(work_order_item.size)
                         model_number_based_product.save()
 
 
                     # Create WorkOrder Images
-                    work_order_images = item.get('work_order_images', [])
-                    for image in work_order_images:
-                        WorkOrderImages.objects.create(
-                            work_order=work_order_item,
-                            image=image.get('image'),
-                            auto_id=get_auto_id(WorkOrderImages),
-                            creator=request.user,
-                    )
+                    # work_order_images = item.get('work_order_images', [])
+                    # for image in work_order_images:
+                    #     WorkOrderImages.objects.create(
+                    #         work_order=work_order_item,
+                    #         image=image.get('image'),
+                    #         auto_id=get_auto_id(WorkOrderImages),
+                    #         creator=request.user,
+                    # )
                 
                 
 

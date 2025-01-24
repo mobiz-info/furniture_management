@@ -66,13 +66,13 @@ class WorkOrderImagesSerializer(serializers.ModelSerializer):
 
 
 class WorkOrderItemsSerializer(serializers.ModelSerializer):
-    work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
+  #  work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
     class Meta:
         model = WorkOrderItems
         fields = [
             'category', 'sub_category', 'model_no', 'material', 
             'sub_material', 'material_type', 'quantity', 'remark', 
-            'estimate_rate', 'size', 'color','work_order_images'
+            'estimate_rate', 'size', 'color',
         ]
 
 
