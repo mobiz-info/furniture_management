@@ -84,7 +84,7 @@
                                     <tr>
                                         <th>Image</th>
                                         <th>Remark</th>
-                                        <th>Actions</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -96,12 +96,12 @@
                                             
                                         </td>
                                         <td><span class="remark">{{ form.remark }}</span></td>
-                                        <td></td>
+                                        
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
-                            
+
                         </div>
                     </div>
 
@@ -179,14 +179,14 @@ function RowIndexUpdate() {
             }
         });
 
-        $('.work_order_images_formset table tr.form_set_row').formset({
-            prefix: '{{ work_order_images_formset.prefix }}',
-            formCssClass: 'dynamic-formset-1',
-            'added': function (row) {
-            },
-            'removed': function (row) {
-            }
-        });
+        // $('.work_order_images_formset table tr.form_set_row').formset({
+        //     prefix: '{{ work_order_images_formset.prefix }}',
+        //     formCssClass: 'dynamic-formset-1',
+        //     'added': function (row) {
+        //     },
+        //     'removed': function (row) {
+        //     }
+        // });
     });
 
 </script>

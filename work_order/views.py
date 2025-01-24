@@ -1397,3 +1397,25 @@ def modelnumberbasedproducts_info(request,pk):
     }
 
     return render(request, 'admin_panel/pages/work_order/model_info.html', context)
+
+
+
+def get_model_details(request):
+    model_no = request.GET.get('model_no')
+    try:
+        model = ModelNumberBasedProducts.objects.get(model_no=model_no)
+        data = {
+            'category': model.category.id,
+            'sub_category': model.sub_category.id if model.sub_category else '',
+            'material': model.material.id,
+            'sub_material': model.sub_material.id if model.sub_material else '',
+            'material_type': model.material_type.id if model.material_type else '',
+            'color': list(model.color.values_list('id', flat=True)),
+            'size': list(model.size.values_list('id', flat=True)),
+        }
+        
+    except ModelNumberBasedProducts.DoesNotExist:
+        data = {}
+        
+    return JsonResponse(data)
+

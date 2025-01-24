@@ -52,5 +52,6 @@ urlpatterns = [
     re_path(r'model-create/',views.modelnumberbasedproducts_create,name='model-create'),
     re_path(r'model-edit/(?P<pk>.*)/$',views.modelnumberbasedproducts_update,name='model-edit'),
     re_path(r'model-delete/(?P<pk>.*)/$',views.modelnumberbasedproducts_delete,name='model-delete'),
-    re_path(r'model-info/(?P<pk>.*)/$',views.modelnumberbasedproducts_info,name='model-info')
+    re_path(r'model-info/(?P<pk>.*)/$',views.modelnumberbasedproducts_info,name='model-info'),
+    re_path(r'model-data/',views.get_model_details,name='model-data')
 ]

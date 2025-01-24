@@ -322,4 +322,32 @@
         });
     });
 </script>
+<script src="https://unpkg.com/htmx.org"></script>
+<script>
+    document.addEventListener('input', function(e) {
+        if (e.target.name.endsWith('-model_no')) {
+            let model_no = e.target.value;
+            let formIndex = e.target.name.split('-')[1];
+
+            fetch(`workorder/model-data/?model_no=${model_no}`)
+                .then(response => response.json())
+                .then(data => {
+                    const fields = ['category', 'sub_category', 'material', 'sub_material', 'material_type', 'color', 'size'];
+                    fields.forEach(field => {
+                        let fieldElement = document.querySelector(`[name="work_order_items_formset-${formIndex}-${field}"]`);
+                        if (fieldElement) {
+                            if (Array.isArray(data[field])) {
+                                Array.from(fieldElement.options).forEach(option => {
+                                    option.selected = data[field].includes(parseInt(option.value));
+                                });
+                            } else {
+                                fieldElement.value = data[field];
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+</script>
 {% endblock %}
