@@ -31,4 +31,18 @@ urlpatterns = [
     
     # re_path(r'packing-details',views.packing_details),
     # re_path(r'packing-assign/(?P<pk>.*)/$',views.assign_packing_api),
+
+    re_path(r'color-create/',views.color_create),
+    re_path(r'color-delete/(?P<pk>.*)/$',views.color_delete),
+    re_path(r'color-list/',views.color_list),
+
+    re_path(r'size-list/',views.size_list),
+    re_path(r'size-create/',views.size_create),
+    re_path(r'size-delete/(?P<pk>.*)/$',views.size_delete),
+
+    re_path(r'model-list/',views.modelnumberbasedproducts_list),
+    re_path(r'model-delete/(?P<pk>.*)/$',views.modelnumberbasedproducts_delete),
+    re_path(r'model-create/',views.modelnumberbasedproducts_create),
+    re_path(r'model-update/(?P<pk>.*)/$',views.modelnumberbasedproducts_update),
+    re_path(r'model-info/(?P<pk>.*)/$',views.modelnumberbasedproducts_detail),
 ]

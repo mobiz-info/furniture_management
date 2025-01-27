@@ -1236,9 +1236,13 @@ def size_list(request):
 def size_create(request):
     if request.method == 'POST':
         form = SizeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('work_order:size-list')
+        size=request.POST.get('size')
+        if Size.objects.filter(Q(size__iexact=size)).exists():
+            form.add_error('size', 'Size already exists.')
+        else:
+            if form.is_valid():
+                form.save()
+                return redirect('work_order:size-list')
     else:
         form = SizeForm()
     return render(request, 'admin_panel/pages/work_order/size_create.html', {'form': form})

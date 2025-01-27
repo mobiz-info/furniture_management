@@ -18,6 +18,7 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from rest_framework.pagination import PageNumberPagination
 
 from main.functions import decrypt_message, encrypt_message
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
@@ -853,3 +854,179 @@ def dispatch_details(request, pk=None):
             "error": str(e),
         }
         return Response(response_data, status=status_code)
+    
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def color_create(request):
+    color_name = request.data.get('name')
+    if Color.objects.filter(Q(name__iexact=color_name)).exists():
+
+        return Response({'error': 'This color already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = ColorSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def color_delete(request, pk):
+    try:
+        color = Color.objects.get(pk=pk)
+    except Color.DoesNotExist:
+        return Response({'error': 'Color not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    color.delete()
+    return Response({'message': 'Color deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def color_list(request):
+    colors = Color.objects.all()
+    serializer = ColorSerializer(colors, many=True)
+    return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def size_list(request):
+    sizes = Size.objects.all()
+    serializer = SizeSerializer(sizes, many=True)
+    return Response(serializer.data)
+
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def size_create(request):
+    if request.method == 'POST':
+        size_value = request.data.get('size')
+        if Size.objects.filter(Q(size__iexact=size_value)).exists():
+            return Response({'message': 'Size already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = SizeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def size_delete(request, pk):
+    try:
+        size = Size.objects.get(pk=pk)
+    except Size.DoesNotExist:
+        return Response({'message': 'Size not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    size.delete()
+    return Response({'message': 'Size deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def modelnumberbasedproducts_list(request):
+    products = ModelNumberBasedProducts.objects.all()
+    paginator = PageNumberPagination()
+    paginator.page_size = 10 
+    paginated_products = paginator.paginate_queryset(products, request)
+    serializer = ModelNumberBasedProductsSerializer(paginated_products, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def modelnumberbasedproducts_create(request):
+    model_no = request.data.get('model_no')
+    auto_id=get_auto_id(ModelNumberBasedProducts)
+    if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
+        return Response({'message': 'Model number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    product_serializer = ModelNumberBasedProductsSerializer(data=request.data)
+    if product_serializer.is_valid():
+        product = product_serializer.save(creator=request.user,auto_id=auto_id)
+        images_data = request.data.get('workorderimages_set', [])
+        for image_data in images_data:
+            image_data['work_order'] = product.id
+            image_serializer = WorkOrderImagesSerializer(data=image_data)
+            if image_serializer.is_valid():
+                image_serializer.save(creator=request.user,auto_id=get_auto_id(WorkOrderImages))
+            else:
+                product.delete()
+                return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(product_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def modelnumberbasedproducts_delete(request, pk):
+    try:
+        product = ModelNumberBasedProducts.objects.get(pk=pk)
+    except ModelNumberBasedProducts.DoesNotExist:
+        return Response({'message': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    product.delete()
+    return Response({'message': 'Deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def modelnumberbasedproducts_update(request, pk):
+    product = get_object_or_404(ModelNumberBasedProducts, pk=pk)
+    product_serializer = ModelNumberBasedProductsSerializer(product, data=request.data)
+    user=User.objects.get(id=1)
+
+    if product_serializer.is_valid():
+        product_serializer.save(updator=user)
+        
+        images_data = request.data.get('workorderimages_set', [])
+        for image_data in images_data:
+            image_id = image_data.get('id')
+            if image_id:
+                # Update existing image
+                image = get_object_or_404(WorkOrderImages, id=image_id, work_order=product)
+                image_serializer = WorkOrderImagesSerializer(image, data=image_data)
+                if image_serializer.is_valid():
+                    image_serializer.save(updator=user)
+                else:
+                    return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Create new image
+                image_data['work_order'] = product.id
+                image_serializer = WorkOrderImagesSerializer(data=image_data)
+                if image_serializer.is_valid():
+                    image_serializer.save(creator=user)
+                else:
+                    return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(product_serializer.data)
+    return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def modelnumberbasedproducts_detail(request, pk):
+    product = get_object_or_404(ModelNumberBasedProducts, pk=pk)
+    serializer = ModelNumberBasedProductsSerializer(product)
+    return Response(serializer.data)

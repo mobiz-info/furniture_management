@@ -61,7 +61,9 @@ class CustomerSerializer(serializers.ModelSerializer):
 class WorkOrderImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkOrderImages
-        fields = ['image', 'remark']
+        fields = ['id','work_order','image', 'remark']
+        read_only_fields=['id','work_order']
+    
 
 
 
@@ -142,3 +144,24 @@ class DispatchSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'work_order': {'required': False} 
         }
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = '__all__'
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = '__all__'
+
+
+class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
+    workorderimages_set = WorkOrderImagesSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = ['id','model_no', 'category', 'sub_category', 'material', 'sub_material', 'material_type', 'color', 'size', 'workorderimages_set']
+        read_only_fields=['id']
