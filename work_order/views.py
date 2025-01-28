@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
@@ -1265,19 +1266,19 @@ def size_delete(request, pk):
     return JsonResponse(response_data)
 
 
-@login_required
-@role_required(['superadmin'])
-def modelnumberbasedproducts_list(request):
+# @login_required
+# @role_required(['superadmin'])
+# def modelnumberbasedproducts_list(request):
     
-    instances = ModelNumberBasedProducts.objects.all().order_by("-id")
+#     instances = ModelNumberBasedProducts.objects.all().order_by("-id")
     
-    context = {
-        'instances': instances,
-        'page_name': 'ModelNumberBasedProducts List',
-        'page_title': 'ModelNumberBasedProducts List',
-    }
+#     context = {
+#         'instances': instances,
+#         'page_name': 'ModelNumberBasedProducts List',
+#         'page_title': 'ModelNumberBasedProducts List',
+#     }
 
-    return render(request, 'admin_panel/pages/work_order/model_list.html', context)
+#     return render(request, 'admin_panel/pages/work_order/model_list.html', context)
 
 
 def get_auto_id(model):
@@ -1321,7 +1322,7 @@ def modelnumberbasedproducts_create(request):
                     image.creator=request.user
                     image.save()
 
-                return redirect('work_order:model-list')
+                return redirect('work_order:model-display')
 
     else:
         form = ModelNumberBasedProductsForm()
@@ -1369,7 +1370,7 @@ def modelnumberbasedproducts_update(request,pk):
                         image.creator = request.user
                         image.save()
 
-                return redirect('work_order:model-list')
+                return redirect('work_order:model-display')
     else:
         form = ModelNumberBasedProductsForm(instance=product)
         formset = WorkOrderImagesFormSet()
@@ -1384,7 +1385,7 @@ def modelnumberbasedproducts_delete(request, pk):
     model.delete()
     
 
-    return redirect('work_order:model-list')
+    return redirect('work_order:model-display')
 
 
 @login_required
@@ -1423,3 +1424,55 @@ def get_model_details(request):
         
     return JsonResponse(data)
 
+
+@login_required
+@role_required(['superadmin'])
+def modelnumberbasedproducts_card_list(request):
+    category_id = request.GET.get('category')
+    sub_category_id = request.GET.get('sub_category')
+    model_no=request.GET.get('q')
+
+    work_orders = {}
+
+    if category_id and sub_category_id:
+        work_order_images=WorkOrderImages.objects.filter(work_order__category=category_id).filter(work_order__sub_category=sub_category_id)
+        print(work_order_images)
+    elif category_id:
+        work_order_images=WorkOrderImages.objects.filter(work_order__category=category_id)
+        print(work_order_images)
+    elif sub_category_id:
+        work_order_images=WorkOrderImages.objects.filter(work_order__sub_category=sub_category_id)
+        print(work_order_images)
+    elif model_no:
+        work_order_images=WorkOrderImages.objects.filter(work_order__model_no=model_no)
+    else:
+        work_order_images = WorkOrderImages.objects.all().order_by("-id")
+
+    paginator = Paginator(work_order_images,6) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+
+    for image in page_obj:
+        if image.work_order not in work_orders:
+            work_orders[image.work_order] = image
+
+    categories = ProductCategory.objects.all()
+    sub_categories = ProductSubCategory.objects.all
+    
+    context = {
+        'work_orders': work_orders,
+        'categories': categories,
+        'sub_categories': sub_categories,
+        'page_name':'Modelnumberbasedproducts',
+        'page_obj': page_obj 
+    }
+
+    return render(request, 'admin_panel/pages/work_order/model_display.html',context)
+
+
+def get_subcategories(request):
+    category_id = request.GET.get('category')
+    sub_categories = ProductSubCategory.objects.filter(product_category=category_id)
+
+    return render(request, 'admin_panel/pages/work_order/subcategory_options.html', {'sub_categories': sub_categories})

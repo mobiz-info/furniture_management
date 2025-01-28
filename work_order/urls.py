@@ -48,10 +48,13 @@ urlpatterns = [
     re_path(r'size-list/',views.size_list,name='size-list'),
     re_path(r'^delete-size/(?P<pk>.*)/$', views.size_delete, name='size-delete'),
 
-    re_path(r'model-list/',views.modelnumberbasedproducts_list,name='model-list'),
+    # re_path(r'model-list/',views.modelnumberbasedproducts_list,name='model-list'),
     re_path(r'model-create/',views.modelnumberbasedproducts_create,name='model-create'),
     re_path(r'model-edit/(?P<pk>.*)/$',views.modelnumberbasedproducts_update,name='model-edit'),
     re_path(r'model-delete/(?P<pk>.*)/$',views.modelnumberbasedproducts_delete,name='model-delete'),
     re_path(r'model-info/(?P<pk>.*)/$',views.modelnumberbasedproducts_info,name='model-info'),
-    re_path(r'model-data/',views.get_model_details,name='model-data')
+    re_path(r'model-data/',views.get_model_details,name='model-data'),
+
+    re_path(r'model-display/',views.modelnumberbasedproducts_card_list,name='model-display'),
+    re_path(r'get-subcategories/',views.get_subcategories, name='get-subcategories'),
 ]
