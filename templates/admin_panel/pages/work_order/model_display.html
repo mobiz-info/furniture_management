@@ -91,34 +91,6 @@
 {% block static %}
 
 {% load static %}
-<!-- <script>
-    function applyFilters() {
-        var category = document.getElementById('category').value;
-        var sub_category = document.getElementById('sub_category').value;
-        var model_no = document.getElementById('model_no').value;
-        var form = document.getElementById('filter-form');
-        var url = new URL(form.action);
 
-        if (category) {
-            url.searchParams.set('category', category);
-        } else {
-            url.searchParams.delete('category');
-        }
-
-        if (sub_category) {
-            url.searchParams.set('sub_category', sub_category);
-        } else {
-            url.searchParams.delete('sub_category');
-        }
-
-        if (model_no) {
-            url.searchParams.set('model_no', model_no);
-        } else {
-            url.searchParams.delete('model_no');
-        }
-
-        window.location.href = url.toString();
-    }
-</script> -->
 
 {% endblock static %}

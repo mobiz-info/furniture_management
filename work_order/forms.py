@@ -76,7 +76,7 @@ class WorkOrderImagesForm(forms.ModelForm):
         fields = ['image','remark']
         
         widgets = {
-            'image': FileInput(attrs={'class': 'form-control dropify','required': True}),
+            'image': FileInput(attrs={'class': 'form-control '}),
             'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
         }
 

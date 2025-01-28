@@ -75,7 +75,7 @@
 
         <div class="row">
             {% for image in images_instances %}
-            <div class="col-lg-4">
+            <div id="image-{{ image.pk }}" class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="blog-card">
@@ -83,6 +83,7 @@
                             
                         </div><!--end blog-card--> 
                     </div><!--end card-body-->
+                    <button style="width: 6rem;margin-left: 8rem;" data-id="{{ image.pk }}" class="delete-btn btn btn-danger" >Delete</button>
                 </div><!--end card-->
             </div> <!--end col-->
             {% endfor %}
@@ -99,6 +100,32 @@
         var carouselElement = document.querySelector('#carouselExampleSlidesOnly');
         var carousel = new bootstrap.Carousel(carouselElement);
     });    
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete-btn').click(function() {
+            var imageId = $(this).data('id');
+            var url = "{% url 'work_order:delete_work_order_image' pk=0 %}".replace('0', imageId);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#image-' + imageId).fadeOut('slow', function() {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert("Failed to delete image.");
+                    }
+                }
+            });
+        });
+    });
 </script>
 
 {% endblock %}

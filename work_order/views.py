@@ -469,17 +469,21 @@ def delete_work_order_image(request,pk):
     :param pk:
     :return:
     """
-    WorkOrderImages.objects.filter(pk=pk,is_deleted=False).update(is_deleted=True)
+    if request.method == "POST":
+        image = get_object_or_404(WorkOrderImages, id=pk)
+        image.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+    # response_data = {
+    #     "status": "true",
+    #     "title": "Successfully Deleted",
+    #     "message": "Work Order Image Successfully Deleted.",
+    #     "redirect": "true",
+    #     "redirect_url": reverse('work_order:model-display'),
+    # }
+
     
-    response_data = {
-        "status": "true",
-        "title": "Successfully Deleted",
-        "message": "Work Order Image Successfully Deleted.",
-        "redirect": "true",
-        "redirect_url": reverse('work_order:work_order_list'),
-    }
-    
-    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    # return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
 @login_required
 @role_required(['superadmin'])
@@ -1316,11 +1320,12 @@ def modelnumberbasedproducts_create(request):
                 product.save()
 
                 for form in formset:
-                    image = form.save(commit=False)
-                    image.work_order = product
-                    image.auto_id =get_auto_id(WorkOrderImages)
-                    image.creator=request.user
-                    image.save()
+                    if form.cleaned_data:
+                        image = form.save(commit=False)
+                        image.work_order = product
+                        image.auto_id = get_auto_id(WorkOrderImages)
+                        image.creator = request.user
+                        image.save()
 
                 return redirect('work_order:model-display')
 
