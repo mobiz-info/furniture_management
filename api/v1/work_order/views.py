@@ -1,5 +1,5 @@
 import requests
-
+import datetime
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import get_user_model
@@ -994,10 +994,10 @@ def modelnumberbasedproducts_delete(request, pk):
 def modelnumberbasedproducts_update(request, pk):
     product = get_object_or_404(ModelNumberBasedProducts, pk=pk)
     product_serializer = ModelNumberBasedProductsSerializer(product, data=request.data)
-    user=User.objects.get(id=1)
+    user=request.user
 
     if product_serializer.is_valid():
-        product_serializer.save(updator=user)
+        product_serializer.save(updator=user,date_updated = datetime.datetime.now())
         
         images_data = request.data.get('workorderimages_set', [])
         for image_data in images_data:

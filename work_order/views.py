@@ -1354,7 +1354,8 @@ def modelnumberbasedproducts_update(request,pk):
             if form.is_valid() and formset.is_valid():
                 product = ModelNumberBasedProducts.objects.filter(model_no=form.cleaned_data['model_no']).update(
                     auto_id=get_auto_id(ModelNumberBasedProducts),
-                    creator=request.user,
+                    updater=request.user,
+                    date_updated = datetime.datetime.now(),
                     model_no=form.cleaned_data['model_no'],
                     category=form.cleaned_data['category'],
                     sub_category=form.cleaned_data['sub_category'],
