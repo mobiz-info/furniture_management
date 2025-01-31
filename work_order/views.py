@@ -1265,7 +1265,7 @@ def size_delete(request, pk):
             "title": "Successfully Deleted",
             "message": "Size deleted successfully.",
             "redirect": "true",
-            "redirect_url": reverse('work_order:color_list')  
+            "redirect_url": reverse('work_order:size-list')  
         }
     return JsonResponse(response_data)
 
