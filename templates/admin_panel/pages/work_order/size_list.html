@@ -45,7 +45,7 @@
                                             <td class="text-center">{{forloop.counter}}</td>
                                             <td class="text-left">{{size.size}}</td>
                                             <td class="text-right">
-                                                <a href="{% url 'work_order:size-delete' pk=size.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
+                                                <a href="{% url 'work_order:size-delete' pk=size.pk %}" class="action-button remove btn btn-default btn-icon" data-id="{{size.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" style="padding:0;"
                                                  ><i class="las la-trash-alt text-danger font-18"></i></a>
                                             </td> 
                                         </tr>
