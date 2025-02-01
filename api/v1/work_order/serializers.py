@@ -159,7 +159,7 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
-    workorderimages_set = WorkOrderImagesSerializer(many=True, read_only=True)
+    workorderimages_set = WorkOrderImagesSerializer(many=True)
 
     class Meta:
         model = ModelNumberBasedProducts
