@@ -111,7 +111,7 @@ class WorkOrderItems(BaseModel):
 
 class WorkOrderImages(BaseModel):
     work_order = models.ForeignKey(ModelNumberBasedProducts,on_delete=models.CASCADE,null=True, blank=True)
-    image = VersatileImageField(upload_to='work_order_images')
+    image = VersatileImageField(upload_to='work_order_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
     class Meta:
