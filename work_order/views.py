@@ -1294,7 +1294,7 @@ def get_auto_id(model):
 @role_required(['superadmin'])
 def modelnumberbasedproducts_create(request):
     title='Model Create'
-    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=4)
+    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST)
         formset = WorkOrderImagesFormSet(request.POST, request.FILES)
@@ -1341,7 +1341,7 @@ def modelnumberbasedproducts_create(request):
 def modelnumberbasedproducts_update(request,pk):
     product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
     title='Model Update'
-    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=4)
+    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
     
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST, instance=product)
