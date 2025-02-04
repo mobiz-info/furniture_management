@@ -21,6 +21,12 @@ WORK_ORDER_CHOICES = (
     ('030', 'Sold'),
 )
 
+class Color(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 class ModelNumberBasedProducts(BaseModel):
     model_no = models.CharField(max_length=255)
@@ -29,21 +35,13 @@ class ModelNumberBasedProducts(BaseModel):
     material = models.ForeignKey(Materials, on_delete=models.CASCADE)
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
-    color = models.CharField(max_length=100,null=True, blank=True)
+    color = models.ManyToManyField(Color)
 
     class Meta:
         db_table = 'ModelNumberBasedProducts'
 
     def __str__(self):
         return f'{self.id}'
-
-
-class Color(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
 
 class WorkOrder(BaseModel):
     order_no = models.CharField(max_length=255, null=False, blank=False)
@@ -71,7 +69,7 @@ class WorkOrderItems(BaseModel):
     model_no = models.CharField(max_length=255, null=True, blank=True)
     size = models.CharField(max_length=100,null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
-    color = models.ManyToManyField(Color)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
     estimate_rate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
 

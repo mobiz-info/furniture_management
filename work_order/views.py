@@ -24,6 +24,19 @@ from settings.models import *
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id
 
+class ColorAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Color.objects.all()
+
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+
+        return qs
+
+    def create_object(self, text):
+        # Allow new colors to be created
+        return Color.objects.create(name=text)
+
 def fetch_customer_details(request):
     mobile_no = request.GET.get("customer_mobile_no")
     

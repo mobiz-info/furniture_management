@@ -325,4 +325,36 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
+        $(".select2-multi").select2({
+            tags: true,
+            tokenSeparators: [','],
+            ajax: {
+                url: "{% url 'workorder:color_autocomplete' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results,
+                    };
+                },
+                cache: true,
+            },
+            createTag: function (params) {
+                return {
+                    id: params.term,
+                    text: params.term,
+                    newOption: true
+                };
+            }
+        });
+    });
+</script>
+
 {% endblock %}

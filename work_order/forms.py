@@ -1,14 +1,16 @@
+from uuid import UUID
 from django import forms
 from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput,NumberInput
 from django.forms import TextInput, URLInput, EmailInput
 from django.forms import inlineformset_factory
-from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput
+from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput, SelectMultiple
+
+from dal import autocomplete
 
 from product.models import *
 from customer.models import Customer
 from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing, WorkOrderStatus
 from work_order.models import Color
-from django.forms.widgets import SelectMultiple
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -50,7 +52,6 @@ class WorkOrderStatusForm(forms.ModelForm):
         }
         
 class WorkOrderItemsForm(forms.ModelForm):
-    color= forms.ModelMultipleChoiceField(queryset=Color.objects.all(),widget=SelectMultiple(attrs={'class': 'select2-multi form-control custom-select'}))
 
     class Meta:
         model = WorkOrderItems
@@ -67,8 +68,36 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
                 'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
-                  
+                'color': autocomplete.ModelSelect2Multiple(
+                    url='workorder:color_autocomplete',
+                    attrs={
+                        'class': 'select2-multi form-control custom-select',
+                        'data-tags': 'true',  # Allows creating new tags
+                        'data-token-separators': [','],
+                        'data-allow-clear': 'true',  # Optional: allow clearing selections
+                    }
+                )
             }
+        
+        
+        def clean_color(self):
+            colors = self.cleaned_data['color']  # This is a queryset or list of input values
+            final_colors = []
+
+            for color in colors:
+                if isinstance(color, Color):  # Already a valid Color instance
+                    final_colors.append(color)
+                elif isinstance(color, str):  # New color name as string
+                    try:
+                        # Attempt to parse as UUID first
+                        color_obj = Color.objects.get(id=UUID(color))
+                        final_colors.append(color_obj)
+                    except (ValueError, Color.DoesNotExist):
+                        # Create a new color if not found
+                        color_obj, created = Color.objects.get_or_create(name=color)
+                        final_colors.append(color_obj)
+
+            return final_colors
 
 
 class WorkOrderImagesForm(forms.ModelForm):
