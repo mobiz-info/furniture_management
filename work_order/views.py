@@ -1482,3 +1482,19 @@ def get_subcategories(request):
     sub_categories = ProductSubCategory.objects.filter(product_category=category_id)
 
     return render(request, 'admin_panel/pages/work_order/subcategory_options.html', {'sub_categories': sub_categories})
+
+
+def get_subcategory(request):
+    category_id = request.GET.get('category')
+    subcategories = ProductSubCategory.objects.filter(product_category=category_id).values('id', 'name')
+    return JsonResponse(list(subcategories), safe=False)
+
+def get_sub_materials(request):
+    material_id = request.GET.get('material')
+    sub_materials = MaterialsType.objects.filter(material_id=material_id).values('id', 'name')
+    return JsonResponse(list(sub_materials), safe=False)
+
+def get_material_types(request):
+    sub_material_id = request.GET.get('sub_material')
+    material_types = MaterialTypeCategory.objects.filter(material_type=sub_material_id).values('id', 'name')
+    return JsonResponse(list(material_types), safe=False)
