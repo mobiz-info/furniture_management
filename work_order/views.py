@@ -1297,7 +1297,7 @@ def modelnumberbasedproducts_create(request):
     WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST)
-        formset = WorkOrderImagesFormSet(request.POST, request.FILES)
+        formset = WorkOrderImagesFormSet(request.POST, request.FILES,prefix='formset')
         model_no = request.POST.get('model_no')
 
         if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
