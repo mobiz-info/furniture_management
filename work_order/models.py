@@ -122,7 +122,7 @@ class WorkOrderImages(BaseModel):
     
 
 class ModelNumberBasedProductImages(BaseModel):
-    model = models.ForeignKey(ModelNumberBasedProducts,on_delete=models.CASCADE,null=True, blank=True)
+    model = models.ForeignKey(ModelNumberBasedProducts,related_name='images_set',on_delete=models.CASCADE,null=True, blank=True)
     image = VersatileImageField(upload_to='model_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 

@@ -45,4 +45,6 @@ urlpatterns = [
     re_path(r'model-create/',views.modelnumberbasedproducts_create),
     re_path(r'model-update/(?P<pk>.*)/$',views.modelnumberbasedproducts_update),
     re_path(r'model-info/(?P<pk>.*)/$',views.modelnumberbasedproducts_detail),
+
+    re_path(r'work-order-image-create/(?P<pk>.*)/$',views.create_work_order_image),
 ]
