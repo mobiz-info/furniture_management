@@ -58,13 +58,13 @@ def work_order_info(request,pk):
     
     instance = WorkOrder.objects.get(pk=pk)
     items_instances = WorkOrderItems.objects.filter(work_order=instance)
-    #images_instances = WorkOrderImages.objects.filter(work_order=items_instances.first())
+    images_instances = WorkOrderImages.objects.filter(work_order=instance)
     work_section_details=WorkOrderStaffAssign.objects.filter(work_order=instance)
 
     context = {
         'instance': instance,
         'items_instances':items_instances,
-        #'images_instances': images_instances,
+        'images_instances': images_instances,
         
         'page_name' : 'Work Order Info',
         'page_title' : 'Work Order Info',
@@ -108,17 +108,17 @@ def work_order_list(request):
 @role_required(['superadmin'])
 def create_work_order(request):
     WorkOrderItemsFormFormset = formset_factory(WorkOrderItemsForm, extra=2)
-    #WorkOrderImagesFormFormset = formset_factory(WorkOrderImagesForm, extra=2)
+    WorkOrderImagesFormFormset = formset_factory(WorkOrderImagesForm, extra=2)
 
     if request.method == 'POST':
         customer_form = CustomerForm(request.POST, files=request.FILES)
         work_order_form = WorkOrderForm(request.POST)
         work_order_items_formset = WorkOrderItemsFormFormset(request.POST, prefix='work_order_items_formset', form_kwargs={'empty_permitted': False})
-        #work_order_images_formset = WorkOrderImagesFormFormset(request.POST, files=request.FILES, prefix='work_order_images_formset', form_kwargs={'empty_permitted': False})
+        work_order_images_formset = WorkOrderImagesFormFormset(request.POST, files=request.FILES, prefix='work_order_images_formset', form_kwargs={'empty_permitted': False})
         
         print(Customer.objects.filter(mobile_number=request.POST.get("mobile_number")).exists())
         
-        if customer_form.is_valid() and work_order_form.is_valid() and work_order_items_formset.is_valid() :#and work_order_images_formset.is_valid():
+        if customer_form.is_valid() and work_order_form.is_valid() and work_order_items_formset.is_valid() and work_order_images_formset.is_valid():
             try:
                 with transaction.atomic():
                     # Check if a customer with the given mobile number already exists
@@ -180,12 +180,12 @@ def create_work_order(request):
                             model_number_based_product.save()
 
                     # Save work order images
-                    # for form in work_order_images_formset:
-                    #     work_order_image = form.save(commit=False)
-                    #     work_order_image.auto_id = get_auto_id(WorkOrderImages)
-                    #     work_order_image.creator = request.user
-                    #     work_order_image.work_order = work_order_data
-                    #     work_order_image.save()
+                    for form in work_order_images_formset:
+                        work_order_image = form.save(commit=False)
+                        work_order_image.auto_id = get_auto_id(WorkOrderImages)
+                        work_order_image.creator = request.user
+                        work_order_image.work_order = work_order_data
+                        work_order_image.save()
 
                     response_data = {
                         "status": "true",
@@ -212,7 +212,7 @@ def create_work_order(request):
             message = generate_form_errors(customer_form, formset=False)
             message += generate_form_errors(work_order_form, formset=False)
             message += generate_form_errors(work_order_items_formset, formset=True)
-            #message += generate_form_errors(work_order_images_formset, formset=True)
+            message += generate_form_errors(work_order_images_formset, formset=True)
 
             response_data = {
                 "status": "false",
@@ -228,13 +228,13 @@ def create_work_order(request):
         customer_form = CustomerForm()
         work_order_form = WorkOrderForm(initial={'order_no': WorkOrder.generate_order_no()})
         work_order_items_formset = WorkOrderItemsFormFormset(prefix='work_order_items_formset')
-        #work_order_images_formset = WorkOrderImagesFormFormset(prefix='work_order_images_formset')
+        work_order_images_formset = WorkOrderImagesFormFormset(prefix='work_order_images_formset')
 
         context = {
             'customer_form': customer_form,
             'work_order_form': work_order_form,
             'work_order_items_formset': work_order_items_formset,
-            #'work_order_images_formset': work_order_images_formset,
+            'work_order_images_formset': work_order_images_formset,
             'page_name': 'Create WorkOrder',
             'page_title': 'Create WorkOrders',
             'url': reverse('work_order:create_work_order'),
@@ -256,10 +256,10 @@ def edit_work_order(request, pk):
     """
     work_order_instance = get_object_or_404(WorkOrder, pk=pk)
     work_order_items = WorkOrderItems.objects.filter(work_order=work_order_instance, is_deleted=False)
-    #work_order_images = WorkOrderImages.objects.filter(work_order=work_order_instance, is_deleted=False)
+    work_order_images = WorkOrderImages.objects.filter(work_order=work_order_instance, is_deleted=False)
 
     item_extra = 0 if work_order_items.exists() else 1
-    #image_extra = 0 if work_order_images.exists() else 1
+    image_extra = 0 if work_order_images.exists() else 1
 
     WorkOrderItemsFormFormset = inlineformset_factory(
         WorkOrder,
@@ -268,12 +268,12 @@ def edit_work_order(request, pk):
         form=WorkOrderItemsForm,
     )
     
-    # WorkOrderImageFormFormset = inlineformset_factory(
-    #     WorkOrder,
-    #     WorkOrderImages,
-    #     extra=image_extra,
-    #     form=WorkOrderImagesForm,
-    # )
+    WorkOrderImageFormFormset = inlineformset_factory(
+        WorkOrder,
+        WorkOrderImages,
+        extra=image_extra,
+        form=WorkOrderImagesForm,
+    )
 
     message = ''
 
@@ -286,14 +286,15 @@ def edit_work_order(request, pk):
             prefix='work_order_items_formset',
             form_kwargs={'empty_permitted': False}
         )
-        # work_order_images_formset = WorkOrderImageFormFormset(
-        #     request.POST,
-        #     instance=work_order_instance,
-        #     prefix='work_order_images_formset',
-        #     form_kwargs={'empty_permitted': False}
-        # )
+        work_order_images_formset = WorkOrderImageFormFormset(
+            request.POST,
+            instance=work_order_instance,
+            prefix='work_order_images_formset',
+            form_kwargs={'empty_permitted': False},
+            files=request.FILES
+        )
 
-        if customer_form.is_valid() and work_order_form.is_valid() and work_order_items_formset.is_valid():# and work_order_images_formset.is_valid()
+        if customer_form.is_valid() and work_order_form.is_valid() and work_order_items_formset.is_valid() and work_order_images_formset.is_valid():
             try:
                 with transaction.atomic():
                     # Use cleaned_data now after form validation
@@ -353,18 +354,19 @@ def edit_work_order(request, pk):
                     for form in work_order_items_formset.deleted_forms:
                         form.instance.delete()
                         
-                    # for form in work_order_images_formset:
-                    #     if form not in work_order_images_formset.deleted_forms:
-                    #         work_order_image = form.save(commit=False)
-                    #         if not work_order_image.auto_id:
-                    #             work_order_image.work_order = work_order_form_instance
-                    #             work_order_image.auto_id = get_auto_id(WorkOrderImages)
-                    #             work_order_image.updater = request.user
-                    #             work_order_image.date_updated = datetime.datetime.now()
-                    #         work_order_image.save()
+                    for form in work_order_images_formset:
+                        if form not in work_order_images_formset.deleted_forms:
+                            work_order_image = form.save(commit=False)
+                            if not work_order_image.auto_id:
+                                work_order_image.work_order = work_order_form_instance
+                                work_order_image.auto_id = get_auto_id(WorkOrderImages)
+                                work_order_image.updater = request.user
+                                work_order_image.creator=request.user
+                                work_order_image.date_updated = datetime.datetime.now()
+                            work_order_image.save()
                             
-                    # for form in work_order_images_formset.deleted_forms:
-                    #     form.instance.delete()
+                    for form in work_order_images_formset.deleted_forms:
+                        form.instance.delete()
 
                     response_data = {
                         "status": "true",
@@ -394,7 +396,7 @@ def edit_work_order(request, pk):
             message = generate_form_errors(customer_form, formset=False)
             message += generate_form_errors(work_order_form, formset=False)
             message += generate_form_errors(work_order_items_formset, formset=True)
-            #message += generate_form_errors(work_order_images_formset, formset=True)
+            message += generate_form_errors(work_order_images_formset, formset=True)
 
             response_data = {
                 "status": "false",
@@ -412,17 +414,17 @@ def edit_work_order(request, pk):
             prefix='work_order_items_formset',
             instance=work_order_instance
         )
-        # work_order_images_formset = WorkOrderImageFormFormset(
-        #     queryset=work_order_images,
-        #     prefix='work_order_images_formset',
-        #     instance=work_order_instance
-        # )
+        work_order_images_formset = WorkOrderImageFormFormset(
+            queryset=work_order_images,
+            prefix='work_order_images_formset',
+            instance=work_order_instance
+        )
         
         context = {
             'customer_form': customer_form,
             'work_order_form': work_order_form,
             'work_order_items_formset': work_order_items_formset,
-            # 'work_order_images_formset': work_order_images_formset,
+            'work_order_images_formset': work_order_images_formset,
             'message': message,
             'page_name': 'edit work order',
             'is_purchase_pages': True,
@@ -469,21 +471,24 @@ def delete_work_order_image(request,pk):
     :param pk:
     :return:
     """
-    if request.method == "POST":
-        image = get_object_or_404(WorkOrderImages, id=pk)
-        image.delete()
-        return JsonResponse({"success": True})
-    return JsonResponse({"success": False})
-    # response_data = {
-    #     "status": "true",
-    #     "title": "Successfully Deleted",
-    #     "message": "Work Order Image Successfully Deleted.",
-    #     "redirect": "true",
-    #     "redirect_url": reverse('work_order:model-display'),
-    # }
+    image = get_object_or_404(WorkOrderImages, id=pk)
+    image.delete()
+    # if request.method == "POST":
+    #     print('idd--------',pk)
+        # image = get_object_or_404(WorkOrderImages, id=pk)
+        # image.delete()
+    #     return JsonResponse({"success": True})
+    # return JsonResponse({"success": False})
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Work Order Image Successfully Deleted.",
+        "redirect": "true",
+        "redirect_url": reverse('work_order:model-display'),
+    }
 
     
-    # return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
 @login_required
 @role_required(['superadmin'])
@@ -1294,10 +1299,10 @@ def get_auto_id(model):
 @role_required(['superadmin'])
 def modelnumberbasedproducts_create(request):
     title='Model Create'
-    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
+    WorkOrderImagesFormSet =formset_factory(ModelNumberBasedProductImagesForm,extra=2)
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST)
-        formset = WorkOrderImagesFormSet(request.POST, request.FILES,prefix='formset')
+        formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='formset',form_kwargs={'empty_permitted': False})
         model_no = request.POST.get('model_no')
 
         if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
@@ -1322,8 +1327,8 @@ def modelnumberbasedproducts_create(request):
                 for form in formset:
                     if form.cleaned_data:
                         image = form.save(commit=False)
-                        image.work_order = product
-                        image.auto_id = get_auto_id(WorkOrderImages)
+                        image.model = product
+                        image.auto_id = get_auto_id(ModelNumberBasedProductImages)
                         image.creator = request.user
                         image.save()
 
@@ -1331,7 +1336,7 @@ def modelnumberbasedproducts_create(request):
 
     else:
         form = ModelNumberBasedProductsForm()
-        formset = WorkOrderImagesFormSet()
+        formset = WorkOrderImagesFormSet(prefix='formset')
 
     return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
 
@@ -1341,11 +1346,11 @@ def modelnumberbasedproducts_create(request):
 def modelnumberbasedproducts_update(request,pk):
     product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
     title='Model Update'
-    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
+    WorkOrderImagesFormSet =formset_factory(ModelNumberBasedProductImagesForm,extra=2)
     
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST, instance=product)
-        formset = WorkOrderImagesFormSet(request.POST, request.FILES)
+        formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='formset',form_kwargs={'empty_permitted': False})
         model_no = request.POST.get('model_no')
 
         if not ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
@@ -1371,15 +1376,15 @@ def modelnumberbasedproducts_update(request,pk):
                 for form in formset:
                     if form.cleaned_data:
                         image = form.save(commit=False)
-                        image.work_order = product
-                        image.auto_id = get_auto_id(WorkOrderImages)
+                        image.model = product
+                        image.auto_id = get_auto_id(ModelNumberBasedProductImages)
                         image.creator = request.user
                         image.save()
 
                 return redirect('work_order:model-display')
     else:
         form = ModelNumberBasedProductsForm(instance=product)
-        formset = WorkOrderImagesFormSet()
+        formset = WorkOrderImagesFormSet(prefix='formset')
 
     return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
 
@@ -1398,7 +1403,7 @@ def modelnumberbasedproducts_delete(request, pk):
 @role_required(['superadmin'])
 def modelnumberbasedproducts_info(request,pk):
     model=get_object_or_404(ModelNumberBasedProducts,pk=pk)
-    images=WorkOrderImages.objects.filter(work_order=model)
+    images=ModelNumberBasedProductImages.objects.filter(model=model)
 
     context = {
         'model':model,
@@ -1441,18 +1446,18 @@ def modelnumberbasedproducts_card_list(request):
     work_orders = {}
 
     if category_id and sub_category_id:
-        work_order_images=WorkOrderImages.objects.filter(work_order__category=category_id).filter(work_order__sub_category=sub_category_id)
+        work_order_images=ModelNumberBasedProductImages.objects.filter(model__category=category_id).filter(work_order__sub_category=sub_category_id)
         print(work_order_images)
     elif category_id:
-        work_order_images=WorkOrderImages.objects.filter(work_order__category=category_id)
+        work_order_images=ModelNumberBasedProductImages.objects.filter(model__category=category_id)
         print(work_order_images)
     elif sub_category_id:
-        work_order_images=WorkOrderImages.objects.filter(work_order__sub_category=sub_category_id)
+        work_order_images=ModelNumberBasedProductImages.objects.filter(model__sub_category=sub_category_id)
         print(work_order_images)
     elif model_no:
-        work_order_images=WorkOrderImages.objects.filter(work_order__model_no=model_no)
+        work_order_images=ModelNumberBasedProductImages.objects.filter(model__model_no=model_no)
     else:
-        work_order_images = WorkOrderImages.objects.all().order_by("-id")
+        work_order_images = ModelNumberBasedProductImages.objects.all().order_by("-id")
 
     paginator = Paginator(work_order_images,6) 
     page_number = request.GET.get('page')
@@ -1460,11 +1465,14 @@ def modelnumberbasedproducts_card_list(request):
 
 
     for image in page_obj:
-        if image.work_order not in work_orders:
-            work_orders[image.work_order] = image
+        if image.model not in work_orders:
+            work_orders[image.model] = image
 
     categories = ProductCategory.objects.all()
     sub_categories = ProductSubCategory.objects.all
+
+    for itmes in work_orders:
+        print(itmes)
     
     context = {
         'work_orders': work_orders,
@@ -1498,3 +1506,15 @@ def get_material_types(request):
     sub_material_id = request.GET.get('sub_material')
     material_types = MaterialTypeCategory.objects.filter(material_type=sub_material_id).values('id', 'name')
     return JsonResponse(list(material_types), safe=False)
+
+
+
+@login_required
+@role_required(['superadmin'])
+def delete_model_image(request,pk):
+    if request.method == "POST":
+        image = get_object_or_404(ModelNumberBasedProductImages, id=pk)
+        image.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+

@@ -60,5 +60,7 @@ urlpatterns = [
 
     re_path(r'get-subcategory/', views.get_subcategory, name='get-subcategory'),
     re_path(r'get-sub-materials/', views.get_sub_materials, name='get-sub-materials'),
-    re_path(r'get-material-types/', views.get_material_types, name='get-material-types')
+    re_path(r'get-material-types/', views.get_material_types, name='get-material-types'),
+
+    re_path(r'delete-model-image/(?P<pk>.*)/$',views.delete_model_image,name='delete-model-image'),
 ]

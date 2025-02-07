@@ -158,8 +158,17 @@ class SizeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class ModelNumberBasedProductImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModelNumberBasedProductImages
+        fields = ['id', 'model', 'image', 'remark']
+        read_only_fields=['id','model']
+
+
+
 class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
-    workorderimages_set = WorkOrderImagesSerializer(many=True)
+    workorderimages_set = ModelNumberBasedProductImagesSerializer(many=True)
 
     class Meta:
         model = ModelNumberBasedProducts
