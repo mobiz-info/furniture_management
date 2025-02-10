@@ -963,10 +963,10 @@ def modelnumberbasedproducts_create(request):
         product = product_serializer.save(creator=request.user,auto_id=auto_id)
         images_data = request.data.get('workorderimages_set', [])
         for image_data in images_data:
-            image_data['work_order'] = product.id
-            image_serializer = WorkOrderImagesSerializer(data=image_data)
+            image_data['model'] = product.id
+            image_serializer = ModelNumberBasedProductImagesSerializer(data=image_data)
             if image_serializer.is_valid():
-                image_serializer.save(creator=request.user,auto_id=get_auto_id(WorkOrderImages))
+                image_serializer.save(creator=request.user,auto_id=get_auto_id(ModelNumberBasedProductImages))
             else:
                 product.delete()
                 return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1030,3 +1030,19 @@ def modelnumberbasedproducts_detail(request, pk):
     product = get_object_or_404(ModelNumberBasedProducts, pk=pk)
     serializer = ModelNumberBasedProductsSerializer(product)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@renderer_classes((JSONRenderer,))
+def create_work_order_image(request, pk):
+    work_order=WorkOrder.objects.get(id=pk)
+    serializer = WorkOrderImagesSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(
+            work_order=work_order,
+            auto_id=get_auto_id(WorkOrderImages),
+            creator=request.user
+            )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

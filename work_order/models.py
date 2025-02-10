@@ -116,7 +116,7 @@ class WorkOrderItems(BaseModel):
 
 
 class WorkOrderImages(BaseModel):
-    work_order = models.ForeignKey(ModelNumberBasedProducts,on_delete=models.CASCADE,null=True, blank=True)
+    work_order = models.ForeignKey(WorkOrder,on_delete=models.CASCADE,null=True, blank=True)
     image = VersatileImageField(upload_to='work_order_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
@@ -124,7 +124,19 @@ class WorkOrderImages(BaseModel):
         db_table = 'WorkOrderImages'
 
     def __str__(self):
-        return f'WorkOrderImage {self.work_order.model_no}'
+        return f'WorkOrderImage {self.work_order.order_no}'
+    
+
+class ModelNumberBasedProductImages(BaseModel):
+    model = models.ForeignKey(ModelNumberBasedProducts,related_name='images_set',on_delete=models.CASCADE,null=True, blank=True)
+    image = VersatileImageField(upload_to='model_images/')
+    remark = models.CharField(max_length=100,null=True, blank=True)
+
+    class Meta:
+        db_table = 'ModelNumberBasedProductImages'
+
+    def __str__(self):
+        return f'ModelNumberBasedProductImages {self.model}'
 
 
 class WoodWorkAssign(BaseModel):

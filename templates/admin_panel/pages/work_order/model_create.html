@@ -90,19 +90,18 @@
 
                     
                     <div id="order-image-section" class="card ordinary-variant-card">
-                        <div class="table-responsive card-body add_item_container work_order_images_formset">
+                        <div class="table-responsive card-body add_item_container formset">
                             <table id="data-table-basic" class="table table-striped table-vmiddle">
                                 <thead>
                                     <tr>
                                         <th>Image</th>
                                         <th>Remark</th>
-                                        
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{formset.management_form}}
                                     {% for form in formset %}
-                                    <tr class="form_set_row work_order_images_formset">
+                                    <tr class="form_set_row formset">
                                         {{ form.id }}
                                         <td><span class="image">{{ form.image }}</span> 
                                             
@@ -113,6 +112,7 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+                            {{formset.management_form}}
 
                         </div>
                     </div>
@@ -157,6 +157,76 @@
 </style>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('id_category');
+        const subCategorySelect = document.getElementById('id_sub_category');
+        const materialSelect = document.getElementById('id_material');
+        const subMaterialSelect = document.getElementById('id_sub_material');
+        const materialTypeSelect = document.getElementById('id_material_type');
+
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+
+            if (categoryId) {
+                fetch(`{% url 'work_order:get-subcategory' %}?category=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subCategorySelect.innerHTML = '';
+                        data.forEach(subcategory => {
+                            const option = document.createElement('option');
+                            option.value = subcategory.id;
+                            option.textContent = subcategory.name;
+                            subCategorySelect.appendChild(option);
+                        });
+                    });
+            } else {
+                subCategorySelect.innerHTML = '';
+            }
+        });
+
+        materialSelect.addEventListener('change', function() {
+            const materialId = this.value;
+
+            if (materialId) {
+                fetch(`{% url 'work_order:get-sub-materials' %}?material=${materialId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subMaterialSelect.innerHTML = '';
+                        data.forEach(submaterial => {
+                            const option = document.createElement('option');
+                            option.value = submaterial.id;
+                            option.textContent = submaterial.name;
+                            subMaterialSelect.appendChild(option);
+                        });
+                    });
+            } else {
+                subMaterialSelect.innerHTML = '';
+            }
+        });
+
+        subMaterialSelect.addEventListener('change', function() {
+            const subMaterialId = this.value;
+
+            if (subMaterialId) {
+                fetch(`{% url 'work_order:get-material-types' %}?sub_material=${subMaterialId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        materialTypeSelect.innerHTML = '';
+                        data.forEach(materialType => {
+                            const option = document.createElement('option');
+                            option.value = materialType.id;
+                            option.textContent = materialType.name;
+                            materialTypeSelect.appendChild(option);
+                        });
+                    });
+            } else {
+                materialTypeSelect.innerHTML = '';
+            }
+        });
+    });
+</script>
 
 <script>
    

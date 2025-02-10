@@ -49,16 +49,16 @@
     </div>
     <div style="display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
         align-content: center;" class="row">
-        {%for work_order,image in work_orders.items%}
+        {%for model,image in work_orders.items%}
         <div class="card" style="width: 18rem;height: 20rem;margin: 2rem;">
             <img style="height: 11rem;" src="{{image.image.url}}" class="card-img-top" alt="...">
             <div class="card-body">
-                <p class="card-text"><b>Model no :</b>{{work_order.model_no}}&nbsp;&nbsp;&nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp;<b>Category : </b>{{work_order.category.name}}
-                <br><b>Available Size:</b> {% for s in work_order.size.all%} {{s}} <b>,</b> {%endfor%} <br> <b>Available Colors:</b> {%for c in work_order.color.all%} {{c}} <b>,</b> {%endfor%}
+                <p class="card-text"><b>Model no :</b>{{model.model_no}}&nbsp;&nbsp;&nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp;<b>Category : </b>{{model.category.name}}
+                <br><b>Available Size:</b> {% for s in model.size.all%} {{s}} <b>,</b> {%endfor%} <br> <b>Available Colors:</b> {%for c in model.color.all%} {{c}} <b>,</b> {%endfor%}
                 </p>
-                <div><a class="btn btn-info" href="{%url 'work_order:model-info' pk=work_order.pk%}" >View More</a></div>
+                <div><a class="btn btn-info" href="{%url 'work_order:model-info' pk=model.pk%}" >View More</a></div>
             </div>
         </div>
         {%endfor%}

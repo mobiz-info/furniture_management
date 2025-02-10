@@ -10,7 +10,7 @@ from dal import autocomplete
 from product.models import *
 from customer.models import Customer
 from .models import WorkOrder, WoodWorkAssign, WorkOrderItems,WorkOrderImages, Carpentary, Polish, Glass, Packing, WorkOrderStatus
-from work_order.models import Color,Size,ModelNumberBasedProducts
+from work_order.models import Color,Size,ModelNumberBasedProducts,ModelNumberBasedProductImages
 from django.forms.widgets import SelectMultiple
 
 class CustomerForm(forms.ModelForm):
@@ -58,12 +58,12 @@ class WorkOrderItemsForm(forms.ModelForm):
         fields = ['category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'remark','estimate_rate','size','color']
         
         widgets = {
-                'category': Select(attrs={'class': 'select2 form-control custom-select'}),
-                'sub_category': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'category': Select(attrs={'class': 'select2 form-control custom-select category'}),
+                'sub_category': Select(attrs={'class': 'select2 form-control custom-select sub_category'}),
                 'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model No'}),
-                'material': Select(attrs={'class': 'select2 form-control custom-select'}),
-                'sub_material': Select(attrs={'class': 'select2 form-control custom-select'}),
-                'material_type': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+                'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+                'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
                 'quantity': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
@@ -96,6 +96,18 @@ class WorkOrderImagesForm(forms.ModelForm):
 
     class Meta:
         model = WorkOrderImages
+        fields = ['image','remark']
+        
+        widgets = {
+            'image': FileInput(attrs={'class': 'form-control '}),
+            'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
+        }
+
+
+class ModelNumberBasedProductImagesForm(forms.ModelForm):
+
+    class Meta:
+        model = ModelNumberBasedProductImages
         fields = ['image','remark']
         
         widgets = {
@@ -200,11 +212,11 @@ class ModelNumberBasedProductsForm(forms.ModelForm):
         ]
         widgets = {
             'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model Number'}),
-            'category': Select(attrs={'class': 'select2 form-control custom-select'}),
-            'sub_category': Select(attrs={'class': 'select2 form-control custom-select'}),
-            'material': Select(attrs={'class': 'select2 form-control custom-select'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'category': Select(attrs={'class': 'select2 form-control custom-select category'}),
+            'sub_category': Select(attrs={'class': 'select2 form-control custom-select sub_category'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'color': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
             'size': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
         }

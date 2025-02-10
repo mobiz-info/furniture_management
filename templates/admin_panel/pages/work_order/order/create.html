@@ -259,6 +259,116 @@
     #id_source{display: flex;list-style: none;padding: 0;justify-content: flex-start;align-items: center;}
     #id_source li{margin-right: 12px;}
 </style>
+
+<script>
+    $(".category").change(function(){
+        var itemValue = $(this).val();
+        var digitValue = $(this).attr("id");
+        var digitValue = digitValue.match(/\d+/);
+
+        if (digitValue !== null) {
+            var digitValue = digitValue[0];
+        }
+
+        var url = "{% url 'work_order:get-subcategory' %}"
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: {
+                'category': itemValue
+            },
+    
+            success: function (data) {
+                var options = '<option value="">Select</option>';
+                $.each(data, function(index, id) {
+                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                        });
+                $("#id_work_order_items_formset-"+digitValue+"-sub_category").html(options);
+            },
+    
+            error: function (data) {
+                var title = data["title"];
+                var errorMessagesStr = data["responseJSON"]["message"];
+            },
+        });
+
+    });
+
+    $(".material").change(function(){
+        var itemValue = $(this).val();
+        var digitValue = $(this).attr("id");
+        var digitValue = digitValue.match(/\d+/);
+
+        if (digitValue !== null) {
+            var digitValue = digitValue[0];
+        }
+
+        var url = "{% url 'work_order:get-sub-materials' %}"
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: {
+                'material': itemValue
+            },
+    
+            success: function (data) {
+                var options = '<option value="">Select</option>';
+                $.each(data, function(index, id) {
+                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                        });
+                $("#id_work_order_items_formset-"+digitValue+"-sub_material").html(options);
+            },
+    
+            error: function (data) {
+                var title = data["title"];
+                var errorMessagesStr = data["responseJSON"]["message"];
+            },
+        });
+
+    });
+
+    $(".sub_material").change(function(){
+        var itemValue = $(this).val();
+        var digitValue = $(this).attr("id");
+        var digitValue = digitValue.match(/\d+/);
+
+        if (digitValue !== null) {
+            var digitValue = digitValue[0];
+        }
+
+        var url = "{% url 'work_order:get-material-types' %}"
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: {
+                'sub_material': itemValue
+            },
+    
+            success: function (data) {
+                var options = '<option value="">Select</option>';
+                console.log(data)
+                $.each(data, function(index, id) {
+                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                        });
+                $("#id_work_order_items_formset-"+digitValue+"-material_type").html(options);
+            },
+    
+            error: function (data) {
+                var title = data["title"];
+                var errorMessagesStr = data["responseJSON"]["message"];
+            },
+        });
+
+    });
+    
+</script>
+
 <script>
     function RowIndexUpdate() {
         $('table tr.form_set_row').each(function () {

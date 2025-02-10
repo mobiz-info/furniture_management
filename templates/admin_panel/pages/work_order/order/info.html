@@ -82,11 +82,7 @@
                                         <td class="text-left">{{item.model_no}}</td>
                                         <td class="text-left">{{item.size}}</td>
                                         <td class="text-left">{{item.remark}}</td>
-                                        <td class="text-left">
-                                            {%for c in item.color.all%}
-                                            {{c}} <br>
-                                            {%endfor%}
-                                        </td>
+                                        <td class="text-left">{{item.color}}</td>
                                         <td class="text-right">{{item.quantity}}</td>
                                         <td class="text-right">{{item.estimate_rate}}</td>
                                     </tr>

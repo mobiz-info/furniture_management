@@ -106,7 +106,7 @@
     $(document).ready(function() {
         $('.delete-btn').click(function() {
             var imageId = $(this).data('id');
-            var url = "{% url 'work_order:delete_work_order_image' pk=0 %}".replace('0', imageId);
+            var url = "{% url 'work_order:delete-model-image' pk=0 %}".replace('0', imageId);
 
             $.ajax({
                 url: url,
