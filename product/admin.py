@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from . models import MaterialTypeCategory, Materials, MaterialsType, Product,ProductCategory
+from . models import MaterialTypeCategory, Materials, MaterialsType, Product,ProductCategory,ProductSubCategory
 
 # Register your models here.
 class MaterialsAdmin(admin.ModelAdmin):
@@ -29,3 +29,4 @@ admin.site.register(MaterialTypeCategory,MaterialTypeCategoryAdmin)
 #     ]
 admin.site.register(Product)
 admin.site.register(ProductCategory)
+admin.site.register(ProductSubCategory)

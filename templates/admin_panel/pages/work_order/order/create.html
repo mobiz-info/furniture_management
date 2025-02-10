@@ -1,5 +1,6 @@
 {% extends 'admin_panel/base.html' %}
 {% load static %}
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
 {% block content %}
 <!-- Page Content-->
@@ -170,7 +171,7 @@
                             {{ work_order_items_formset.management_form }}
                         </div>
                     </div>
-
+                    {%if work_order_images_formset%}
                     <div id="order-image-section" class="card ordinary-variant-card">
                         <div class="table-responsive card-body add_item_container work_order_images_formset">
                             <table id="data-table-basic" class="table table-striped table-vmiddle">
@@ -199,7 +200,7 @@
                             {{ work_order_images_formset.management_form }}
                         </div>
                     </div>
-
+                    {%endif%}
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -287,10 +288,6 @@
         });
     });
 
-    $(document).ready(function() {
-         $('.select2-multi').select2({ placeholder: "Select colors", allowClear: true }); 
-        });
-
     
 </script>
 
@@ -325,36 +322,32 @@
         });
     });
 </script>
+<script src="https://unpkg.com/htmx.org"></script>
 <script>
-    $(document).ready(function () {
-        $(".select2-multi").select2({
-            tags: true,
-            tokenSeparators: [','],
-            ajax: {
-                url: "{% url 'workorder:color_autocomplete' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term, // search term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.results,
-                    };
-                },
-                cache: true,
-            },
-            createTag: function (params) {
-                return {
-                    id: params.term,
-                    text: params.term,
-                    newOption: true
-                };
-            }
-        });
+    document.addEventListener('input', function(e) {
+        if (e.target.name.endsWith('-model_no')) {
+            let model_no = e.target.value;
+            let formIndex = e.target.name.split('-')[1];
+
+            fetch(`workorder/model-data/?model_no=${model_no}`)
+                .then(response => response.json())
+                .then(data => {
+                    const fields = ['category', 'sub_category', 'material', 'sub_material', 'material_type', 'color', 'size'];
+                    fields.forEach(field => {
+                        let fieldElement = document.querySelector(`[name="work_order_items_formset-${formIndex}-${field}"]`);
+                        if (fieldElement) {
+                            if (Array.isArray(data[field])) {
+                                Array.from(fieldElement.options).forEach(option => {
+                                    option.selected = data[field].includes(parseInt(option.value));
+                                });
+                            } else {
+                                fieldElement.value = data[field];
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
     });
 </script>
-
 {% endblock %}

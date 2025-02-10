@@ -1,0 +1,96 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-title-box">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <form method="get" action="{% url 'work_order:model-display' %}">
+                            <select id="category" name="category" style="width: 10rem;margin-right: 40px;"
+                                class="select form-control custom-select"
+                                hx-get="{%url 'work_order:get-subcategories' %}" hx-target="#sub_category">
+                                <option value="">Select Category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select style="width: 10rem;" id="sub_category" class="select form-control custom-select"
+                                name="sub_category">
+                                <option value="">Select Sub-category</option>
+                                {% for sub_category in sub_categories %}
+                                <option value="{{ sub_category.id }}">{{ sub_category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        
+                        <button type="submit" class="btn btn-primary">Apply</button>
+                    </div><!--end col-->
+                    <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                        <!-- <form method="get" action="{% url 'work_order:model-display' %}"> -->
+                            <li class="list-inline-item w-100">
+                                <div class="input-group">
+                                    <input name="q" type="text" id="search_box" placeholder="Enter the model no."
+                                        value="{{ filter_data.q }}" class="form-control" />
+                                    <span class="input-group-append">
+                                        <button type="submit"  class="btn btn-soft-primary btn-sm"><i
+                                                class="fas fa-search"></i></button>
+                                    </span>
+                                </div>
+                            </li>
+                        </form>
+                    </div>
+                </div><!--end row-->
+            </div><!-- end page-title-box -->
+        </div><!--end col-->
+    </div>
+    <div style="display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;" class="row">
+        {%for work_order,image in work_orders.items%}
+        <div class="card" style="width: 18rem;height: 20rem;margin: 2rem;">
+            <img style="height: 11rem;" src="{{image.image.url}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <p class="card-text"><b>Model no :</b>{{work_order.model_no}}&nbsp;&nbsp;&nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp;<b>Category : </b>{{work_order.category.name}}
+                <br><b>Available Size:</b> {% for s in work_order.size.all%} {{s}} <b>,</b> {%endfor%} <br> <b>Available Colors:</b> {%for c in work_order.color.all%} {{c}} <b>,</b> {%endfor%}
+                </p>
+                <div><a class="btn btn-info" href="{%url 'work_order:model-info' pk=work_order.pk%}" >View More</a></div>
+            </div>
+        </div>
+        {%endfor%}
+    </div>
+    <div style="font-size:medium;" class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <b><a href="?page=1">&laquo; first</a></b> &nbsp;&nbsp;&nbsp;
+                <b><a href="?page={{ page_obj.previous_page_number }}">previous&nbsp;&nbsp;</a></b>
+            {% endif %}
+    
+            <span class="current">
+                <b>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</b>
+            </span>
+    
+            {% if page_obj.has_next %}
+                <b><a href="?page={{ page_obj.next_page_number }}">next &laquo;&laquo;&laquo;</a></b>
+                <b><a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a></b>
+            {% endif %}
+        </span>
+    </div>
+</div>
+<script src="https://unpkg.com/htmx.org@1.5.0"></script>
+
+
+
+{% endblock content %}
+
+
+{% block static %}
+
+{% load static %}
+
+
+{% endblock static %}

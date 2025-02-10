@@ -12,7 +12,7 @@ class StaffAdmin(admin.ModelAdmin):
     list_filter = ('department', 'designation')
     search_fields = ('first_name', 'last_name', 'employee_id', 'phone', 'email')
     ordering = ('-id',)
-    fields = ('first_name', 'last_name', 'phone', 'address', 'email', 
+    fields = ('creator','auto_id','first_name', 'last_name', 'phone', 'address', 'email', 
               'employee_id', 'date_of_birth', 'image', 
               'user', 'department', 'designation')
 

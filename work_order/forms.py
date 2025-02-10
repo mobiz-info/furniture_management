@@ -9,8 +9,9 @@ from dal import autocomplete
 
 from product.models import *
 from customer.models import Customer
-from .models import WorkOrder, WoodWorkAssign, WorkOrderImages, WorkOrderItems, Carpentary, Polish, Glass, Packing, WorkOrderStatus
-from work_order.models import Color
+from .models import WorkOrder, WoodWorkAssign, WorkOrderItems,WorkOrderImages, Carpentary, Polish, Glass, Packing, WorkOrderStatus
+from work_order.models import Color,Size,ModelNumberBasedProducts
+from django.forms.widgets import SelectMultiple
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -34,7 +35,7 @@ class WorkOrderForm(forms.ModelForm):
         fields = ['order_no','remark','total_estimate','delivery_date']
         
         widgets = {
-                'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
+                'order_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No','readonly': 'readonly'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'total_estimate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Order No'}),
                 'delivery_date': DateInput(attrs={'class': 'form-control', 'placeholder': 'Enter Delivery Date'}),
@@ -52,7 +53,6 @@ class WorkOrderStatusForm(forms.ModelForm):
         }
         
 class WorkOrderItemsForm(forms.ModelForm):
-
     class Meta:
         model = WorkOrderItems
         fields = ['category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'remark','estimate_rate','size','color']
@@ -67,16 +67,8 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'quantity': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
-                'size': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Size'}),
-                'color': autocomplete.ModelSelect2Multiple(
-                    url='workorder:color_autocomplete',
-                    attrs={
-                        'class': 'select2-multi form-control custom-select',
-                        'data-tags': 'true',  # Allows creating new tags
-                        'data-token-separators': [','],
-                        'data-allow-clear': 'true',  # Optional: allow clearing selections
-                    }
-                )
+                'size': Select(attrs={'class': 'select2 form-control custom-select'}),
+                'color':Select(attrs={'class': 'select2 form-control custom-select'})
             }
         
         
@@ -107,7 +99,7 @@ class WorkOrderImagesForm(forms.ModelForm):
         fields = ['image','remark']
         
         widgets = {
-            'image': FileInput(attrs={'class': 'form-control dropify'}),
+            'image': FileInput(attrs={'class': 'form-control '}),
             'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
         }
 
@@ -187,4 +179,32 @@ class ColorForm(forms.ModelForm):
         fields = ['name']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Enter color name', 'class': 'form-control'}),
+        }
+
+
+class SizeForm(forms.ModelForm):
+    class Meta:
+        model = Size
+        fields = ['size']
+        widgets = {
+            'size': forms.TextInput(attrs={'placeholder': 'Enter size', 'class': 'form-control'}),
+        }
+
+
+class ModelNumberBasedProductsForm(forms.ModelForm):
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = [
+            'model_no', 'category', 'sub_category', 'material', 
+            'sub_material', 'material_type', 'color', 'size'
+        ]
+        widgets = {
+            'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model Number'}),
+            'category': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'sub_category': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select'}),
+            'color': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
+            'size': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
         }

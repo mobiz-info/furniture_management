@@ -1,0 +1,70 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="page-title">List Of Sizes</h4>
+                            </div><!--end col-->
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex">
+                            <div class="col-lg-4">
+                                <h4 class="card-title">List view</h4>
+                            </div>
+                        </div>
+                        <!--end card-header-->
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Size</th>
+                                            <th class="text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for size in sizes %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-left">{{size.size}}</td>
+                                            <td class="text-right">
+                                                <a href="{% url 'work_order:size-delete' pk=size.pk %}" class="action-button remove btn btn-default btn-icon" data-id="{{size.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" style="padding:0;"
+                                                 ><i class="las la-trash-alt text-danger font-18"></i></a>
+                                            </td> 
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!--end /table-->
+                            </div>
+                            <!--end /tableresponsive-->
+                        </div>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+        </div><!-- container -->
+    <!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+{% endblock static %}

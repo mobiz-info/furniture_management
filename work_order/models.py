@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.contrib.auth.models import User
 
 from versatileimagefield.fields import VersatileImageField
 
@@ -8,6 +9,8 @@ from main.models import BaseModel
 from customer.models import Customer
 from product.models import *
 from staff.models import Staff
+from django.utils import timezone
+import random
 
 WORK_ORDER_CHOICES = (
     ('010', 'New'),
@@ -28,6 +31,20 @@ class Color(models.Model):
     def __str__(self):
         return self.name
 
+class Color(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+    
+
+class Size(models.Model):
+    size=models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.size
+
+
 class ModelNumberBasedProducts(BaseModel):
     model_no = models.CharField(max_length=255)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
@@ -36,12 +53,15 @@ class ModelNumberBasedProducts(BaseModel):
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     color = models.ManyToManyField(Color)
+    size=models.ManyToManyField(Size)
 
     class Meta:
         db_table = 'ModelNumberBasedProducts'
 
     def __str__(self):
         return f'{self.id}'
+
+
 
 class WorkOrder(BaseModel):
     order_no = models.CharField(max_length=255, null=False, blank=False)
@@ -57,6 +77,21 @@ class WorkOrder(BaseModel):
 
     def __str__(self):
         return f'WorkOrder {self.order_no}'
+    
+    def save(self, *args, **kwargs):
+        if not self.order_no:
+            self.order_no = self.generate_order_no()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_order_no():
+        while True:
+            date_part=timezone.now().strftime('%Y%m%d')
+            random_part=str(random.randint(1000,9999))
+            order_no = f'WO-{date_part}-{random_part}'
+            if not WorkOrder.objects.filter(order_no=order_no).exists():
+                return order_no
+
    
     
 class WorkOrderItems(BaseModel):
@@ -67,9 +102,9 @@ class WorkOrderItems(BaseModel):
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
     model_no = models.CharField(max_length=255, null=True, blank=True)
-    size = models.CharField(max_length=100,null=True, blank=True)
+    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE)
     remark = models.TextField(null=True, blank=True)
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
     estimate_rate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
 
@@ -81,15 +116,15 @@ class WorkOrderItems(BaseModel):
 
 
 class WorkOrderImages(BaseModel):
-    work_order = models.ForeignKey(WorkOrderItems, on_delete=models.CASCADE)
-    image = VersatileImageField(upload_to='work_order_images')
+    work_order = models.ForeignKey(ModelNumberBasedProducts,on_delete=models.CASCADE,null=True, blank=True)
+    image = VersatileImageField(upload_to='work_order_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
     class Meta:
         db_table = 'WorkOrderImages'
 
     def __str__(self):
-        return f'WorkOrderImage {self.work_order.order_no}'
+        return f'WorkOrderImage {self.work_order.model_no}'
 
 
 class WoodWorkAssign(BaseModel):

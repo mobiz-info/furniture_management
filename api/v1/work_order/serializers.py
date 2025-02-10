@@ -58,33 +58,35 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['name', 'mobile_number', 'address', 'email', 'gst_no']
         
+class WorkOrderImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkOrderImages
+        fields = ['id','work_order','image', 'remark']
+        read_only_fields=['id','work_order']
+    
+
+
 
 class WorkOrderItemsSerializer(serializers.ModelSerializer):
+  #  work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
     class Meta:
         model = WorkOrderItems
         fields = [
             'category', 'sub_category', 'model_no', 'material', 
             'sub_material', 'material_type', 'quantity', 'remark', 
-            'estimate_rate', 'size', 'color'
+            'estimate_rate', 'size', 'color',
         ]
-
-
-class WorkOrderImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkOrderImages
-        fields = ['image', 'remark']
 
 
 class CreateWorkOrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     work_order_items = WorkOrderItemsSerializer(many=True, read_only=True)
-    work_order_images = WorkOrderImagesSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkOrder
         fields = [
             'customer', 'order_no', 'remark', 'total_estimate', 
-            'delivery_date', 'work_order_items', 'work_order_images'
+            'delivery_date', 'work_order_items'
         ]
 
 class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
@@ -142,3 +144,24 @@ class DispatchSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'work_order': {'required': False} 
         }
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = '__all__'
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = '__all__'
+
+
+class ModelNumberBasedProductsSerializer(serializers.ModelSerializer):
+    workorderimages_set = WorkOrderImagesSerializer(many=True)
+
+    class Meta:
+        model = ModelNumberBasedProducts
+        fields = ['id','model_no', 'category', 'sub_category', 'material', 'sub_material', 'material_type', 'color', 'size', 'workorderimages_set']
+        read_only_fields=['id']
