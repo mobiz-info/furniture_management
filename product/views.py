@@ -21,7 +21,7 @@ from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm,
 
 # Create your views here.
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def material_info(request,pk):
     """
     Material List
@@ -40,7 +40,7 @@ def material_info(request,pk):
     return render(request, 'admin_panel/pages/product/materials/info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def material_list(request):
     """
     material
@@ -70,7 +70,7 @@ def material_list(request):
     return render(request, 'admin_panel/pages/product/materials/list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def create_material(request):
     MaterialsTypeFormset = formset_factory(MaterialsTypeForm, extra=2)
     
@@ -166,7 +166,7 @@ def create_material(request):
     
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def edit_material(request,pk):
     """
     Edit operation of material
@@ -292,7 +292,7 @@ def edit_material(request,pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_material(request,pk):
     """
     material deletion, it only mark as is deleted field to true
@@ -322,7 +322,7 @@ def delete_material(request,pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def product_category_list(request):
     """
     product category
@@ -352,7 +352,7 @@ def product_category_list(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def create_product_category(request):
     ProductSubCategoryFormset = formset_factory(ProductSubCategoryForm, extra=2)
     
@@ -442,7 +442,7 @@ def create_product_category(request):
     
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def edit_product_category(request,pk):
     """
     Edit operation of product_category
@@ -548,7 +548,7 @@ def edit_product_category(request,pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_product_category(request,pk):
     """
     product_category deletion, it only mark as is deleted field to true
@@ -574,7 +574,7 @@ def delete_product_category(request,pk):
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def product_info(request,pk):
     """
     Product Info
@@ -596,7 +596,7 @@ def product_info(request,pk):
     return render(request, 'admin_panel/pages/product/product/info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def product_list(request):
     """
     product
@@ -626,7 +626,7 @@ def product_list(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def create_product(request):
     ProductImageFormset = formset_factory(ProductImageForm, extra=2)
     
@@ -707,7 +707,7 @@ def create_product(request):
     
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def edit_product(request,pk):
     """
     Edit operation of product
@@ -813,7 +813,7 @@ def edit_product(request,pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_product(request,pk):
     """
     product deletion, it only mark as is deleted field to true
@@ -840,7 +840,7 @@ def delete_product(request,pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_product_image(request,pk):
     """
     product image deletion, it only mark as is deleted field to true

@@ -61,7 +61,7 @@ def fetch_customer_details(request):
     return HttpResponse(json.dumps(response_data),status=status_code, content_type="application/json")
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def work_order_info(request,pk):
     """
     WorkOrder List
@@ -87,7 +87,7 @@ def work_order_info(request,pk):
     return render(request, 'admin_panel/pages/work_order/order/info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def work_order_list(request):
     """
     work_order
@@ -118,7 +118,7 @@ def work_order_list(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def create_work_order(request):
     WorkOrderItemsFormFormset = formset_factory(WorkOrderItemsForm, extra=2)
     WorkOrderImagesFormFormset = formset_factory(WorkOrderImagesForm, extra=2)
@@ -259,7 +259,7 @@ def create_work_order(request):
 
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def edit_work_order(request, pk):
     """
     Edit operation of work_order
@@ -447,7 +447,7 @@ def edit_work_order(request, pk):
         return render(request, 'admin_panel/pages/work_order/order/create.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_work_order(request,pk):
     """
     work_order deletion, it only mark as is deleted field to true
@@ -476,7 +476,7 @@ def delete_work_order(request,pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_work_order_image(request,pk):
     """
     work_order deletion, it only mark as is deleted field to true
@@ -504,7 +504,7 @@ def delete_work_order_image(request,pk):
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
 @login_required
-@role_required(['superadmin'])
+# # @role_required(['superadmin'])
 def assign_work_order(request):
     """
     Assign operation of work_order
@@ -1175,7 +1175,7 @@ def packing_order_staff_assign(request,pk):
     
 
 @login_required
-@role_required(['superadmin'])    
+# @role_required(['superadmin'])    
 def create_color(request):
     
     if request.method == 'POST':
@@ -1217,7 +1217,7 @@ def create_color(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def color_list(request):
     colors = Color.objects.all()
 
@@ -1231,7 +1231,7 @@ def color_list(request):
     return render(request, 'admin_panel/pages/work_order/color_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_color(request, pk):
     color = get_object_or_404(Color, pk=pk)
     
@@ -1248,14 +1248,14 @@ def delete_color(request, pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def size_list(request):
     sizes = Size.objects.all()
     return render(request, 'admin_panel/pages/work_order/size_list.html', {'sizes': sizes})
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def size_create(request):
     if request.method == 'POST':
         form = SizeForm(request.POST)
@@ -1272,7 +1272,7 @@ def size_create(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def size_delete(request, pk):
     size= get_object_or_404(Size, pk=pk)
     
@@ -1289,7 +1289,7 @@ def size_delete(request, pk):
 
 
 # @login_required
-# @role_required(['superadmin'])
+# # @role_required(['superadmin'])
 # def modelnumberbasedproducts_list(request):
     
 #     instances = ModelNumberBasedProducts.objects.all().order_by("-id")
@@ -1302,19 +1302,19 @@ def size_delete(request, pk):
 
 #     return render(request, 'admin_panel/pages/work_order/model_list.html', context)
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def modelnumberbasedproducts_create(request):
     title='Model Create'
     WorkOrderImagesFormSet =formset_factory(ModelNumberBasedProductImagesForm,extra=2)
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST)
-        formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='formset',form_kwargs={'empty_permitted': False})
+        work_order_image_formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='work_order_image_formset',form_kwargs={'empty_permitted': False})
         model_no = request.POST.get('model_no')
 
         if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
             form.add_error('model_no', 'Model number already exists.')
         else:
-            if form.is_valid() and formset.is_valid():
+            if form.is_valid() and work_order_image_formset.is_valid():
                 auto_id = get_auto_id(ModelNumberBasedProducts)
                 product = ModelNumberBasedProducts.objects.create(
                     auto_id=auto_id,
@@ -1330,7 +1330,7 @@ def modelnumberbasedproducts_create(request):
                 product.size.set(form.cleaned_data['size'])
                 product.save()
 
-                for form in formset:
+                for form in work_order_image_formset:
                     if form.cleaned_data:
                         image = form.save(commit=False)
                         image.model = product
@@ -1342,13 +1342,13 @@ def modelnumberbasedproducts_create(request):
 
     else:
         form = ModelNumberBasedProductsForm()
-        formset = WorkOrderImagesFormSet(prefix='formset')
+        work_order_image_formset = WorkOrderImagesFormSet(prefix='work_order_image_formset')
 
-    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
+    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def modelnumberbasedproducts_update(request,pk):
     product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
     title='Model Update'
@@ -1356,13 +1356,13 @@ def modelnumberbasedproducts_update(request,pk):
     
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST, instance=product)
-        formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='formset',form_kwargs={'empty_permitted': False})
+        work_order_image_formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='work_order_image_formset',form_kwargs={'empty_permitted': False})
         model_no = request.POST.get('model_no')
 
         if not ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
             form.add_error('model_no', 'Model number does not exists.')
         else:
-            if form.is_valid() and formset.is_valid():
+            if form.is_valid() and work_order_image_formset.is_valid():
                 product = ModelNumberBasedProducts.objects.filter(model_no=form.cleaned_data['model_no']).update(
                     auto_id=get_auto_id(ModelNumberBasedProducts),
                     updater=request.user,
@@ -1379,7 +1379,7 @@ def modelnumberbasedproducts_update(request,pk):
                 product.size.set(form.cleaned_data['size'])
                 product.save()
 
-                for form in formset:
+                for form in work_order_image_formset:
                     if form.cleaned_data:
                         image = form.save(commit=False)
                         image.model = product
@@ -1390,13 +1390,13 @@ def modelnumberbasedproducts_update(request,pk):
                 return redirect('work_order:model-display')
     else:
         form = ModelNumberBasedProductsForm(instance=product)
-        formset = WorkOrderImagesFormSet()
+        work_order_image_formset = WorkOrderImagesFormSet()
 
-    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'formset': formset,'title':title})
+    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def modelnumberbasedproducts_delete(request, pk):
     model = get_object_or_404(ModelNumberBasedProducts, pk=pk)
     model.delete()
@@ -1406,7 +1406,7 @@ def modelnumberbasedproducts_delete(request, pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def modelnumberbasedproducts_info(request,pk):
     model=get_object_or_404(ModelNumberBasedProducts,pk=pk)
     images=ModelNumberBasedProductImages.objects.filter(model=model)
@@ -1443,7 +1443,7 @@ def get_model_details(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def modelnumberbasedproducts_card_list(request):
     category_id = request.GET.get('category')
     sub_category_id = request.GET.get('sub_category')
@@ -1516,7 +1516,7 @@ def get_material_types(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def delete_model_image(request,pk):
     if request.method == "POST":
         image = get_object_or_404(ModelNumberBasedProductImages, id=pk)
