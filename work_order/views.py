@@ -1301,13 +1301,6 @@ def size_delete(request, pk):
 #     }
 
 #     return render(request, 'admin_panel/pages/work_order/model_list.html', context)
-
-
-def get_auto_id(model):
-    max_id = model.objects.all().aggregate(models.Max('auto_id'))['auto_id__max']
-    return max_id + 1 if max_id is not None else 1
-
-
 @login_required
 @role_required(['superadmin'])
 def modelnumberbasedproducts_create(request):
@@ -1459,7 +1452,7 @@ def modelnumberbasedproducts_card_list(request):
     work_orders = {}
 
     if category_id and sub_category_id:
-        work_order_images=ModelNumberBasedProductImages.objects.filter(model__category=category_id).filter(work_order__sub_category=sub_category_id)
+        work_order_images=ModelNumberBasedProductImages.objects.filter(model__category=category_id).filter(model__sub_category=sub_category_id)
         print(work_order_images)
     elif category_id:
         work_order_images=ModelNumberBasedProductImages.objects.filter(model__category=category_id)
