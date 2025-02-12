@@ -1533,3 +1533,10 @@ def delete_model_image(request,pk):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+
+def delete_orders(request):
+    if request.method == 'POST':
+        order_ids = request.POST.getlist('order_ids')
+        if order_ids:
+            WorkOrder.objects.filter(id__in=order_ids).delete()
+            return redirect('work_order:work_order_list')

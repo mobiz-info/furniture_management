@@ -69,6 +69,8 @@
                             </div> {% endcomment %}
                         </div>
                         <!--end card-header-->
+                        <form method="post" action="{% url 'work_order:delete-orders' %}" id="delete-orders-form">
+                            {% csrf_token %}
                         <div class="card-body">
                             
                             <div class="table-responsive">
@@ -76,6 +78,7 @@
                                     <thead>
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
+                                            <th></th>
                                             <th class="font-weight-bold text-center">Date Added</th>
                                             <th class="font-weight-bold text-left">Order No</th>
                                             <th class="font-weight-bold text-left">Customer Name</th>
@@ -91,6 +94,7 @@
                                         {% for instance in instances %}
                                         <tr>
                                             <td class="text-center">{{forloop.counter}}</td>
+                                            <td><input type="checkbox" name="order_ids" value="{{ instance.id}}"></td>
                                             <td class="text-center">{{instance.date_added|date:"d-M-Y"}}</td>
                                             <td class="text-left">{{instance.order_no}}</td>
                                             <td class="text-left">{{instance.customer.name}}</td>
@@ -109,6 +113,8 @@
                                                                    
                                     </tbody>
                                 </table>
+                                <button class="btn btn-outline-danger" type="button" onclick="submitDeleteForm()">Delete Selected Orders</button>
+                            </form>
                                 <!--end /table-->
                                 {% get_pages %}
                                 <div class="clearfix"></div>
@@ -186,6 +192,24 @@
         document.getElementById('id_description').value = '';
         $('#WorkAssignModal').modal('hide');
       }
+</script>
+
+<script>
+    function submitDeleteForm() {
+        const form = document.getElementById('delete-orders-form');
+        const formData = new FormData(form);
+        const selectedOrders = formData.getAll('order_ids');
+
+        if (selectedOrders.length === 0) {
+            alert('No orders selected for deletion.');
+            return;
+        }
+
+        // Confirm deletion
+        if (confirm('Are you sure you want to delete the selected orders?')) {
+            form.submit();
+        }
+    }
 </script>
 
 {% endblock static %}

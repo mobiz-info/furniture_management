@@ -65,4 +65,5 @@ urlpatterns = [
     re_path(r'get-material-types/', views.get_material_types, name='get-material-types'),
 
     re_path(r'delete-model-image/(?P<pk>.*)/$',views.delete_model_image,name='delete-model-image'),
+    re_path(r'delete-orders/',views.delete_orders,name='delete-orders',)
 ]
