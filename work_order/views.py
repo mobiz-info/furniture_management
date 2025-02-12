@@ -57,15 +57,21 @@ def work_order_info(request,pk):
     """
     
     instance = WorkOrder.objects.get(pk=pk)
+    order_item=WorkOrderItems.objects.filter(work_order=instance).first()
     items_instances = WorkOrderItems.objects.filter(work_order=instance)
     images_instances = WorkOrderImages.objects.filter(work_order=instance)
     work_section_details=WorkOrderStaffAssign.objects.filter(work_order=instance)
+
+    if not images_instances:
+        model_images_instances=ModelNumberBasedProductImages.objects.filter(model__model_no=order_item.model_no)
+    else:
+        model_images_instances=[]
 
     context = {
         'instance': instance,
         'items_instances':items_instances,
         'images_instances': images_instances,
-        
+        'model_images':model_images_instances,
         'page_name' : 'Work Order Info',
         'page_title' : 'Work Order Info',
         'section_details':work_section_details,
@@ -1420,6 +1426,8 @@ def get_model_details(request):
     model_no = request.GET.get('model_no')
     try:
         model = ModelNumberBasedProducts.objects.get(model_no=model_no)
+        images=ModelNumberBasedProductImages.objects.filter(model__model_no=model_no)
+        image_urls = [image.image.url for image in images]
         data = {
             'category': model.category.id,
             'sub_category': model.sub_category.id if model.sub_category else '',
@@ -1428,6 +1436,7 @@ def get_model_details(request):
             'material_type': model.material_type.id if model.material_type else '',
             'color': list(model.color.values_list('id', flat=True)),
             'size': list(model.size.values_list('id', flat=True)),
+            'images':image_urls,
         }
         
     except ModelNumberBasedProducts.DoesNotExist:

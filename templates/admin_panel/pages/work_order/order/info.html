@@ -137,6 +137,7 @@
 
 
         <div class="row">
+            {%if images_instances%}
             {% for image in images_instances %}
             <div class="col-lg-4">
                 <div class="card">
@@ -151,6 +152,20 @@
                 </div><!--end card-->
             </div> <!--end col-->
             {% endfor %}
+            {%elif model_images%}
+            {% for image in model_images %}
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="blog-card">
+                            <img src="{{image.image.url}}" alt="" class="img-fluid rounded" style="height:250px;"/>
+                            
+                        </div><!--end blog-card--> 
+                    </div><!--end card-body-->
+                </div><!--end card-->
+            </div> <!--end col-->
+            {% endfor %}
+            {%endif%}
         </div> <!--end col-->
     </div><!-- container -->
 </div>

@@ -85,7 +85,7 @@
                                                     <div class="row">
                                                         <div class="col-lg-6">
                                                             <div class="card-header  border-0 p-0">
-                                                                <h3 class="card-title">Item <span class="item-count">{% if item.instance %}{{forloop.counter}}{% else %}1{% endif %}</span></h3>
+                                                                <h3 class="card-title">Item <span class="item-count">{%if item.instance %}{{forloop.counter}}{% else%}1{% endif %}</span></h3>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -186,7 +186,7 @@
                                     {% for item in work_order_images_formset.forms %}
                                     <tr class="form_set_row work_order_images_formset">
                                         {{ item.id }}
-                                        <td><span class="image">{{ item.image }}</span> 
+                                        <td><span class="image">{{ item.image }}</span>
                                             {% if item.instance.image %}
                                             <img src="{{ item.instance.image.url }}" height="100px" width="100px">
                                             {% endif %}
@@ -221,9 +221,13 @@
                             </div><!--end row -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
+                    <div id="image-cards-container" class="row"></div>
 
-                    <button type="submit" id="submit" class="btn btn-soft-primary btn-sm waves-effect waves-light">Submit</button>
-                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
+
+                    <button type="submit" id="submit"
+                        class="btn btn-soft-primary btn-sm waves-effect waves-light">Submit</button>
+                    <button type="button" onclick="window.history.back()"
+                        class="btn btn-soft-danger btn-sm">Cancel</button>
                 </div><!-- end col -->
             </div><!-- end row -->
         </form><!-- end form -->
@@ -234,34 +238,91 @@
 {% block static %}
 {% load static %}
 <style>
-    .django-ckeditor-widget{
+    .django-ckeditor-widget {
         display: block !important;
     }
 </style>
 {{ form.media }}
 <style>
-    .form-group { margin-bottom: 10px; }
-    .text-area { height: 150px !important; }
-    .select2-container--default { width: 100%; }
-    .select2-container .select2-selection--single { height: calc(2.5em + .75rem + 2px); }
-    .select2-container--default .select2-selection--single { border: 1px solid #e3ebf6; }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 32px; }
-    .select2-container--default .select2-selection--single .select2-selection__arrow b { margin-top: 8px; }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
-    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
-    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
-    .form-control { height: calc(2.8em + .75rem + 2px); }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice { color: #000; }
-    .select2-container--default .select2-selection--multiple { border: 1px solid #e3ebf6; }
-    .select2-container--default.select2-container--focus .select2-selection--multiple { border: solid rgba(23, 97, 253, 0.5) 1px; }
-    .dynamic-formset-add td { text-align: center !important; }
-    .dynamic-formset-1-add td { text-align: center !important; }
-    #id_source{display: flex;list-style: none;padding: 0;justify-content: flex-start;align-items: center;}
-    #id_source li{margin-right: 12px;}
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .text-area {
+        height: 150px !important;
+    }
+
+    .select2-container--default {
+        width: 100%;
+    }
+
+    .select2-container .select2-selection--single {
+        height: calc(2.5em + .75rem + 2px);
+    }
+
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #e3ebf6;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        margin-top: 8px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: #000;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e3ebf6;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: solid rgba(23, 97, 253, 0.5) 1px;
+    }
+
+    .form-control {
+        height: calc(2.8em + .75rem + 2px);
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: #000;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e3ebf6;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: solid rgba(23, 97, 253, 0.5) 1px;
+    }
+
+    .dynamic-formset-add td {
+        text-align: center !important;
+    }
+
+    .dynamic-formset-1-add td {
+        text-align: center !important;
+    }
+
+    #id_source {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    #id_source li {
+        margin-right: 12px;
+    }
 </style>
 
 <script>
-    $(".category").change(function(){
+    $(".category").change(function () {
         var itemValue = $(this).val();
         var digitValue = $(this).attr("id");
         var digitValue = digitValue.match(/\d+/);
@@ -279,15 +340,15 @@
             data: {
                 'category': itemValue
             },
-    
+
             success: function (data) {
                 var options = '<option value="">Select</option>';
-                $.each(data, function(index, id) {
-                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
-                        });
-                $("#id_work_order_items_formset-"+digitValue+"-sub_category").html(options);
+                $.each(data, function (index, id) {
+                    options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                });
+                $("#id_work_order_items_formset-" + digitValue + "-sub_category").html(options);
             },
-    
+
             error: function (data) {
                 var title = data["title"];
                 var errorMessagesStr = data["responseJSON"]["message"];
@@ -296,7 +357,7 @@
 
     });
 
-    $(".material").change(function(){
+    $(".material").change(function () {
         var itemValue = $(this).val();
         var digitValue = $(this).attr("id");
         var digitValue = digitValue.match(/\d+/);
@@ -314,15 +375,15 @@
             data: {
                 'material': itemValue
             },
-    
+
             success: function (data) {
                 var options = '<option value="">Select</option>';
-                $.each(data, function(index, id) {
-                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
-                        });
-                $("#id_work_order_items_formset-"+digitValue+"-sub_material").html(options);
+                $.each(data, function (index, id) {
+                    options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                });
+                $("#id_work_order_items_formset-" + digitValue + "-sub_material").html(options);
             },
-    
+
             error: function (data) {
                 var title = data["title"];
                 var errorMessagesStr = data["responseJSON"]["message"];
@@ -331,7 +392,7 @@
 
     });
 
-    $(".sub_material").change(function(){
+    $(".sub_material").change(function () {
         var itemValue = $(this).val();
         var digitValue = $(this).attr("id");
         var digitValue = digitValue.match(/\d+/);
@@ -349,16 +410,16 @@
             data: {
                 'sub_material': itemValue
             },
-    
+
             success: function (data) {
                 var options = '<option value="">Select</option>';
                 console.log(data)
-                $.each(data, function(index, id) {
-                        options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
-                        });
-                $("#id_work_order_items_formset-"+digitValue+"-material_type").html(options);
+                $.each(data, function (index, id) {
+                    options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
+                });
+                $("#id_work_order_items_formset-" + digitValue + "-material_type").html(options);
             },
-    
+
             error: function (data) {
                 var title = data["title"];
                 var errorMessagesStr = data["responseJSON"]["message"];
@@ -366,14 +427,14 @@
         });
 
     });
-    
+
 </script>
 
 <script>
     function RowIndexUpdate() {
         $('table tr.form_set_row').each(function () {
             var row = $(this);
-            row.find('.item-count').html(row[0]['rowIndex']+1);
+            row.find('.item-count').html(row[0]['rowIndex'] + 1);
         })
     }
     $(document).ready(function () {
@@ -398,12 +459,12 @@
         });
     });
 
-    
+
 </script>
 
 <script>
-    $(document).ready(function() {
-        $("#id_mobile_number").on("keyup", function() {
+    $(document).ready(function () {
+        $("#id_mobile_number").on("keyup", function () {
             var mobile_number = $(this).val();
             if (mobile_number.length === 10) {
                 $.ajax({
@@ -412,7 +473,7 @@
                         customer_mobile_no: mobile_number
                     },
                     dataType: 'json',
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === "true") {
                             // Fill in the corresponding fields with the fetched data
                             $("#id_name").val(response.data.name);
@@ -424,7 +485,7 @@
                             alert("No customer data found for this mobile number.");
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.log("Error: " + error);
                     }
                 });
@@ -434,7 +495,7 @@
 </script>
 <script src="https://unpkg.com/htmx.org"></script>
 <script>
-    document.addEventListener('input', function(e) {
+    document.addEventListener('input', function (e) {
         if (e.target.name.endsWith('-model_no')) {
             let model_no = e.target.value;
             let formIndex = e.target.name.split('-')[1];
@@ -455,7 +516,37 @@
                             }
                         }
                     });
-                })
+           // Append new image cards
+           let imageContainer = document.querySelector('#image-cards-container');
+           if (data.images.length > 0) {
+    data.images.forEach(image => {
+        let card = document.createElement('div');
+        card.className = 'card';
+        card.style.width = '150px'; 
+        card.style.margin = '10px';
+
+        let cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        cardBody.style.padding = '10px';
+
+        let imgElement = document.createElement('img');
+        imgElement.src = image;
+        imgElement.style.maxWidth = '100%';
+        imgElement.style.width = '100px'; 
+        imgElement.style.height = '100px'; 
+        imgElement.style.display = 'block';
+        imgElement.style.margin = '0 auto';
+
+        cardBody.appendChild(imgElement);
+        card.appendChild(cardBody);
+        imageContainer.appendChild(card);
+    });
+} else {
+    let noImageText = document.createElement('p');
+    noImageText.textContent = 'No images available for this model number.';
+    imageContainer.appendChild(noImageText);
+}
+})
                 .catch(error => console.error('Error:', error));
         }
     });
