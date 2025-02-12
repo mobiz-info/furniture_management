@@ -21,7 +21,7 @@ from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def company_details_info(request,pk):
     """
     company details List
@@ -40,7 +40,7 @@ def company_details_info(request,pk):
     return render(request, 'admin_panel/pages/company/company_details_info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def company_details_list(request):
     """
     company_details
@@ -70,7 +70,7 @@ def company_details_list(request):
     return render(request, 'admin_panel/pages/company/company_details_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def company_details_create(request):
     """
     create operation of company details
@@ -124,7 +124,7 @@ def company_details_create(request):
         return render(request,'admin_panel/pages/company/company_details_create.html',context)
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def company_details_edit(request,pk):
     """
     edit operation of company_details
@@ -180,7 +180,7 @@ def company_details_edit(request,pk):
         return render(request, 'admin_panel/pages/company/company_details_edit.html',context)    
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def company_details_delete(request, pk):
     """
     SalesParty deletion, it only mark as is deleted field to true
@@ -205,7 +205,7 @@ def company_details_delete(request, pk):
 
 #--------------------------------Contact-----------------------------------------
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def contact_info(request, pk):
     """
     Contact List
@@ -222,7 +222,7 @@ def contact_info(request, pk):
     return render(request, 'admin_panel/pages/contact/info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 
 def contact_list(request):
     """
@@ -241,7 +241,7 @@ def contact_list(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def create_contact(request):
     
     if request.method == 'POST':
@@ -282,7 +282,7 @@ def create_contact(request):
         return render(request, 'admin_panel/pages/contact/create.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def edit_contact(request, pk):
     contact = get_object_or_404(Contact, pk=pk)
     
@@ -343,7 +343,7 @@ def delete_contact(request, pk):
 
 # Branch
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def branch_info(request,pk):
     """
     branch details
@@ -362,7 +362,7 @@ def branch_info(request,pk):
     return render(request, 'admin_panel/pages/branch/branch_info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def branch_list(request):
     """
     branch list
@@ -392,7 +392,7 @@ def branch_list(request):
     return render(request, 'admin_panel/pages/branch/branch_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def branch_create(request):
     """
     create operation of branch
@@ -476,7 +476,7 @@ def branch_create(request):
         return render(request,'admin_panel/pages/branch/branch_create.html',context)
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def branch_edit(request,pk):
     """
     edit operation of branch
@@ -537,7 +537,7 @@ def branch_edit(request,pk):
         return render(request, 'admin_panel/pages/branch/branch_edit.html',context)    
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def branch_delete(request, pk):
     """
     branch deletion

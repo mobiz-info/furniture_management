@@ -90,7 +90,7 @@
 
                     
                     <div id="order-image-section" class="card ordinary-variant-card">
-                        <div class="table-responsive card-body add_item_container formset">
+                        <div class="table-responsive card-body add_item_container work_order_image_formset">
                             <table id="data-table-basic" class="table table-striped table-vmiddle">
                                 <thead>
                                     <tr>
@@ -100,8 +100,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for form in formset %}
-                                    <tr class="form_set_row formset">
+                                    {% for form in work_order_image_formset %}
+                                    <tr class="form_set_row work_order_image_formset">
                                         {{ form.id }}
                                         <td><span class="image">{{ form.image }}</span> 
                                             
@@ -112,7 +112,7 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
-                            {{formset.management_form}}
+                            {{work_order_image_formset.management_form}}
 
                         </div>
                     </div>
@@ -250,7 +250,7 @@ function RowIndexUpdate() {
         })
     }
     $(document).ready(function () {
-        $('.work_order_items_formset table tr.form_set_row').formset({
+        {% comment %} $('.work_order_items_formset table tr.form_set_row').formset({
             prefix: '{{ work_order_items_formset.prefix }}',
             formCssClass: 'dynamic-formset',
             'added': function (row) {
@@ -259,11 +259,11 @@ function RowIndexUpdate() {
             'removed': function (row) {
                 RowIndexUpdate()
             }
-        });
+        }); {% endcomment %}
 
-        $('.formset table tr.form_set_row').formset({
-            prefix: '{{ formset.prefix }}',
-            formCssClass: 'dynamic-formset-1',
+        $('.work_order_image_formset table tr.form_set_row').formset({
+            prefix: '{{ work_order_image_formset.prefix }}',
+            formCssClass: 'dynamic-formset',
             'added': function (row) {
             },
             'removed': function (row) {

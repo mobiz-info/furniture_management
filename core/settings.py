@@ -22,6 +22,9 @@ INSTALLED_APPS = [
     'el_pagination',
     'rest_framework',
     
+    'dal',
+    'dal_select2',
+    
     'ckeditor',
     'ckeditor_uploader',
     

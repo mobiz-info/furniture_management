@@ -24,7 +24,7 @@ from main.functions import generate_form_errors, get_auto_id, has_group
 # Create your views here.
 #department
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def department_info(request, pk):
     """
     Department List
@@ -43,7 +43,7 @@ def department_info(request, pk):
     return render(request,'admin_panel/pages/department/department_info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def department_list(request):
     """
     Department details
@@ -72,7 +72,7 @@ def department_list(request):
     return render(request,'admin_panel/pages/department/department_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def department_create(request):
     """
     Create operation of department details
@@ -120,7 +120,7 @@ def department_create(request):
         return render(request,'admin_panel/pages/department/department_create.html', context)
     
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def department_edit(request, pk):
     """
     Edit operation of department details
@@ -172,7 +172,7 @@ def department_edit(request, pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def department_delete(request, pk):
     """
     Department deletion
@@ -196,7 +196,7 @@ def department_delete(request, pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def designation_info(request, pk):
     """
     Designation List
@@ -215,7 +215,7 @@ def designation_info(request, pk):
     return render(request,'admin_panel/pages/designation/designation_info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def designation_list(request):
     """
     Designation details
@@ -245,7 +245,7 @@ def designation_list(request):
     return render(request, 'admin_panel/pages/designation/designation_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def designation_create(request):
     """
     Create operation of designation details
@@ -293,7 +293,7 @@ def designation_create(request):
         return render(request, 'admin_panel/pages/designation/designation_create.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def designation_edit(request, pk):
     """
     Edit operation of designation details
@@ -344,7 +344,7 @@ def designation_edit(request, pk):
         return render(request,'admin_panel/pages/designation/designation_edit.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def designation_delete(request, pk):
     """
     Designation deletion
@@ -368,7 +368,7 @@ def designation_delete(request, pk):
 
 #----------------------------Staff --------------------------
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def staff_info(request,pk):
     """
     Staff Information
@@ -387,7 +387,7 @@ def staff_info(request,pk):
     return render(request, 'admin_panel/pages/staff/staff_info.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def staff_list(request):
     """
     Staff List
@@ -417,7 +417,7 @@ def staff_list(request):
     return render(request, 'admin_panel/pages/staff/staff_list.html', context)
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def staff_create(request):
     """
     create operation of staff create
@@ -505,7 +505,7 @@ def staff_create(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def staff_edit(request,pk):
     """
     edit operation of staff
@@ -562,7 +562,7 @@ def staff_edit(request,pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def staff_delete(request, pk):
     """
     Staff deletion, it only mark as is deleted field to true
@@ -587,7 +587,7 @@ def staff_delete(request, pk):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def attendence_list(request):
     
     if request.method == "GET":
@@ -643,7 +643,7 @@ def adding_attendence(request):
 
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def attendence_create(request):
     if request.method == "GET":
         context = {
@@ -701,7 +701,7 @@ def attendence_create(request):
 
  
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def attendence_edit(request, pk):
     
     instance = get_object_or_404(Attendance, pk=pk)
@@ -746,7 +746,7 @@ def attendence_edit(request, pk):
     
 
 @login_required
-@role_required(['superadmin'])
+# @role_required(['superadmin'])
 def attendance_delete(request, pk):
     
     instance = Attendance.objects.get(pk=pk)

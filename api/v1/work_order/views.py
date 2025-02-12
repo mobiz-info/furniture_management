@@ -1039,6 +1039,10 @@ def create_work_order_image(request, pk):
     work_order=WorkOrder.objects.get(id=pk)
     serializer = WorkOrderImagesSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(work_order=work_order)
+        serializer.save(
+            work_order=work_order,
+            auto_id=get_auto_id(WorkOrderImages),
+            creator=request.user
+            )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,8 +1,11 @@
+from uuid import UUID
 from django import forms
 from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput,NumberInput
 from django.forms import TextInput, URLInput, EmailInput
 from django.forms import inlineformset_factory
-from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput
+from django.forms.widgets import TextInput,Textarea,Select,DateInput,CheckboxInput,FileInput,PasswordInput, SelectMultiple
+
+from dal import autocomplete
 
 from product.models import *
 from customer.models import Customer
@@ -67,6 +70,26 @@ class WorkOrderItemsForm(forms.ModelForm):
                 'size': Select(attrs={'class': 'select2 form-control custom-select'}),
                 'color':Select(attrs={'class': 'select2 form-control custom-select'})
             }
+        
+        
+        def clean_color(self):
+            colors = self.cleaned_data['color']  # This is a queryset or list of input values
+            final_colors = []
+
+            for color in colors:
+                if isinstance(color, Color):  # Already a valid Color instance
+                    final_colors.append(color)
+                elif isinstance(color, str):  # New color name as string
+                    try:
+                        # Attempt to parse as UUID first
+                        color_obj = Color.objects.get(id=UUID(color))
+                        final_colors.append(color_obj)
+                    except (ValueError, Color.DoesNotExist):
+                        # Create a new color if not found
+                        color_obj, created = Color.objects.get_or_create(name=color)
+                        final_colors.append(color_obj)
+
+            return final_colors
 
 
 class WorkOrderImagesForm(forms.ModelForm):
