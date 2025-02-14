@@ -27,6 +27,12 @@ LEAVE_STATUS_CHOICES = (
 )
 
 # Create your models here.
+class Tile(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Department(BaseModel):
     name = models.CharField(max_length=255)
 
@@ -41,6 +47,7 @@ class Department(BaseModel):
 class Designation(BaseModel):
     name = models.CharField(max_length=255)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    tiles = models.ManyToManyField(Tile, related_name="designations")
 
     def __str__(self):
         return self.name

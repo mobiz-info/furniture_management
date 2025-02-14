@@ -86,6 +86,7 @@
                                             <td class="text-center">{{ instance.creator }}</td>
                                             <td class="text-center">{{ instance.date_added }}</td>
                                             <td class="text-center">{{ instance.date_updated }}</td>
+                                            
                                             <td class="text-right">
                                                 <a href="{% url 'staff:designation_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
                                                 <a href="{% url 'staff:designation_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>

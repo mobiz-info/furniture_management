@@ -24,7 +24,7 @@ class DepartmentForm(forms.ModelForm):
 class DesignationForm(forms.ModelForm):
     class Meta:
         model = Designation
-        fields = ['name', 'department']
+        fields = ['name', 'department', 'tiles']
 
         widgets = {
             'name': TextInput(attrs={
@@ -34,6 +34,9 @@ class DesignationForm(forms.ModelForm):
             }),
             'department': forms.Select(attrs={
                 'class': 'required form-control'
+            }),
+            'tiles': forms.SelectMultiple(attrs={
+                'class': 'form-control'
             }),
         }
         
