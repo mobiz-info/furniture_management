@@ -10,8 +10,10 @@ from dal import autocomplete
 from product.models import *
 from customer.models import Customer
 from .models import WorkOrder, WoodWorkAssign, WorkOrderItems,WorkOrderImages, Carpentary, Polish, Glass, Packing, WorkOrderStatus
-from work_order.models import Color,Size,ModelNumberBasedProducts,ModelNumberBasedProductImages
+from work_order.models import Color,Size,ModelNumberBasedProducts,ModelNumberBasedProductImages,PermissionSet
 from django.forms.widgets import SelectMultiple
+from django.core.exceptions import ValidationError
+
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Customer Name'}))
@@ -220,3 +222,14 @@ class ModelNumberBasedProductsForm(forms.ModelForm):
             'color': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
             'size': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
         }
+
+
+class PermissionSetForm(forms.ModelForm):
+    class Meta:
+        model = PermissionSet
+        fields = ['user','accessible_tabs']
+        widgets = {
+            'accessible_tabs':Select(attrs={'class': 'select2 form-control custom-select'}),
+            'user':Select(attrs={'class': 'select2 form-control custom-select'}),
+        }
+    

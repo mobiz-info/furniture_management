@@ -62,6 +62,25 @@
             </li>
 
             <li>
+                <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Permission</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:permission-list' %}"><i class="ti-control-record"></i>Set Permission</a>
+                        <a class="nav-link" href="{% url 'work_order:set-permission' %}"><i class="ti-plus"></i></a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Log Activity</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:log-list' %}"><i class="ti-control-record"></i>Log Activity</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
                 <a href="javascript: void(0);"> <i class="ti-shopping-cart align-self-center menu-icon"></i><span>Product</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">

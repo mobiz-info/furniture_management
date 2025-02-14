@@ -1,0 +1,128 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="page-title">List Of User Log Activity</h4>
+                            </div><!--end col-->
+                            <div class="col-md-12 text-right">
+                                {% comment %} <a href="javascript:void('0');" id="print_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
+                                <a href="javascript:void('0');" id="export_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a> {% endcomment %}
+                                <div class="dropdown" style="display: inline;width: max-content;">
+                                    <button class="btn btn-info dropdown-toggle" type="button" id="filterMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="ri-filter-fill"></i> Filter
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterMenuButton">
+                                        <form method="GET" class="px-4 py-3">
+                                            <div class="form-group">
+                                                <label for="inputField">strat Date</label>
+                                                <input type="text" id="reportrange" class="form-control" placeholder="YYYY-MM-DD" name="strat_date" style="display: inline;width: max-content;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputField">End Date</label>
+                                                <input type="text" id="reportrange" class="form-control" placeholder="YYYY-MM-DD" name="end_date" style="display: inline;width: max-content;">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Apply</button>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex">
+                            <div class="col-lg-4">
+                                <h4 class="card-title">List view</h4>
+                            </div>
+                        </div>
+                        <!--end card-header-->
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">User</th>
+                                            <th class="font-weight-bold text-left">Created Date</th>
+                                            <th class="font-weight-bold text-left">Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for l in logs %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-left">{{l.created_by}}</td>
+                                            <td class="text-left">{{l.created_date}}</td>
+                                            <td class="text-left">{{l.description}}</td>
+                                             
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!--end /table-->
+                            </div>
+                            <!--end /tableresponsive-->
+                        </div>
+                        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if logs.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ logs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in logs.paginator.page_range %}
+                {% if logs.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if logs.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ logs.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+        </div><!-- container -->
+    <!-- end page content -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+{% endblock static %}

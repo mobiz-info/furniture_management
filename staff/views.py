@@ -20,6 +20,7 @@ from staff.forms import *
 from staff.models import *
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
+from work_order.views import log_activity
 
 # Create your views here.
 
@@ -246,6 +247,10 @@ def department_create(request):
             data.auto_id = get_auto_id(Department)
             data.creator = request.user
             data.save()
+            log_activity(
+                created_by=request.user,
+                description=f"created department-- '{data}'"
+            )
             
             response_data = {
                 "status": "true",
@@ -297,6 +302,10 @@ def department_edit(request, pk):
             data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
+            log_activity(
+                created_by=request.user,
+                description=f"Updated department '{instance}'"
+            )
                     
             response_data = {
                 "status": "true",
@@ -343,6 +352,10 @@ def department_delete(request, pk):
     
     instance.is_deleted = True
     instance.save()
+    log_activity(
+                created_by=request.user,
+                description=f"deleted department-- '{instance}'"
+            )
     
     response_data = {
         "status": "true",
@@ -421,6 +434,10 @@ def designation_create(request):
             data.save()
             form.save_m2m() 
             
+            log_activity(
+                created_by=request.user,
+                description=f"created designation '{data}'"
+            )
             
             response_data = {
                 "status": "true",
@@ -473,6 +490,10 @@ def designation_edit(request, pk):
             data.updater = request.user
             data.save()
             form.save_m2m()
+            log_activity(
+                created_by=request.user,
+                description=f"edited designation-- '{instance}'"
+            )
                     
             response_data = {
                 "status": "true",
@@ -518,6 +539,10 @@ def designation_delete(request, pk):
     
     instance.is_deleted = True
     instance.save()
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted designation----'{instance}'"
+            )
     
     response_data = {
         "status": "true",
@@ -563,8 +588,8 @@ def staff_list(request):
     
     if query:
         instances = instances.filter(
-            Q(name__icontains=query) |
-            Q(location__icontains=query) 
+            Q(department__name__icontains=query) |
+            Q(designation__name__icontains=query) 
         )
         title = "Staff list - %s" % query
         filter_data['q'] = query
@@ -613,6 +638,10 @@ def staff_create(request):
                     data.creator = request.user
                     data.user = user_data
                     data.save()
+                    log_activity(
+                        created_by=request.user,
+                        description=f"Created staff '{user_data}'"
+                        )
                     
                     response_data = {
                         "status": "true",
@@ -686,6 +715,10 @@ def staff_edit(request,pk):
             data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
+            log_activity(
+                created_by=request.user,
+                description=f"Updated staff-- '{instance}'"
+            )
                     
             response_data = {
                 "status": "true",
@@ -736,6 +769,10 @@ def staff_delete(request, pk):
     
     instance.is_deleted = True
     instance.save()
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted staff '{instance}'"
+            )
     
     response_data = {
         "status": "true",
@@ -834,7 +871,7 @@ def attendence_create(request):
             if existsts:
                 unsuccess_count += 1
             else:
-                Attendance.objects.create(
+                attendance=Attendance.objects.create(
                     creator = request.user,
                     auto_id = int(max_attendence) + 1,
                     attendance = '010',
@@ -845,6 +882,10 @@ def attendence_create(request):
                 success_count += 1
         
         if len(checked_list) == (success_count + unsuccess_count):
+            log_activity(
+                created_by=request.user,
+                description=f"created attendance-- '{attendance}'"
+            )
             response_data = {
                 "status": "true",
                 "title": "Successfully Created",
@@ -889,6 +930,11 @@ def attendence_edit(request, pk):
             data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
+
+            log_activity(
+                created_by=request.user,
+                description=f"Updated attendance --'{instance}'"
+            )
                     
             response_data = {
                 "status": "true", 
@@ -914,6 +960,10 @@ def attendance_delete(request, pk):
     instance = Attendance.objects.get(pk=pk)
     instance.is_deleted = True
     instance.save()
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted attendance '{instance}'"
+            )
     
     response_data = {
         "status": "true",
