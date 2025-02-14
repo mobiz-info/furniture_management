@@ -28,6 +28,7 @@ from django.db.models import Q
 from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
 from main.functions import generate_form_errors, get_auto_id
+from work_order.views import log_activity
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -85,6 +86,10 @@ def work_order_assign(request,pk):
         )
         work_order.status = data.to_section
         work_order.save()
+        log_activity(
+                created_by=request.user,
+                description=f"Assigned work order --'{work_order}'"
+            )
         response_data = {
                 "status": "true",
                 "title": "Successfully Assigned",
@@ -128,6 +133,10 @@ def assign_wood_api(request, pk=None):
                 work_order.status = "012"
                 work_order.is_assigned = True
                 work_order.save()
+                log_activity(
+                    created_by=request.user,
+                    description=f"assigned wood for work order-- '{work_order}'"
+                    )
 
                     
                 response_data = {
@@ -206,6 +215,10 @@ def assign_carpentary_api(request, pk=None):
                 work_order.status = "015"
                 work_order.is_assigned = True
                 work_order.save()
+                log_activity(
+                    created_by=request.user,
+                    description=f"assigned carpentary for work order-- '{work_order}'"
+                    )
 
                     
                 response_data = {
@@ -282,6 +295,10 @@ def assign_polish_api(request, pk=None):
                 work_order.status = "018"
                 work_order.is_assigned = True
                 work_order.save()
+                log_activity(
+                    created_by=request.user,
+                    description=f"assigned polish for work order-- '{work_order}'"
+                    )
 
                     
                 response_data = {
@@ -359,6 +376,10 @@ def assign_glass_api(request, pk=None):
                 work_order.status = "020"
                 work_order.is_assigned = True
                 work_order.save()
+                log_activity(
+                    created_by=request.user,
+                    description=f"assigned glass for work order-- '{work_order}'"
+                    )
 
                     
                 response_data = {
@@ -436,6 +457,10 @@ def assign_packing_api(request, pk=None):
                 work_order.status = "022"
                 work_order.is_assigned = True
                 work_order.save()
+                log_activity(
+                    created_by=request.user,
+                    description=f"assigned packing for workorder-- '{work_order}'"
+                    )
 
                     
                 response_data = {
@@ -584,6 +609,10 @@ def work_order_create(request):
                     #         auto_id=get_auto_id(WorkOrderImages),
                     #         creator=request.user,
                     # )
+                    log_activity(
+                        created_by=request.user,
+                        description=f"created work order-- '{work_order}'"
+                        )
                 
                 
 
@@ -682,6 +711,10 @@ def work_order_staff_assign(request, pk):
 
         work_order.is_assigned = True
         work_order.save()
+        log_activity(
+                created_by=request.user,
+                description=f"assigned staff for work order-- '{work_order}'"
+            )
 
         return Response({
             "status": "true" if success_count > 0 else "false",
@@ -868,6 +901,10 @@ def color_create(request):
     serializer = ColorSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
+        log_activity(
+                created_by=request.user,
+                description=f"Created colort-- '{color_name}'"
+            )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -883,6 +920,10 @@ def color_delete(request, pk):
         return Response({'error': 'Color not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     color.delete()
+    log_activity(
+                created_by=request.user,
+                description=f"deleted color-- '{color}'"
+            )
     return Response({'message': 'Color deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -918,6 +959,10 @@ def size_create(request):
         serializer = SizeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            log_activity(
+                created_by=request.user,
+                description=f"Created size--  '{size_value}'"
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -933,6 +978,10 @@ def size_delete(request, pk):
         return Response({'message': 'Size not found'}, status=status.HTTP_404_NOT_FOUND)
 
     size.delete()
+    log_activity(
+                created_by=request.user,
+                description=f"Size deleted-- '{size}'"
+            )
     return Response({'message': 'Size deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -970,6 +1019,10 @@ def modelnumberbasedproducts_create(request):
             else:
                 product.delete()
                 return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        log_activity(
+                created_by=request.user,
+                description=f"Created model number based product-- '{product}'"
+            )
         return Response(product_serializer.data, status=status.HTTP_201_CREATED)
     return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -984,6 +1037,10 @@ def modelnumberbasedproducts_delete(request, pk):
         return Response({'message': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     product.delete()
+    log_activity(
+                created_by=request.user,
+                description=f"deleted model number based product-- '{product}'"
+            )
     return Response({'message': 'Deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -1018,6 +1075,10 @@ def modelnumberbasedproducts_update(request, pk):
                     image_serializer.save(creator=user)
                 else:
                     return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            log_activity(
+                created_by=request.user,
+                description=f"Updated modelnumber based product--'{product}'"
+            )
         
         return Response(product_serializer.data)
     return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1043,6 +1104,10 @@ def create_work_order_image(request, pk):
             work_order=work_order,
             auto_id=get_auto_id(WorkOrderImages),
             creator=request.user
+            )
+        log_activity(
+                created_by=request.user,
+                description=f"Created work order image for --'{work_order}'"
             )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

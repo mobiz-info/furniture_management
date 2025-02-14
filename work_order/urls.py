@@ -65,5 +65,11 @@ urlpatterns = [
     re_path(r'get-material-types/', views.get_material_types, name='get-material-types'),
 
     re_path(r'delete-model-image/(?P<pk>.*)/$',views.delete_model_image,name='delete-model-image'),
-    re_path(r'delete-orders/',views.delete_orders,name='delete-orders',)
+    re_path(r'delete-orders/',views.delete_orders,name='delete-orders'),
+
+    re_path(r'set-permission/',views.create_permission_set,name='set-permission'),
+    re_path(r'permission-list/',views.permission_list,name='permission-list'),
+    re_path(r'delete-permission/(?P<pk>.*)/$',views.permission_delete,name='delete-permission'),
+    re_path(r'update-permission-set/(?P<pk>.*)/$',views.update_permission_set,name='update-permission'),
+    re_path(r'log-list/',views.processing_log_list,name='log-list'),
 ]

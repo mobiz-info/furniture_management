@@ -19,6 +19,8 @@ from main.functions import generate_form_errors, get_auto_id, has_group
 from product.models import MaterialTypeCategory, Materials, MaterialsType, Product, ProductCategory, ProductImage, ProductSubCategory
 from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm, ProductForm, ProductImageForm, ProductSubCategoryForm
 
+from work_order.views import log_activity
+
 # Create your views here.
 @login_required
 # @role_required(['superadmin'])
@@ -111,6 +113,10 @@ def create_material(request):
                                         creator=request.user,
                                         name=sub_category,
                                         material_type=material_type,
+                                    )
+                                log_activity(
+                                    created_by=request.user,
+                                    description=f"created material-- '{material_data}'"
                                     )
                     
                     response_data = {
@@ -236,6 +242,10 @@ def edit_material(request,pk):
 
                         for form in material_type_formset.deleted_forms:
                             form.instance.delete()
+                        log_activity(
+                            created_by=request.user,
+                            description=f"edited material--'{material_instance}'"
+                            )
 
                     response_data = {
                         "status": "true",
@@ -309,6 +319,10 @@ def delete_material(request,pk):
     
     type_ids = material_type.values_list("pk")
     MaterialTypeCategory.objects.filter(material_type__pk__in=type_ids).update(is_deleted = True)
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted material '{material}'"
+            )
     
     response_data = {
         "status": "true",
@@ -383,6 +397,11 @@ def create_product_category(request):
                             sub_category.creator = request.user
                             sub_category.product_category = product_data
                             sub_category.save()
+
+                        log_activity(
+                            created_by=request.user,
+                            description=f"Created product category '{product_data}'"
+                            )
                         
                     response_data = {
                         "status": "true",
@@ -492,6 +511,10 @@ def edit_product_category(request,pk):
                             
                     for form in sub_product_formset.deleted_forms:
                         form.instance.delete()
+                    log_activity(
+                        created_by=request.user,
+                        description=f"edited product category '{product_category_instance}'"
+                        )
 
                     response_data = {
                         "status": "true",
@@ -562,6 +585,10 @@ def delete_product_category(request,pk):
     
     product_category_type = ProductSubCategory.objects.filter(product_category=product_category)
     product_category_type.update(is_deleted = True)
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted product category-- '{product_category}'"
+            )
     
     response_data = {
         "status": "true",
@@ -649,6 +676,10 @@ def create_product(request):
                         product_image.creator = request.user
                         product_image.product = product_data
                         product_image.save()
+                    log_activity(
+                        created_by=request.user,
+                        description=f"Created product-- '{product_data}'"
+                        )
                         
                     response_data = {
                         "status": "true",
@@ -757,6 +788,10 @@ def edit_product(request,pk):
                             
                     for form in product_image_formset.deleted_forms:
                         form.instance.delete()
+                    log_activity(
+                        created_by=request.user,
+                        description=f"Updated product '{product_instance}'"
+                        )
 
                     response_data = {
                         "status": "true",
@@ -827,6 +862,11 @@ def delete_product(request,pk):
     
     product_image = ProductImage.objects.filter(product=product)
     product_image.update(is_deleted = True)
+
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted product -- '{product_image}'"
+            )
     
     response_data = {
         "status": "true",
@@ -851,6 +891,10 @@ def delete_product_image(request,pk):
     product_image = ProductImage.objects.get(pk=pk)
     product_image.is_deleted = True
     product_image.save()
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted product image-- '{product_image}'"
+            )
     
     response_data = {
         "status": "true",

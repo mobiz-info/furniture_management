@@ -1,0 +1,123 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+
+{% block content %}
+    <!-- Page Content-->
+    <div class="page-content">
+
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="page-title">List Of Permission Set</h4>
+                            </div><!--end col-->
+                            <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                                <form method="get">
+                                    <li class="list-inline-item w-100">
+                                        <div class="input-group">
+                                            <input name="q" type="text" id="search_box" placeholder="search by department name" value="{{ filter_data.q }}"
+                                                class="form-control" />
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </form>
+                            </div>
+                        </div><!--end row-->                                                              
+                    </div><!-- end page-title-box -->
+                </div><!--end col-->
+            </div><!--end row-->
+            <!-- end page title end breadcrumb -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex">
+                            <div class="col-lg-4">
+                                <h4 class="card-title">List view</h4>
+                            </div>
+                        </div>
+                        <!--end card-header-->
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table mb-0" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Name</th>
+                                            <th class="font-weight-bold text-left">Department</th>
+                                            <th class="font-weight-bold text-left">Allowed Tab</th>
+                                            <th class="text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in permission_set %}
+                                        <tr>
+                                            <td class="text-center">{{forloop.counter}}</td>
+                                            <td class="text-left">{{p.user}}</td>
+                                            <td class="text-left">{{p.department}}</td>
+                                            <td class="text-left">{{p.accessible_tabs}}</td>
+                                            <td class="text-right">
+                                                <a href="{% url 'work_order:delete-permission' pk=p.pk %}" class="action-button remove btn btn-default btn-icon" data-id="{{size.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" style="padding:0;"
+                                                 ><i class="las la-trash-alt text-danger font-18"></i></a>
+                                                 <a href="{% url 'work_order:update-permission' pk=p.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                            </td> 
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!--end /table-->
+                            </div>
+                            <!--end /tableresponsive-->
+                        </div>
+                        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if permission_set.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ permission_set.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in permission_set.paginator.page_range %}
+                {% if permission_set.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if permission_set.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ permission_set.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div> <!-- end col -->
+            </div>
+        </div><!-- container -->
+    <!-- end page content -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock content %}
+
+{% block static %}
+{% load static %}
+{% endblock static %}
