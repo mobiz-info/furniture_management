@@ -109,8 +109,8 @@ def work_order_list(request):
     
     if query:
         instances = instances.filter(
-            Q(invoice_no__icontains=query) |
-            Q(sales_id__icontains=query) 
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
         )
         title = "work_order list - %s" % query
         filter_data['q'] = query

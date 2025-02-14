@@ -214,6 +214,7 @@ def department_list(request):
     query = request.GET.get("q")
     
     instances = Department.objects.filter(is_deleted=False).order_by("-date_added")
+    name=request.GET.get('name')
     
     if query:
         instances = instances.filter(
@@ -221,6 +222,9 @@ def department_list(request):
         )
         title = "Department details list - %s" % query
         filter_data['q'] = query
+
+    elif name:
+        instances=instances.filter(name__icontains=name)
     
     context = {
         'instances': instances,
