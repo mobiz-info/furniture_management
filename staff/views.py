@@ -22,6 +22,165 @@ from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id, has_group
 
 # Create your views here.
+
+@login_required
+def tile_list(request):
+    """
+    Tile details list view
+    :param request:
+    :return: Tile details list view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+
+    instances = Tile.objects.all()
+
+    if query:
+        instances = instances.filter(Q(name__icontains=query))
+        title = "Tile List - %s" % query
+        filter_data['q'] = query
+
+    context = {
+        'instances': instances,
+        'page_name': 'Tile List',
+        'page_title': 'Tile List',
+        'filter_data': filter_data,
+    }
+
+    return render(request, 'admin_panel/pages/tile/tile_list.html', context)
+
+
+@login_required
+def tile_info(request, pk):
+    """
+    Tile single view
+    :param request:
+    :return: Tile details single view
+    """
+    instance = get_object_or_404(Tile, pk=pk)
+
+    context = {
+        'instance': instance,
+        'page_name': 'Tile Info',
+        'page_title': 'Tile Info',
+    }
+
+    return render(request, 'admin_panel/pages/tile/tile_info.html', context)
+
+
+@login_required
+def tile_create(request):
+    """
+    Create Tile
+    :param request:
+    :return: JSON response for success or failure
+    """
+    if request.method == 'POST':
+        form = TileForm(request.POST)
+
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.save()
+
+            response_data = {
+                "status": "true",
+                "title": "Successfully Created",
+                "message": "Tile created successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('staff:tile_list')
+            }
+
+        else:
+            message = form.errors.as_json()
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message,
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+    else:
+        form = TileForm()
+
+        context = {
+            'form': form,
+            'page_name': 'Create Tile',
+            'page_title': 'Create Tile',
+            'url': reverse('staff:tile_create'),
+        }
+
+        return render(request, 'admin_panel/pages/tile/tile_create.html', context)
+
+
+@login_required
+def tile_edit(request, pk):
+    """
+    Edit Tile
+    :param request:
+    :return: JSON response for success or failure
+    """
+    instance = get_object_or_404(Tile, pk=pk)
+
+    if request.method == 'POST':
+        form = TileForm(request.POST, instance=instance)
+
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.save()
+
+            response_data = {
+                "status": "true",
+                "title": "Successfully Updated",
+                "message": "Tile updated successfully.",
+                'redirect': 'true',
+                "redirect_url": reverse('staff:tile_list')
+            }
+
+        else:
+            message = form.errors.as_json()
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": message
+            }
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+    else:
+        form = TileForm(instance=instance)
+
+        context = {
+            'form': form,
+            'page_name': 'Edit Tile',
+            'page_title': 'Edit Tile',
+            'url': reverse('staff:tile_edit', kwargs={'pk': pk}),
+        }
+
+        return render(request, 'admin_panel/pages/tile/tile_edit.html', context)
+
+
+@login_required
+def tile_delete(request, pk):
+    """
+    Delete Tile
+    :param request:
+    :return: JSON response for success or failure
+    """
+    instance = get_object_or_404(Tile, pk=pk)
+
+    instance.delete()
+
+    response_data = {
+        "status": "true",
+        "title": "Successfully Deleted",
+        "message": "Tile successfully deleted.",
+        "redirect": "true",
+        "redirect_url": reverse('staff:tile_list'),
+    }
+
+    return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
 #department
 @login_required
 # @role_required(['superadmin'])
@@ -260,6 +419,8 @@ def designation_create(request):
             data.auto_id = get_auto_id(Designation)
             data.creator = request.user
             data.save()
+            form.save_m2m() 
+            
             
             response_data = {
                 "status": "true",
@@ -308,9 +469,10 @@ def designation_edit(request, pk):
         
         if form.is_valid():
             data = form.save(commit=False)
-            data.date_updated = datetime.datetime.today()
+            data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
+            form.save_m2m()
                     
             response_data = {
                 "status": "true",

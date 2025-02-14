@@ -8,6 +8,17 @@ from django.forms import TextInput, URLInput, EmailInput
 from . models import *
 
 
+class TileForm(forms.ModelForm):
+    class Meta:
+        model = Tile
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter Tile Name'
+            }),
+        }
+        
 class DepartmentForm(forms.ModelForm):
     class Meta:
         model = Department
@@ -35,11 +46,9 @@ class DesignationForm(forms.ModelForm):
             'department': forms.Select(attrs={
                 'class': 'required form-control'
             }),
-            'tiles': forms.SelectMultiple(attrs={
-                'class': 'form-control'
-            }),
+            'tiles': forms.CheckboxSelectMultiple(),
         }
-        
+    
 class StaffForm(forms.ModelForm):
     class Meta:
         model = Staff

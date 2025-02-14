@@ -4,6 +4,13 @@ from . import views
 app_name = 'staff'
 
 urlpatterns = [
+    # Tile URL patterns
+    re_path(r'^tile_info/(?P<pk>.*)/$', views.tile_info, name='tile_info'),
+    re_path(r'^tile_list/$', views.tile_list, name='tile_list'),
+    re_path(r'^tile_create/$', views.tile_create, name='tile_create'),
+    re_path(r'^tile_edit/(?P<pk>.*)/$', views.tile_edit, name='tile_edit'),
+    re_path(r'^tile_delete/(?P<pk>.*)/$', views.tile_delete, name='tile_delete'),
+    
     re_path(r'^department_info/(?P<pk>.*)/$', views.department_info, name='department_info'),
     re_path(r'^department_list/$', views.department_list, name='department_list'),
     re_path(r'^department_create/$', views.department_create, name='department_create'),
