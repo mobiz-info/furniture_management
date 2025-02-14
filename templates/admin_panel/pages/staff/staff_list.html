@@ -19,7 +19,7 @@
                                 <form method="get" action="{% url 'staff:staff_list' %}">
                                     <li class="list-inline-item w-100">
                                         <div class="input-group">
-                                            <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
+                                            <input name="q" type="text" id="search_box" placeholder="search by department or designation" value="{{ filter_data.q }}"
                                                 class="form-control" />
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
@@ -40,7 +40,7 @@
                             <div class="col-lg-4">
                                 <h4 class="card-title">List view</h4>
                             </div>
-                            <div class="col-md-8 text-right">
+                            <!-- <div class="col-md-8 text-right">
                                 {% comment %} <a href="javascript:void('0');" id="print_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
                                 <a href="javascript:void('0');" id="export_button" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a> {% endcomment %}
                                 <div class="dropdown" style="display: inline;width: max-content;">
@@ -49,28 +49,17 @@
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterMenuButton">
                                         <form action="." method="GET" class="px-4 py-3">
+                                            
                                             <div class="form-group">
-                                                <label for="inputField">Select Date</label>
-                                                <input type="text" id="reportrange" class="form-control" name="date_range" value="{% if not filter_data.date_range %}{{first_date_formatted}} - {{last_date_formatted}}{% else %}{{filter_data.date_range}}{% endif %}" style="display: inline;width: max-content;">
+                                                <label for="inputField">Designation</label>
+                                                <input type="text" id="reportrange" class="form-control" name="designation" style="display: inline;width: max-content;">
                                             </div>
-                                            <div class="form-group">
-                                                <label for="inputField">Name</label>
-                                                {% comment %} <select class="form-control" name="branch">
-                                                    {% get_branches as branches %}
-                                                    <option value="">All</option>
-                                                    {% for branch in branches %}
-                                                    <option value="{{branch.pk}}" {% if filter_data.branch|stringformat:"s" == branch.pk|stringformat:"s" %}selected{% endif %}>{{branch.name}}</option>
-                                                    {% endfor %}
-                                                </select> {% endcomment %}
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="inputField">Location</label>
-                                            </div>
+                                            
                                             <button type="submit" class="btn btn-primary">Apply</button>
                                       </form>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <!--end card-header-->
                         <div class="card-body">
