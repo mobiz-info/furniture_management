@@ -66,6 +66,13 @@ class StaffForm(forms.ModelForm):
             'employee_id': forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'Enter Employee ID'}),
         }
         
+    def __init__(self, *args, **kwargs):
+        super(StaffForm, self).__init__(*args, **kwargs)
+        if 'designation' in self.fields:
+            self.fields['designation'].queryset = Designation.objects.filter(is_deleted=False)
+
+        if 'department' in self.fields:
+            self.fields['department'].queryset = Department.objects.filter(is_deleted=False) 
         
 
 class AttendenceForm(forms.ModelForm):

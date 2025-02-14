@@ -64,21 +64,20 @@ def login(request):
                 # if request.user.is_superuser:
                 #     designation = [department.name for department in Department.objects.all()]
                 # # else:
+               
                 # designation = staff_instance.department.name
                 # tiles = DESIGNATION_TILES.get(designation, [])  # Default to empty list if designation not found
-                designation = staff_instance.designation  # Assuming `Staff` model has `designation` ForeignKey
-                tiles = []
-
-                if designation:
-                    # Fetch related tiles dynamically from the database
-                    tiles = list(designation.tiles.values_list('name', flat=True))
+                
+                tiles = staff_instance.designation.tiles.all()
+                tile_names = [tile.name for tile in tiles]
+                
                 # Construct response
                 response_data = {
                     "status": status.HTTP_200_OK,
                     "StatusCode": 6000,
                     "data": response.json(),
                     "user_details": staff_serializer.data,
-                    "tiles": tiles,
+                    "tiles": tile_names,
                     "message": "Login successfully",
                 }
                 return Response(response_data, status=status.HTTP_200_OK)
