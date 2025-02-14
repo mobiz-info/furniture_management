@@ -70,10 +70,6 @@
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
                                             <th class="font-weight-bold text-left">Name</th>
-                                            <th class="font-weight-bold text-center">Creator</th>
-                                            <th class="font-weight-bold text-center">Date Added</th>
-                                            <th class="font-weight-bold text-center">Date Updated</th>
-                                            <th class="font-weight-bold text-left">Tiles</th>
                                             <th class="font-weight-bold text-right">Actions</th>
                                         </tr>
                                     </thead>
@@ -84,20 +80,11 @@
                                         <tr>
                                             <td class="text-center">{{ forloop.counter }}</td>
                                             <td class="text-left">{{ instance.name }}</td>
-                                            <td class="text-center">{{ instance.creator }}</td>
-                                            <td class="text-center">{{ instance.date_added }}</td>
-                                            <td class="text-center">{{ instance.date_updated }}</td>
-                                            <td class="text-left">
-                                                {% for tile in instance.tiles.all %}
-                                                    <span class="badge badge-primary">{{ tile.name }}</span>
-                                                {% empty %}
-                                                    <span class="text-muted">No Tiles Assigned</span>
-                                                {% endfor %}
-                                            </td>
+                                            
                                             <td class="text-right">
-                                                <a href="{% url 'staff:designation_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
-                                                <a href="{% url 'staff:designation_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
-                                                <a href="{% url 'staff:designation_delete' pk=instance.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
+                                                <a href="{% url 'staff:tile_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
+                                                <a href="{% url 'staff:tile_edit' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                                <a href="{% url 'staff:tile_delete' pk=instance.pk %}" class="action-button remove btn btn-default btn-icon" style="padding:0;"
                                                  data-id="{{ instance.pk }}" data-text="{{ confirm_delete_message }}" data-title="Are you sure?" href=""><i class="las la-trash-alt text-danger font-18"></i></a>
                                             </td>
                                         </tr>

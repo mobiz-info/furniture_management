@@ -27,37 +27,11 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="name">Department Name:</label>
-                                        {{ instances.name }}
+                                        <label for="name">Tiles:</label>
+                                        {{ instance.name }}
                                     </div><!-- end form-group -->
-                                    <div class="form-group">
-                                        <label for="tile">Tiles Name:</label>
-                                        {% for tile in instances.tiles.all %}{{ tile.name }}
-                                                {% empty %}
-                                                    No Tiles Assigned
-                                                {% endfor %}
-                                    </div><!-- end form-group -->
-                                    <div class="form-group">
-                                        <label for="creator">Creator:</label>
-                                        {{ instances.creator }}
-                                    </div><!-- end form-group -->
-
-                                    <div class="form-group">
-                                        <label for="date_added">Date Added:</label>
-                                        {{ instances.date_added }}
-                                    </div><!-- end form-group -->
-                                </div><!-- end col -->
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="date_updated">Date Updated:</label>
-                                        {{ instances.date_updated }}
-                                    </div><!-- end form-group -->
-
-                                    <div class="form-group">
-                                        <label for="is_deleted">Is Deleted:</label>
-                                        {{ instances.is_deleted }}
-                                    </div><!-- end form-group -->
+                                    
+                                  
                                 </div><!-- end col -->
                             </div><!-- end row -->
                         </div><!-- end card-body -->
