@@ -6,6 +6,7 @@ from staff.models import *
 from main.models import BaseModel
 from staff.models import Designation
 
+
 class CompanyDetails(BaseModel): 
     MODE_CHOICES = [
         ('subscriptions', 'Subscriptions'),
@@ -55,3 +56,18 @@ class Branch(BaseModel):
     def __str__(self):
         return self.name
     
+
+class PermissionSet(BaseModel):
+    TAB_CHOICES = [
+        ('WOOD_SECTION', 'Wood Section'),
+        ('GLASS/UPHOLSTORY_SECTION', 'Glass/Upholstory Section'),
+        ('CARPENTARY', 'Carpentary'),
+        ('POLISH', 'Polish'),
+        ('PACKING', 'Packing')
+    ]
+
+    department = models.ForeignKey(Department, null=True, blank=True, on_delete=models.CASCADE)
+    tabs =models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'{self.department.name}'

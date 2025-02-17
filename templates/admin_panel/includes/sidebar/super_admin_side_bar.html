@@ -12,6 +12,7 @@
     </div>
     <!--end logo-->
     <div class="menu-content h-100" data-simplebar>
+        {%if request.user.is_superuser == True%}
         <ul class="metismenu left-sidenav-menu">
             <li class="menu-label mt-0">Main</li>
             <li>
@@ -65,8 +66,8 @@
                 <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Permission</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:permission-list' %}"><i class="ti-control-record"></i>Set Permission</a>
-                        <a class="nav-link" href="{% url 'work_order:set-permission' %}"><i class="ti-plus"></i></a>
+                        <a class="nav-link" href="{% url 'settings:permission-list' %}"><i class="ti-control-record"></i>Set Permission</a>
+                        <a class="nav-link" href="{% url 'settings:set-permission' %}"><i class="ti-plus"></i></a>
                     </li>
                 </ul>
             </li>
@@ -75,7 +76,7 @@
                 <a href="javascript: void(0);"> <i class="ti-user align-self-center menu-icon"></i><span>Log Activity</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:log-list' %}"><i class="ti-control-record"></i>Log Activity</a>
+                        <a class="nav-link" href="{% url 'main:log-list' %}"><i class="ti-control-record"></i>Log Activity</a>
                     </li>
                 </ul>
             </li>
@@ -179,5 +180,69 @@
             </li>
 
         </ul>
+        {%else%}
+        {% accessible_tabs as tabs %}
+        <ul class="metismenu left-sidenav-menu">
+            <li class="menu-label mt-0">Main</li>
+            {%if 'WOOD_SECTION' in tabs %}
+            <li>
+                <a href="javascript: void(0);"> <i class="las la-tree align-self-center menu-icon"></i><span>Wood Section</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:wood_work_orders_list' %}"><i class="ti-control-record"></i> Wood Assign</a>
+                        {% comment %} <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a> {% endcomment %}
+                        </li>   
+                    </li>
+                </ul>
+            </li>
+            {%endif%}
+            {%if 'CARPENTARY' in tabs %}
+            <li>
+                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Carpentary</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:carpentary_list' %}"><i class="ti-control-record"></i> Carpentary Assign</a>
+                        </li>   
+                    </li>
+                </ul>
+            </li>
+            {%endif%}
+            {%if 'POLISH' in tabs %}
+            <li>
+                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Polish</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:polish_list' %}"><i class="ti-control-record"></i> Polish Assign</a>
+                        </li>   
+                    </li>
+                </ul>
+            </li>
+            {%endif%}
+            {%if 'GLASS/UPHOLSTORY' in tabs %}
+            <li>
+                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Glass/Upholstory</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:glass_list' %}"><i class="ti-control-record"></i> Glass/Upholstory</a>
+                        </li>   
+                    </li>
+                </ul>
+            </li>
+            {%endif%}
+            {%if 'PACKING' in tabs %}
+            <li>
+                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Packing</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <ul class="nav-second-level" aria-expanded="false">
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:packing_list' %}"><i class="ti-control-record"></i> Packing</a>
+                        </li>   
+                    </li>
+                </ul>
+            </li>
+            {%endif%}
+            
+
+        </ul>
+        {%endif%}
     </div>
 </div>

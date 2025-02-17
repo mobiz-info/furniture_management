@@ -19,9 +19,7 @@ from rest_framework import status
 from staff.forms import *
 from staff.models import *
 from main.decorators import role_required
-from main.functions import generate_form_errors, get_auto_id, has_group
-from work_order.views import log_activity
-
+from main.functions import generate_form_errors, get_auto_id, has_group,log_activity
 # Create your views here.
 
 @login_required

@@ -48,7 +48,7 @@
                                     <thead>
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-left">Name</th>
+                                            <th class="font-weight-bold text-left">Created By</th>
                                             <th class="font-weight-bold text-left">Department</th>
                                             <th class="font-weight-bold text-left">Allowed Tab</th>
                                             <th class="text-right">Action</th>
@@ -58,13 +58,13 @@
                                         {% for p in permission_set %}
                                         <tr>
                                             <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-left">{{p.user}}</td>
+                                            <td class="text-left">{{p.creator}}</td>
                                             <td class="text-left">{{p.department}}</td>
-                                            <td class="text-left">{{p.accessible_tabs}}</td>
+                                            <td class="text-left">{{p.tabs|remove_brackets}}</td>
                                             <td class="text-right">
-                                                <a href="{% url 'work_order:delete-permission' pk=p.pk %}" class="action-button remove btn btn-default btn-icon" data-id="{{size.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" style="padding:0;"
+                                                <a href="{% url 'settings:delete-permission' pk=p.pk %}" class="action-button remove btn btn-default btn-icon" data-id="{{size.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" style="padding:0;"
                                                  ><i class="las la-trash-alt text-danger font-18"></i></a>
-                                                 <a href="{% url 'work_order:update-permission' pk=p.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                                 <a href="{% url 'settings:update-permission' pk=p.pk %}"><i class="las la-pen text-info font-18"></i></a>
                                             </td> 
                                         </tr>
                                         {% endfor %}

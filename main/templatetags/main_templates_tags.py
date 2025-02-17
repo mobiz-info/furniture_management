@@ -3,6 +3,8 @@ import datetime
 from django import template
 from django.db.models import Q, Sum
 from django.contrib.auth.models import User, Group
+from settings.models import PermissionSet
+from staff.models import Staff
 
 register = template.Library()
 
@@ -38,3 +40,21 @@ def get_username(request):
         'username': username,
         'user_image': user_image,
     }
+
+@register.filter
+def remove_brackets(value):
+     if isinstance(value, str):
+        # Convert string representation of list to actual list
+        value = eval(value)
+        return ', '.join(value)
+     
+
+
+@register.simple_tag(takes_context=True)
+def accessible_tabs(context):
+    request = context['request']
+    user_department = Staff.objects.get(user=request.user)
+    permission_set = PermissionSet.objects.filter(department=user_department.department).first()
+    if permission_set:
+        return ', '.join(permission_set.tabs.split(','))
+    return ''

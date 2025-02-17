@@ -23,7 +23,7 @@ from .models import *
 from settings.forms import *
 from settings.models import *
 from main.decorators import role_required
-from main.functions import generate_form_errors, get_auto_id
+from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
 from datetime import datetime
 
@@ -1426,8 +1426,15 @@ def modelnumberbasedproducts_create(request):
                 created_by=request.user,
                 description=f"created '{product}'"
                 )
-
-                return redirect('work_order:model-display')
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Created",
+                        "message": "Modelnumber based Product created successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('work_order:model-display')
+                        }
+            
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
     else:
         form = ModelNumberBasedProductsForm()
@@ -1480,7 +1487,15 @@ def modelnumberbasedproducts_update(request,pk):
                 description=f"Updated model number based product for modelno- '{product}'"
                 )
 
-                return redirect('work_order:model-display')
+                response_data = {
+                        "status": "true",
+                        "title": "Successfully Updated",
+                        "message": "Modelnumber based Product updated successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('work_order:model-display')
+                        }
+            
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     else:
         form = ModelNumberBasedProductsForm(instance=product)
         work_order_image_formset = WorkOrderImagesFormSet()
@@ -1642,141 +1657,3 @@ def delete_orders(request):
             return redirect('work_order:work_order_list')
         
 
-@login_required
-def create_permission_set(request):
-    if request.method == 'POST':
-        form = PermissionSetForm(request.POST)
-        if form.is_valid():
-            user_instance=form.cleaned_data.get('user')
-            accessible_tabs = form.cleaned_data.get('accessible_tabs')
-            department=user_instance.department
-            permission_set = PermissionSet(
-                user=user_instance,
-                department=department,
-                accessible_tabs=accessible_tabs,
-                creator=request.user,
-                auto_id=get_auto_id(PermissionSet)
-            )
-            permission_set.save()
-            log_activity(
-                created_by=request.user,
-                description=f"created permission set for user '{user_instance}'"
-            )
-            return redirect('work_order:permission-list')
-    else:
-        form = PermissionSetForm()
-
-    return render(request, 'admin_panel/pages/work_order/permission_set.html', {'form': form,'tittle':'Create Permission'})
-
-
-@login_required
-def permission_list(request):
-    query = request.GET.get('q')
-    if query:
-        permission_set = PermissionSet.objects.filter(department__name__icontains=query)
-    else:
-        permission_set = PermissionSet.objects.all()
-
-    paginator = Paginator(permission_set, 10)
-    page = request.GET.get('page')
-
-    try:
-        permissions = paginator.page(page)
-    except PageNotAnInteger:
-        permissions = paginator.page(1)
-    except EmptyPage:
-        permissions = paginator.page(paginator.num_pages)
-
-    return render(request, 'admin_panel/pages/work_order/permission_list.html', {'permission_set': permissions})
-
-
-@login_required
-def permission_delete(request,pk):
-    permission= get_object_or_404(PermissionSet, pk=pk)
-    permission.delete()
-    log_activity(
-                created_by=request.user,
-                description=f"Deleted permission set for user '{permission.user}'"
-            )
-    response_data = {
-            "status": "true",
-            "message": "Permission deleted successfully.",
-            "redirect": "true",
-            "redirect_url": reverse('work_order:permission-list')  
-        }
-    return JsonResponse(response_data)
-
-
-@login_required
-def update_permission_set(request, pk):
-    permission_set = get_object_or_404(PermissionSet, pk=pk)
-    
-    if request.method == 'POST':
-        form = PermissionSetForm(request.POST, instance=permission_set)
-        if form.is_valid():
-            user_instance = form.cleaned_data.get('user')
-            accessible_tabs = form.cleaned_data.get('accessible_tabs')
-            department = user_instance.department
-            
-            permission_set.user = user_instance
-            permission_set.department = department
-            permission_set.accessible_tabs = accessible_tabs
-            permission_set.updater = request.user              
-            permission_set.save()
-
-            log_activity(
-                created_by=request.user,
-                description=f"Updated permission set for user '{user_instance}'"
-            )
-
-            return redirect('work_order:permission-list')
-    else:
-        form = PermissionSetForm(instance=permission_set)
-
-    return render(request, 'admin_panel/pages/work_order/permission_set.html', {'form': form,'tittle':'Update Permission'})
-
-
-def log_activity(created_by,description,created_date=None,):
-    if created_date is None:
-        created_date=timezone.now()
-
-    Processing_Log.objects.create(
-        created_by=created_by,
-        description=description,
-        created_date=created_date
-    )
-
-
-
-@login_required
-def processing_log_list(request):
-    start_date=request.GET.get('start_date')
-    end_date=request.GET.get('end_date')
-    
-    if not start_date:
-       start_date = date.today()
-    else:
-       start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-
-    if not end_date:
-        end_date = date.today()
-    else:
-        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-
-    logs = Processing_Log.objects.filter(created_date__range=(start_date, end_date)).order_by("-created_date")
-
-    paginator = Paginator(logs, 10)
-    page = request.GET.get('page',1)
-
-    try:
-        logs = paginator.page(page)
-    except PageNotAnInteger:
-        logs = paginator.page(1)
-    except EmptyPage:
-        logs = paginator.page(paginator.num_pages)
-
-    context = {
-         'logs': logs,
-        }
-
-    return render(request, 'admin_panel/pages/work_order/log_list.html',context)
