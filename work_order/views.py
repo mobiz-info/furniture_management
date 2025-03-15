@@ -355,8 +355,8 @@ def edit_work_order(request, pk):
                                 work_order_item.work_order = work_order_form_instance
                                 work_order_item.auto_id = get_auto_id(WorkOrderItems)
                                 work_order_item.creator=request.user
-                                work_order_item.updater = request.user
-                                work_order_item.date_updated = datetime.datetime.now()
+                            work_order_item.updater = request.user
+                            work_order_item.date_updated = datetime.datetime.now()
                             work_order_item.save()
                             
                             if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
@@ -385,9 +385,9 @@ def edit_work_order(request, pk):
                             if not work_order_image.auto_id:
                                 work_order_image.work_order = work_order_form_instance
                                 work_order_image.auto_id = get_auto_id(WorkOrderImages)
-                                work_order_image.updater = request.user
                                 work_order_image.creator=request.user
-                                work_order_image.date_updated = datetime.datetime.now()
+                            work_order_image.updater = request.user
+                            work_order_image.date_updated = datetime.datetime.now()
                             work_order_image.save()
                             
                     for form in work_order_images_formset.deleted_forms:

@@ -242,8 +242,8 @@ def edit_material(request,pk):
                                     item_data.material = material_form_instance
                                     item_data.auto_id = get_auto_id(MaterialsType)
                                     item_data.creator = request.user
-                                    item_data.updater = request.user
-                                    item_data.date_updated = datetime.datetime.today().now()
+                                item_data.updater = request.user
+                                item_data.date_updated = datetime.datetime.today().now()
                                 item_data.save()
                                 
                                 MaterialTypeCategory.objects.filter(material_type=item_data).delete()
@@ -529,8 +529,9 @@ def edit_product_category(request,pk):
                             if not item_data.auto_id:
                                 item_data.product_category = product_category_form_instance
                                 item_data.auto_id = get_auto_id(ProductSubCategory)
-                                item_data.updater = request.user
-                                item_data.date_updated = datetime.datetime.today().now()
+                                item_data.creator = request.user
+                            item_data.updater = request.user
+                            item_data.date_updated = datetime.datetime.today().now()
                             item_data.save()
                             
                     for form in sub_product_formset.deleted_forms:
@@ -806,8 +807,9 @@ def edit_product(request,pk):
                             if not item_data.auto_id:
                                 item_data.product = product_form_instance
                                 item_data.auto_id = get_auto_id(ProductImage)
-                                item_data.updater = request.user
-                                item_data.date_updated = datetime.datetime.today().now()
+                                item_data.creator = request.user
+                            item_data.updater = request.user
+                            item_data.date_updated = datetime.datetime.today().now()
                             item_data.save()
                             
                     for form in product_image_formset.deleted_forms:
