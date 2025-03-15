@@ -4,6 +4,10 @@ from . import views
 app_name = 'product'
 
 urlpatterns = [
+    re_path(r'get-sub-category/$', views.get_sub_category, name='get_sub_category'),
+    re_path(r'get-materials-type/$', views.get_materials_type, name='get_materials_type'),
+    re_path(r'get-materials-type-category/$', views.get_materials_type_category, name='get_materials_type_category'),
+    
     re_path(r'material-info/(?P<pk>.*)/$', views.material_info, name='material_info'),
     re_path(r'material-list/$', views.material_list, name='material_list'),
     re_path(r'create-material/$', views.create_material, name='create_material'),

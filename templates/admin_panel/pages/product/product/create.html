@@ -31,11 +31,6 @@
                                         <label for="product_category">{{ product_form.product_category.label }} :</label>
                                         {{ product_form.product_category }}
                                     </div><!-- end form-group -->
-
-                                    <div class="form-group">
-                                        <label for="material">{{ product_form.material.label }} :</label>
-                                        {{ product_form.material }}
-                                    </div><!-- end form-group -->
                                 </div><!-- end col -->
 
                                 <div class="col-md-6">
@@ -43,7 +38,16 @@
                                         <label for="product_sub_category">{{ product_form.product_sub_category.label }} :</label>
                                         {{ product_form.product_sub_category }}
                                     </div><!-- end form-group -->
+                                </div><!-- end col -->
+                                    
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="material">{{ product_form.material.label }} :</label>
+                                        {{ product_form.material }}
+                                    </div><!-- end form-group -->
+                                </div><!-- end col -->
 
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="material_type">{{ product_form.material_type.label }} :</label>
                                         {{ product_form.material_type }}
@@ -55,7 +59,9 @@
                                         <label for="material_type_category">{{ product_form.material_type_category.label }} :</label>
                                         {{ product_form.material_type_category }}
                                     </div><!-- end form-group -->
-
+                                </div><!-- end col -->
+                                    
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="item_code">{{ product_form.item_code.label }} :</label>
                                         {{ product_form.item_code }}
@@ -68,8 +74,9 @@
                                         <label for="name">{{ product_form.name.label }} :</label>
                                         {{ product_form.name }}
                                     </div><!-- end form-group -->
+                                </div><!-- end col -->
                                     
-
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="color">{{ product_form.color.label }} :</label>
                                         {{ product_form.color }}
@@ -88,8 +95,10 @@
                                         <label for="feuture_image">{{ product_form.feuture_image.label }} :</label>
                                         {{ product_form.feuture_image }}
                                     </div><!-- end form-group -->
-
-                                    {% if product_form.instance.feuture_image %}
+                                </div><!-- end col -->
+                                    
+                                {% if product_form.instance.feuture_image %}
+                                <div class="col-md-6">
                                     <div class="col-xl-4">
                                         <div class="card">
                                             <div class="card-body">
@@ -97,8 +106,9 @@
                                             </div><!-- end card-body -->
                                         </div><!-- end card -->
                                     </div><!-- end col -->
-                                    {% endif %}
                                 </div><!-- end col -->
+                                {% endif %}
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="source">{{ product_form.source.label }} :</label>
@@ -187,6 +197,112 @@
             added: function (row) {
                 row.find('.type_sub_category_name').attr('disabled', 'disabled');
             },
+        });
+    });
+</script>
+{% comment %} get sub category {% endcomment %}
+<script>
+    $(document).ready(function() {
+        var product = $('#id_product_category').val();
+        $('#id_product_category').change(function() {
+            var categorySelected = $(this).val();
+
+            if (categorySelected !== "" ){
+                $.ajax({
+                    url: "{% url 'product:get_sub_category' %}", 
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        'category': categorySelected,
+                    },
+                    success: function(data) {
+                        console.log(data)
+                        console.log(data.instances)
+                        if (data !== ""){
+                            var options = '<option value="">Select</option>';
+                            $.each(data.instances, function(index, sd) {
+                                options += '<option value="' + sd.id + '">' + sd.name + '</option>';
+                            });
+                            $('#id_product_sub_category').html(options);
+                            $('#id_product_sub_category').show();
+                        }else{
+                            $('#id_product_sub_category').hide();
+                        }
+                    }
+                });
+            }else{
+                $('#id_product_sub_category').hide();
+            }
+        });
+    });
+</script>
+{% comment %} get meterial types {% endcomment %}
+<script>
+    $(document).ready(function() {
+        var product = $('#id_material').val();
+        $('#id_material').change(function() {
+            var materialSelected = $(this).val();
+
+            if (materialSelected !== "" ){
+                $.ajax({
+                    url: "{% url 'product:get_materials_type' %}", 
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        'material': materialSelected,
+                    },
+                    success: function(data) {
+                        console.log(data)
+                        console.log(data.instances)
+                        if (data !== ""){
+                            var options = '<option value="">Select</option>';
+                            $.each(data.instances, function(index, sd) {
+                                options += '<option value="' + sd.id + '">' + sd.name + '</option>';
+                            });
+                            $('#id_material_type').html(options);
+                            $('#id_material_type').show();
+                        }else{
+                            $('#id_material_type').hide();
+                        }
+                    }
+                });
+            }else{
+                $('#id_material_type').hide();
+            }
+        });
+    });
+</script>
+{% comment %} get meterial types category {% endcomment %}
+<script>
+    $(document).ready(function() {
+        var product = $('#id_material_type').val();
+        $('#id_material_type').change(function() {
+            var materialTypeSelected = $(this).val();
+
+            if (materialTypeSelected !== "" ){
+                $.ajax({
+                    url: "{% url 'product:get_materials_type_category' %}", 
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        'material_type': materialTypeSelected,
+                    },
+                    success: function(data) {
+                        if (data !== ""){
+                            var options = '<option value="">Select</option>';
+                            $.each(data.instances, function(index, sd) {
+                                options += '<option value="' + sd.id + '">' + sd.name + '</option>';
+                            });
+                            $('#id_material_type_category').html(options);
+                            $('#id_material_type_category').show();
+                        }else{
+                            $('#id_material_type_category').hide();
+                        }
+                    }
+                });
+            }else{
+                $('#id_material_type_category').hide();
+            }
         });
     });
 </script>

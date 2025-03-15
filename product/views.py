@@ -20,6 +20,32 @@ from product.models import MaterialTypeCategory, Materials, MaterialsType, Produ
 from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm, ProductForm, ProductImageForm, ProductSubCategoryForm
 
 # Create your views here.
+def get_sub_category(request):
+    category = request.GET.get('category')
+    print(category)
+    instances = ProductSubCategory.objects.filter(product_category__pk=category,is_deleted=False)
+    print(instances)
+    data = {
+        'instances': list(instances.values('id', 'name')),
+        }
+    return JsonResponse(data)
+
+def get_materials_type(request):
+    material = request.GET.get('material')
+    instances = MaterialsType.objects.filter(material__pk=material,is_deleted=False)
+    data = {
+        'instances': list(instances.values('id', 'name')),
+        }
+    return JsonResponse(data)
+
+def get_materials_type_category(request):
+    material_type = request.GET.get('material_type')
+    instances = MaterialTypeCategory.objects.filter(material_type__pk=material_type,is_deleted=False)
+    data = {
+        'instances': list(instances.values('id', 'name')),
+        }
+    return JsonResponse(data)
+
 @login_required
 # @role_required(['superadmin'])
 def material_info(request,pk):

@@ -1389,52 +1389,81 @@ def size_delete(request, pk):
 @login_required
 # @role_required(['superadmin'])
 def modelnumberbasedproducts_create(request):
+    response_data = {}
     title='Model Create'
+    
     WorkOrderImagesFormSet =formset_factory(ModelNumberBasedProductImagesForm,extra=2)
+    
     if request.method == 'POST':
+        
         form = ModelNumberBasedProductsForm(request.POST)
         work_order_image_formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='work_order_image_formset',form_kwargs={'empty_permitted': False})
         model_no = request.POST.get('model_no')
 
         if ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
-            form.add_error('model_no', 'Model number already exists.')
+            # form.add_error('model_no', 'Model number already exists.')
+            
+            response_data = {
+                "status": "false",
+                "title": "Failed",
+                "message": "Model No : Model number already exists",
+            }
         else:
             if form.is_valid() and work_order_image_formset.is_valid():
-                auto_id = get_auto_id(ModelNumberBasedProducts)
-                product = ModelNumberBasedProducts.objects.create(
-                    auto_id=auto_id,
-                    creator=request.user,
-                    model_no=form.cleaned_data['model_no'],
-                    category=form.cleaned_data['category'],
-                    sub_category=form.cleaned_data['sub_category'],
-                    material=form.cleaned_data['material'],
-                    sub_material=form.cleaned_data['sub_material'],
-                    material_type=form.cleaned_data['material_type']
-                )
-                product.color.set(form.cleaned_data['color'])
-                product.size.set(form.cleaned_data['size'])
-                product.save()
+                try:
+                    with transaction.atomic():
+                        product = form.save(commit=False)
+                        product.auto_id = get_auto_id(ModelNumberBasedProducts)
+                        product.creator = request.user
+                        product.save()
+                        
+                        product.color.set(form.cleaned_data['color'])
+                        product.size.set(form.cleaned_data['size'])
+                        product.save()
+        
+                        for form in work_order_image_formset:
+                            image = form.save(commit=False)
+                            image.model = product
+                            image.auto_id = get_auto_id(ModelNumberBasedProductImages)
+                            image.creator = request.user
+                            image.save()
+                        
+                        log_activity(
+                        created_by=request.user,
+                        description=f"created '{product}'"
+                        )
+                        
+                        response_data = {
+                            "status": "true",
+                            "title": "Successfully Created",
+                            "message": "Modelnumber based Product created successfully.",
+                            'redirect': 'true',
+                            "redirect_url": reverse('work_order:model-display')
+                            }
+                except IntegrityError as e:
+                    response_data = {
+                        "status": "false",
+                        "title": "Failed",
+                        "message": str(e),
+                    }
 
-                for form in work_order_image_formset:
-                    if form.cleaned_data:
-                        image = form.save(commit=False)
-                        image.model = product
-                        image.auto_id = get_auto_id(ModelNumberBasedProductImages)
-                        image.creator = request.user
-                        image.save()
-                log_activity(
-                created_by=request.user,
-                description=f"created '{product}'"
-                )
+                except Exception as e:
+                    response_data = {
+                        "status": "false",
+                        "title": "Failed",
+                        "message": str(e),
+                    }
+            else:
+                message = generate_form_errors(form, formset=False)
+                message += generate_form_errors(work_order_image_formset, formset=True)
+                
                 response_data = {
-                        "status": "true",
-                        "title": "Successfully Created",
-                        "message": "Modelnumber based Product created successfully.",
-                        'redirect': 'true',
-                        "redirect_url": reverse('work_order:model-display')
-                        }
+                    "status": "false",
+                    "title": "Failed",
+                    "message": message,
+                }
             
-            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
     else:
         form = ModelNumberBasedProductsForm()
