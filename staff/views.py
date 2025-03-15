@@ -19,9 +19,7 @@ from rest_framework import status
 from staff.forms import *
 from staff.models import *
 from main.decorators import role_required
-from main.functions import generate_form_errors, get_auto_id, has_group
-from work_order.views import log_activity
-
+from main.functions import generate_form_errors, get_auto_id, has_group,log_activity
 # Create your views here.
 
 @login_required
@@ -214,6 +212,7 @@ def department_list(request):
     query = request.GET.get("q")
     
     instances = Department.objects.filter(is_deleted=False).order_by("-date_added")
+    name=request.GET.get('name')
     
     if query:
         instances = instances.filter(
@@ -221,6 +220,9 @@ def department_list(request):
         )
         title = "Department details list - %s" % query
         filter_data['q'] = query
+
+    elif name:
+        instances=instances.filter(name__icontains=name)
     
     context = {
         'instances': instances,
@@ -299,7 +301,7 @@ def department_edit(request, pk):
         
         if form.is_valid():
             data = form.save(commit=False)
-            data.date_updated = datetime.datetime.today()
+            data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
             log_activity(
@@ -376,7 +378,7 @@ def designation_info(request, pk):
     :return: Designation details List single view
     """
     
-    instance = get_object_or_404(Designation, pk=pk)
+    instance = get_object_or_404(Designation, pk=pk,is_deleted=False)
 
     context = {
         'instances': instance,
@@ -479,7 +481,7 @@ def designation_edit(request, pk):
     :param pk:
     :return:
     """
-    instance = get_object_or_404(Designation, pk=pk)
+    instance = get_object_or_404(Designation, pk=pk,is_deleted=False)
     
     if request.method == 'POST':
         form = DesignationForm(request.POST, instance=instance)
@@ -588,8 +590,8 @@ def staff_list(request):
     
     if query:
         instances = instances.filter(
-            Q(name__icontains=query) |
-            Q(location__icontains=query) 
+            Q(department__name__icontains=query) |
+            Q(designation__name__icontains=query) 
         )
         title = "Staff list - %s" % query
         filter_data['q'] = query
@@ -712,7 +714,7 @@ def staff_edit(request,pk):
         
         if form.is_valid():
             data = form.save(commit=False)
-            data.date_updated = datetime.datetime.today()
+            data.date_updated = datetime.today()
             data.updater = request.user
             data.save()
             log_activity(

@@ -12,6 +12,8 @@ from django.core.paginator import Paginator
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 #Third Party
 from random import randint
+from datetime import timezone
+from main.models import Processing_Log
 
 
 def generate_unique_id(size=8, chars=string.ascii_lowercase + string.digits):
@@ -177,3 +179,11 @@ def has_group(user, group_name):
         return group in user.groups.all()
     except Group.DoesNotExist:
         return False
+    
+
+def log_activity(created_by,description,created_date=None,):
+
+    Processing_Log.objects.create(
+        created_by=created_by,
+        description=description,
+    )

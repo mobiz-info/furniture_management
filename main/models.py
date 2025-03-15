@@ -15,3 +15,15 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Processing_Log(models.Model):
+    created_by=models.CharField(max_length=40,blank=True)
+    created_date=models.DateField(auto_now=True,blank=True,null=True)
+    description=models.CharField(null=True,max_length=1024)
+
+    class Meta:
+        ordering=('-created_date',)
+
+    def __str__(self):
+        return f"Processing Logb - {self.created_date}"

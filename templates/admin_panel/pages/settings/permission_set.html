@@ -27,7 +27,7 @@
                     <div style="flex-direction:column;flex-wrap: wrap;" class="card-header d-flex">
                         <h3 align="center">{{tittle}}</h3>
                         <div style="flex-direction: row;display: flex;justify-content: center;">
-                            <form method="post">
+                            <form method="post" class="ajax redirect">
                                 {% csrf_token %}
                                 {{ form.non_field_errors }}
                                 {{ form}}

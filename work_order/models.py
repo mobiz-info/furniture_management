@@ -255,30 +255,3 @@ class WorkOrderStaffAssign(BaseModel):
     
 
 
-class PermissionSet(BaseModel):
-    TAB_CHOICES = [
-        ('WOOD_SECTION', 'Wood Section'),
-        ('GLASS/UPHOLSTORY_SECTION', 'Glass/Upholstory Section'),
-        ('CARPENTARY', 'Carpentary'),
-        ('POLISH','Polish'),
-        ('PACKING','Packing')
-    ]
-
-    user = models.ForeignKey(Staff, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department,null=True,blank=True, on_delete=models.CASCADE)
-    accessible_tabs = models.CharField(max_length=50, choices=TAB_CHOICES)
-
-    def __str__(self):
-        return f'{self.user.first_name} - {self.department.name}'
-
-
-class Processing_Log(models.Model):
-    created_by=models.CharField(max_length=40,blank=True)
-    created_date=models.DateField(auto_now=True,blank=True,null=True)
-    description=models.CharField(null=True,max_length=1024)
-
-    class Meta:
-        ordering=('-created_date',)
-
-    def __str__(self):
-        return f"Processing Logb - {self.created_date}"

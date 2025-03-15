@@ -27,8 +27,7 @@ from .serializers import *
 from django.db.models import Q
 from work_order.models import WORK_ORDER_CHOICES, ModelNumberBasedProducts, WoodWorkAssign,Carpentary,Polish,Glass,Packing, WorkOrderImages, WorkOrderItems, WorkOrderStatus
 from work_order.forms import WoodWorksAssignForm
-from main.functions import generate_form_errors, get_auto_id
-from work_order.views import log_activity
+from main.functions import generate_form_errors, get_auto_id,log_activity
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

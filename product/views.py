@@ -15,11 +15,9 @@ from django.forms import formset_factory, inlineformset_factory
 from rest_framework import status
 #local
 from main.decorators import role_required
-from main.functions import generate_form_errors, get_auto_id, has_group
+from main.functions import generate_form_errors, get_auto_id, has_group,log_activity
 from product.models import MaterialTypeCategory, Materials, MaterialsType, Product, ProductCategory, ProductImage, ProductSubCategory
 from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm, ProductForm, ProductImageForm, ProductSubCategoryForm
-
-from work_order.views import log_activity
 
 # Create your views here.
 @login_required

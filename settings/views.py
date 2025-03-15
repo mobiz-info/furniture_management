@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.db.models import Q,Sum,Min,Max 
 from django.db import transaction, IntegrityError
 from django.contrib.auth.models import User, Group
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 # rest framework
@@ -18,7 +18,11 @@ from rest_framework import status
 from settings.forms import *
 from settings.models import *
 from main.decorators import role_required
-from main.functions import generate_form_errors, get_auto_id, has_group
+from main.functions import generate_form_errors, get_auto_id, has_group,log_activity
+from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
+from django.http import HttpResponse, JsonResponse
+
+
 
 @login_required
 # @role_required(['superadmin'])
@@ -558,5 +562,112 @@ def branch_delete(request, pk):
         "redirect_url": reverse('settings:branch_list'),
     }
     return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+
+@login_required
+def create_permission_set(request):
+    if request.method == 'POST':
+        form = PermissionSetForm(request.POST)
+        if form.is_valid():
+            tabs = form.cleaned_data.get('tabs')
+            department=form.cleaned_data.get('department')
+            permission_set = PermissionSet(
+                department=department,
+                tabs=tabs,
+                creator=request.user,
+                auto_id=get_auto_id(PermissionSet)
+            )
+            permission_set.save()
+            log_activity(
+                created_by=request.user,
+                description=f"created permission set for-- '{department}'"
+            )
+            response_data = {
+                        "status": "true",
+                        "title": "Successfully Created",
+                        "message": "Permission set created successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('settings:permission-list')
+                    }
+            
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
+        else:
+            print(form.errors)
+    else:
+        form = PermissionSetForm()
+
+    return render(request, 'admin_panel/pages/settings/permission_set.html', {'form': form,'tittle':'Create Permission'})
+
+
+@login_required
+def permission_list(request):
+    query = request.GET.get('q')
+    if query:
+        permission_set = PermissionSet.objects.filter(department__name__icontains=query)
+    else:
+        permission_set = PermissionSet.objects.all()
+
+    paginator = Paginator(permission_set, 10)
+    page = request.GET.get('page')
+
+    try:
+        permissions = paginator.page(page)
+    except PageNotAnInteger:
+        permissions = paginator.page(1)
+    except EmptyPage:
+        permissions = paginator.page(paginator.num_pages)
+
+    return render(request, 'admin_panel/pages/settings/permission_list.html', {'permission_set': permissions})
+
+
+@login_required
+def permission_delete(request,pk):
+    permission= get_object_or_404(PermissionSet, pk=pk)
+    permission.delete()
+    log_activity(
+                created_by=request.user,
+                description=f"Deleted permission set for '{permission.department}'"
+            )
+    response_data = {
+            "status": "true",
+            "message": "Permission deleted successfully.",
+            "redirect": "true",
+            "redirect_url": reverse('settings:permission-list')  
+        }
+    return JsonResponse(response_data)
+
+
+@login_required
+def update_permission_set(request, pk):
+    permission_set = get_object_or_404(PermissionSet, pk=pk)
+    
+    if request.method == 'POST':
+        form = PermissionSetForm(request.POST, instance=permission_set)
+        if form.is_valid():
+            tabs = form.cleaned_data.get('tabs')
+            department =form.cleaned_data.get('department')
+            permission_set.department = department
+            permission_set.updater = request.user              
+            permission_set.save()
+
+            log_activity(
+                created_by=request.user,
+                description=f"Updated permission set for-- '{department}'"
+            )
+
+            response_data = {
+                        "status": "true",
+                        "title": "Successfully Updated",
+                        "message": "Permission set created successfully.",
+                        'redirect': 'true',
+                        "redirect_url": reverse('settings:permission-list')
+                    }
+            
+            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    else:
+        form = PermissionSetForm(instance=permission_set)
+
+    return render(request, 'admin_panel/pages/settings/permission_set.html', {'form': form,'tittle':'Update Permission'})
 
 

@@ -10,7 +10,7 @@ from dal import autocomplete
 from product.models import *
 from customer.models import Customer
 from .models import WorkOrder, WoodWorkAssign, WorkOrderItems,WorkOrderImages, Carpentary, Polish, Glass, Packing, WorkOrderStatus
-from work_order.models import Color,Size,ModelNumberBasedProducts,ModelNumberBasedProductImages,PermissionSet
+from work_order.models import Color,Size,ModelNumberBasedProducts,ModelNumberBasedProductImages
 from django.forms.widgets import SelectMultiple
 from django.core.exceptions import ValidationError
 
@@ -224,12 +224,3 @@ class ModelNumberBasedProductsForm(forms.ModelForm):
         }
 
 
-class PermissionSetForm(forms.ModelForm):
-    class Meta:
-        model = PermissionSet
-        fields = ['user','accessible_tabs']
-        widgets = {
-            'accessible_tabs':Select(attrs={'class': 'select2 form-control custom-select'}),
-            'user':Select(attrs={'class': 'select2 form-control custom-select'}),
-        }
-    

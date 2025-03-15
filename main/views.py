@@ -21,6 +21,10 @@ from rest_framework import status
 from main.decorators import role_required
 from . forms import ForgotPasswordForm, PasswordGenerationForm
 from main.functions import decrypt_message, encrypt_message, generate_form_errors, generate_member_form_errors, has_group
+from main.models import Processing_Log
+from datetime import datetime
+from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
+
 
 @login_required
 def app(request):
@@ -147,3 +151,38 @@ def change_password(request,employee_id):
         }
     
         return render(request,'registration/change_password.html', context)
+
+
+
+@login_required
+def processing_log_list(request):
+    start_date=request.GET.get('start_date')
+    end_date=request.GET.get('end_date')
+    
+    if not start_date:
+       start_date = date.today()
+    else:
+       start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+
+    if not end_date:
+        end_date = date.today()
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+    logs = Processing_Log.objects.filter(created_date__range=(start_date, end_date)).order_by("-created_date")
+
+    paginator = Paginator(logs, 10)
+    page = request.GET.get('page',1)
+
+    try:
+        logs = paginator.page(page)
+    except PageNotAnInteger:
+        logs = paginator.page(1)
+    except EmptyPage:
+        logs = paginator.page(paginator.num_pages)
+
+    context = {
+         'logs': logs,
+        }
+
+    return render(request, 'admin_panel/pages/main/log_list.html',context)

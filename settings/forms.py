@@ -54,3 +54,29 @@ class BranchForm(forms.ModelForm):
             'image': FileInput(attrs={'class': 'form-control dropify'}),
         }
 
+
+
+class PermissionSetForm(forms.ModelForm):
+    class Meta:
+        model = PermissionSet
+        fields = ['department', 'tabs']
+        widgets = {
+            'tabs': forms.CheckboxSelectMultiple(choices=PermissionSet.TAB_CHOICES),
+            'department':Select(attrs={'class': 'select2 form-control custom-select'})
+        }
+    # def clean_tabs(self):
+    #     tabs = self.cleaned_data.get('tabs',[])
+    #     return tabs 
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     department = cleaned_data.get('department')
+    #     tabs = cleaned_data.get('tabs')
+
+    #     if department is None:
+    #         self.add_error('department', 'This field is required.')
+
+    #     if not tabs:
+    #         self.add_error('tabs', 'At least one tab must be selected.')
+
+    #     return cleaned_data

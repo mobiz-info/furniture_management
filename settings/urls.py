@@ -24,6 +24,10 @@ urlpatterns = [
     re_path(r'branch_edit/(?P<pk>.*)/$', views.branch_edit, name='branch_edit'),
     re_path(r'branch_delete/(?P<pk>.*)/$', views.branch_delete, name='branch_delete'),
 
-  
+
+    re_path(r'set-permission/',views.create_permission_set,name='set-permission'),
+    re_path(r'permission-list/',views.permission_list,name='permission-list'),
+    re_path(r'delete-permission/(?P<pk>.*)/$',views.permission_delete,name='delete-permission'),
+    re_path(r'update-permission-set/(?P<pk>.*)/$',views.update_permission_set,name='update-permission'),
 ]
 
