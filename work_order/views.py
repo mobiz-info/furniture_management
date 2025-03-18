@@ -464,40 +464,6 @@ def edit_work_order(request, pk):
         }
 
         return render(request, 'admin_panel/pages/work_order/order/create.html', context)
-@login_required
-# @role_required(['superadmin'])
-def profit_loss(request, pk):
-    # Fetch work order details
-    work_order = get_object_or_404(WorkOrder, pk=pk)
-    
-    # Fetch customer details
-    customer = work_order.customer
-    
-    # Fetch work order items
-    work_order_items = WorkOrderItems.objects.filter(work_order=work_order)
-    
-    # Calculate total estimated cost
-    total_estimate = work_order_items.aggregate(Sum('estimate_rate'))['estimate_rate__sum'] or Decimal(0)
-    
-    # Fetch total wages from WorkOrderStaffAssign
-    total_wages = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(Sum('wage'))['wage__sum'] or Decimal(0)
-    # Add total_price calculation for each item
-    for item in work_order_items:
-        item.total_price = item.quantity * item.estimate_rate  # Add new field dynamically
-    # Determine profit or loss
-    profit_or_loss = total_estimate - total_wages  # Positive = Profit, Negative = Loss
-    status = "Profit" if profit_or_loss > 0 else "Loss"
-
-    context = {
-        'work_order': work_order,
-        'customer': customer,
-        'work_order_items': work_order_items,
-        'total_estimate': total_estimate,
-        'total_wages': total_wages,
-        'profit_or_loss': profit_or_loss,
-        'status': status,
-    }
-    return render(request, 'admin_panel/pages/work_order/order/profit_loss.html', context)
 
 
 @login_required
@@ -632,6 +598,37 @@ def assign_work_order(request):
 
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
 
+@login_required
+# @role_required(['superadmin'])
+def profit_loss(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    
+    customer = work_order.customer
+    
+    work_order_items = WorkOrderItems.objects.filter(work_order=work_order)
+    
+    # Calculate total estimated cost
+    total_estimate = work_order_items.aggregate(Sum('estimate_rate'))['estimate_rate__sum'] or Decimal(0)
+    
+    # Fetch total wages from WorkOrderStaffAssign
+    total_wages = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(Sum('wage'))['wage__sum'] or Decimal(0)
+    # Add total_price calculation for each item
+    for item in work_order_items:
+        item.total_price = item.quantity * item.estimate_rate
+    # Determine profit or loss
+    profit_or_loss = total_estimate - total_wages
+    status = "Profit" if profit_or_loss > 0 else "Loss"
+
+    context = {
+        'work_order': work_order,
+        'customer': customer,
+        'work_order_items': work_order_items,
+        'total_estimate': total_estimate,
+        'total_wages': total_wages,
+        'profit_or_loss': profit_or_loss,
+        'status': status,
+    }
+    return render(request, 'admin_panel/pages/work_order/order/profit_loss.html', context)
 
 
 #----------------------------Wood Section---------------------------

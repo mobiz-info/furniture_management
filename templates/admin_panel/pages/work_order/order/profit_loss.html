@@ -16,7 +16,7 @@
                                 <h4 class="page-title">{{page_title}}</h4>
                             </div><!--end col-->
                             <div class="col-lg-4 col-sm-2 float-right ml-auto">
-                                <form method="get" action="{% url 'work_order:profit_loss' %}">
+                                <form method="get" action="{% url 'work_order:profit_loss' work_order.pk %}">
                                     <li class="list-inline-item w-100">
                                         <div class="input-group">
                                             <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
