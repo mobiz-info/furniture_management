@@ -113,6 +113,9 @@ class WorkOrderItems(BaseModel):
 
     def __str__(self):
         return f'Work Order {self.work_order.order_no}'
+    
+    def total_price(self):
+        return self.quantity * self.estimate_rate
 
 
 class WorkOrderImages(BaseModel):
