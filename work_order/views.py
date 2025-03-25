@@ -1507,38 +1507,105 @@ def modelnumberbasedproducts_create(request):
     return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
 
 
-@login_required
-# @role_required(['superadmin'])
-def modelnumberbasedproducts_update(request,pk):
-    product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
-    title='Model Update'
-    WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
+# @login_required
+# # @role_required(['superadmin'])
+# def modelnumberbasedproducts_update(request,pk):
+#     product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
+#     title='Model Update'
+#     WorkOrderImagesFormSet =formset_factory(WorkOrderImagesForm,extra=2)
     
+#     if request.method == 'POST':
+#         form = ModelNumberBasedProductsForm(request.POST, instance=product)
+#         work_order_image_formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='work_order_image_formset',form_kwargs={'empty_permitted': False})
+#         model_no = request.POST.get('model_no')
+
+#         if not ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
+#             form.add_error('model_no', 'Model number does not exists.')
+#         else:
+#             if form.is_valid() and work_order_image_formset.is_valid():
+#                 product = ModelNumberBasedProducts.objects.filter(model_no=form.cleaned_data['model_no']).update(
+#                     auto_id=get_auto_id(ModelNumberBasedProducts),
+#                     updater=request.user,
+#                     date_updated = datetime.datetime.now(),
+#                     model_no=form.cleaned_data['model_no'],
+#                     category=form.cleaned_data['category'],
+#                     sub_category=form.cleaned_data['sub_category'],
+#                     material=form.cleaned_data['material'],
+#                     sub_material=form.cleaned_data['sub_material'],
+#                     material_type=form.cleaned_data['material_type']
+#                 )
+#                 product = ModelNumberBasedProducts.objects.get(pk=pk)
+#                 product.color.set(form.cleaned_data['color'])
+#                 product.size.set(form.cleaned_data['size'])
+#                 product.save()
+
+#                 for form in work_order_image_formset:
+#                     if form.cleaned_data:
+#                         image = form.save(commit=False)
+#                         image.model = product
+#                         image.auto_id = get_auto_id(ModelNumberBasedProductImages)
+#                         image.creator = request.user
+#                         image.save()
+#                 log_activity(
+#                 created_by=request.user,
+#                 description=f"Updated model number based product for modelno- '{product}'"
+#                 )
+
+#                 response_data = {
+#                         "status": "true",
+#                         "title": "Successfully Updated",
+#                         "message": "Modelnumber based Product updated successfully.",
+#                         'redirect': 'true',
+#                         "redirect_url": reverse('work_order:model-display')
+#                         }
+            
+#             return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+#     else:
+#         form = ModelNumberBasedProductsForm(instance=product)
+#         work_order_image_formset = WorkOrderImagesFormSet()
+
+#     return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
+@login_required
+def modelnumberbasedproducts_update(request, pk):
+    product = get_object_or_404(ModelNumberBasedProducts, pk=pk)
+    title = 'Model Update'
+    WorkOrderImagesFormSet = formset_factory(ModelNumberBasedProductImagesForm, extra=2)
+
     if request.method == 'POST':
         form = ModelNumberBasedProductsForm(request.POST, instance=product)
-        work_order_image_formset = WorkOrderImagesFormSet(request.POST, files=request.FILES,prefix='work_order_image_formset',form_kwargs={'empty_permitted': False})
+        work_order_image_formset = WorkOrderImagesFormSet(
+            request.POST, files=request.FILES,
+            prefix='work_order_image_formset', form_kwargs={'empty_permitted': False}
+        )
         model_no = request.POST.get('model_no')
 
+        response_data = {
+            "status": "false",
+            "title": "Update Failed",
+            "message": "There was an error updating the product."
+        }
+
         if not ModelNumberBasedProducts.objects.filter(model_no=model_no).exists():
-            form.add_error('model_no', 'Model number does not exists.')
-        else:
-            if form.is_valid() and work_order_image_formset.is_valid():
-                product = ModelNumberBasedProducts.objects.filter(model_no=form.cleaned_data['model_no']).update(
-                    auto_id=get_auto_id(ModelNumberBasedProducts),
-                    updater=request.user,
-                    date_updated = datetime.datetime.now(),
-                    model_no=form.cleaned_data['model_no'],
-                    category=form.cleaned_data['category'],
-                    sub_category=form.cleaned_data['sub_category'],
-                    material=form.cleaned_data['material'],
-                    sub_material=form.cleaned_data['sub_material'],
-                    material_type=form.cleaned_data['material_type']
-                )
-                product = ModelNumberBasedProducts.objects.get(pk=pk)
-                product.color.set(form.cleaned_data['color'])
-                product.size.set(form.cleaned_data['size'])
+            form.add_error('model_no', 'Model number does not exist.')
+
+        if form.is_valid() or work_order_image_formset.is_valid():
+            try:
+                # Update product instance properly
+                product.model_no = form.cleaned_data['model_no']
+                product.category = form.cleaned_data['category']
+                product.sub_category = form.cleaned_data['sub_category']
+                product.material = form.cleaned_data['material']
+                product.sub_material = form.cleaned_data['sub_material']
+                product.material_type = form.cleaned_data['material_type']
+                product.updater = request.user
+                product.date_updated = datetime.now()
                 product.save()
 
+                # Many-to-Many relations should be updated AFTER saving the model
+                product.color.set(form.cleaned_data['color'])
+                product.size.set(form.cleaned_data['size'])
+
+                # Save WorkOrderImages if provided
                 for form in work_order_image_formset:
                     if form.cleaned_data:
                         image = form.save(commit=False)
@@ -1546,25 +1613,37 @@ def modelnumberbasedproducts_update(request,pk):
                         image.auto_id = get_auto_id(ModelNumberBasedProductImages)
                         image.creator = request.user
                         image.save()
+
                 log_activity(
-                created_by=request.user,
-                description=f"Updated model number based product for modelno- '{product}'"
+                    created_by=request.user,
+                    description=f"Updated model number based product for model_no '{product.model_no}'"
                 )
 
                 response_data = {
-                        "status": "true",
-                        "title": "Successfully Updated",
-                        "message": "Modelnumber based Product updated successfully.",
-                        'redirect': 'true',
-                        "redirect_url": reverse('work_order:model-display')
-                        }
-            
-            return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+                    "status": "true",
+                    "title": "Successfully Updated",
+                    "message": "Model number based product updated successfully.",
+                    "redirect": "true",
+                    "redirect_url": reverse('work_order:model-display')
+                }
+
+            except Exception as e:
+                response_data["message"] = f"Update failed: {str(e)}"
+
+        else:
+            response_data["message"] = f"Form errors: {form.errors.as_json()}"
+
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+
     else:
         form = ModelNumberBasedProductsForm(instance=product)
         work_order_image_formset = WorkOrderImagesFormSet()
 
-    return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
+    return render(request, 'admin_panel/pages/work_order/model_create.html', {
+        'form': form,
+        'work_order_image_formset': work_order_image_formset,
+        'title': title
+    })
 
 
 @login_required
