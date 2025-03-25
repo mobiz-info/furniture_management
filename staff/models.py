@@ -46,7 +46,7 @@ class Department(BaseModel):
 
 class Designation(BaseModel):
     name = models.CharField(max_length=255)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     tiles = models.ManyToManyField(Tile, related_name="designations")
 
     def __str__(self):
@@ -67,9 +67,9 @@ class Staff(BaseModel):
     date_of_birth = models.DateField(null=True, blank=True)
     image = VersatileImageField('Image', upload_to="staff/profile", blank=True, null=True)
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -91,7 +91,7 @@ class Attendance(BaseModel):
     attendance = models.CharField(max_length=3, choices=ATTENDANCE_CHOICES)
     punchin_time = models.TimeField(blank=True, null=True)
     punchout_time = models.TimeField(blank=True, null= True)
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="attendance_staff")
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False}, related_name="attendance_staff")
 
     class Meta:
         db_table = 'attendance'

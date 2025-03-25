@@ -47,11 +47,11 @@ class Size(models.Model):
 
 class ModelNumberBasedProducts(BaseModel):
     model_no = models.CharField(max_length=255)
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
-    sub_category = models.ForeignKey(ProductSubCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_category = models.ForeignKey(ProductSubCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     color = models.ManyToManyField(Color)
     size=models.ManyToManyField(Size)
 
@@ -65,7 +65,7 @@ class ModelNumberBasedProducts(BaseModel):
 
 class WorkOrder(BaseModel):
     order_no = models.CharField(max_length=255, null=False, blank=False)
-    customer = models.ForeignKey(Customer, related_name='orders', on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, related_name='orders', on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     remark = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     delivery_date = models.DateField(null=False, blank=False)
@@ -95,16 +95,16 @@ class WorkOrder(BaseModel):
    
     
 class WorkOrderItems(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
-    sub_category = models.ForeignKey(ProductSubCategory, null=True, blank=True, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_category = models.ForeignKey(ProductSubCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     model_no = models.CharField(max_length=255, null=True, blank=True)
-    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE)
+    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     remark = models.TextField(null=True, blank=True)
-    color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE)
+    color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quantity = models.PositiveIntegerField(default=0)
     estimate_rate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
 
@@ -116,7 +116,7 @@ class WorkOrderItems(BaseModel):
 
 
 class WorkOrderImages(BaseModel):
-    work_order = models.ForeignKey(WorkOrder,on_delete=models.CASCADE,null=True, blank=True)
+    work_order = models.ForeignKey(WorkOrder,on_delete=models.CASCADE, limit_choices_to={'is_deleted': False},null=True, blank=True)
     image = VersatileImageField(upload_to='work_order_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
@@ -128,7 +128,7 @@ class WorkOrderImages(BaseModel):
     
 
 class ModelNumberBasedProductImages(BaseModel):
-    model = models.ForeignKey(ModelNumberBasedProducts,related_name='images_set',on_delete=models.CASCADE,null=True, blank=True)
+    model = models.ForeignKey(ModelNumberBasedProducts,related_name='images_set',on_delete=models.CASCADE, limit_choices_to={'is_deleted': False},null=True, blank=True)
     image = VersatileImageField(upload_to='model_images/')
     remark = models.CharField(max_length=100,null=True, blank=True)
 
@@ -140,10 +140,10 @@ class ModelNumberBasedProductImages(BaseModel):
 
 
 class WoodWorkAssign(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -155,7 +155,7 @@ class WoodWorkAssign(BaseModel):
         return f'WorkAssign {self.work_order.order_no}'
     
 class WorkOrderStatus(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     from_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     to_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     description = models.TextField()
@@ -167,10 +167,10 @@ class WorkOrderStatus(BaseModel):
         return f'Work Order {self.work_order.order_no}'
 
 class Carpentary(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -184,10 +184,10 @@ class Carpentary(BaseModel):
 
 
 class Polish(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -199,10 +199,10 @@ class Polish(BaseModel):
         return f'Polish {self.work_order}'
     
 class Glass(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -214,10 +214,10 @@ class Glass(BaseModel):
         return f'Glass {self.work_order}'
     
 class Packing(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -229,7 +229,7 @@ class Packing(BaseModel):
         return f'Packing {self.work_order}'
 
 class Dispatch(BaseModel):
-    work_order = models.OneToOneField(WorkOrder, on_delete=models.CASCADE, related_name="dispatch_details")
+    work_order = models.OneToOneField(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False}, related_name="dispatch_details")
     mode = models.CharField(max_length=255)  
     remark = models.TextField(null=True, blank=True)
     reference_no = models.CharField(max_length=100, null=True, blank=True)
@@ -242,8 +242,8 @@ class Dispatch(BaseModel):
         return f'Dispatch for {self.work_order.order_no}'    
     
 class WorkOrderStaffAssign(BaseModel):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, related_name="staff_assign")
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False}, related_name="staff_assign")
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     time_spent = models.DecimalField(max_digits=5, decimal_places=2, help_text="Time spent in hours or days")
     wage = models.DecimalField(max_digits=10, decimal_places=2, help_text="Wage for the work done")
     

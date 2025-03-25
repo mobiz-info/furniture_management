@@ -31,7 +31,7 @@ class Materials(BaseModel):
   
 class MaterialsType(BaseModel):
     name = models.CharField(max_length=200)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     is_subcategory = models.BooleanField(default=False)
     
     class Meta:
@@ -55,7 +55,7 @@ class MaterialsType(BaseModel):
     
 class MaterialTypeCategory(BaseModel):
     name = models.CharField(max_length=200)
-    material_type = models.ForeignKey(MaterialsType, on_delete=models.CASCADE)
+    material_type = models.ForeignKey(MaterialsType, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     
     class Meta:
         db_table = 'product_material_type_category'
@@ -85,7 +85,7 @@ class ProductCategory(BaseModel):
     
 class ProductSubCategory(BaseModel):
     name = models.CharField(max_length=200)
-    product_category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+    product_category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     
     class Meta:
         db_table = 'product_sub_category'
@@ -105,11 +105,11 @@ class Product(BaseModel):
     remark = RichTextUploadingField()
     feuture_image = VersatileImageField('Image', upload_to="product/feuture_image", blank=True, null=True)
     
-    product_category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
-    product_sub_category = models.ForeignKey(ProductSubCategory, on_delete=models.CASCADE,null=True,blank=True)
-    material = models.ForeignKey(Materials, on_delete=models.CASCADE)
-    material_type = models.ForeignKey(MaterialsType, on_delete=models.CASCADE,null=True,blank=True)
-    material_type_category = models.ForeignKey(MaterialTypeCategory, on_delete=models.CASCADE,null=True,blank=True)
+    product_category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    product_sub_category = models.ForeignKey(ProductSubCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False},null=True,blank=True)
+    material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    material_type = models.ForeignKey(MaterialsType, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False},null=True,blank=True)
+    material_type_category = models.ForeignKey(MaterialTypeCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False},null=True,blank=True)
     
     class Meta:
         db_table = 'product_product'
@@ -123,7 +123,7 @@ class Product(BaseModel):
 class ProductImage(BaseModel):
     image = VersatileImageField('Image', upload_to="product/product_image")
     
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     
     class Meta:
         db_table = 'product_product_image'

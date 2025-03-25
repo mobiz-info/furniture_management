@@ -17,7 +17,7 @@ class CompanyDetails(BaseModel):
     address = models.TextField(blank=False)
     gst = models.CharField(max_length=50, blank=False)
     concerned_staff = models.CharField(max_length=255)
-    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     mobile = models.CharField(max_length=15)
     email = models.EmailField(blank=False, unique=True)
     username = models.CharField(max_length=150, unique=True)
@@ -51,7 +51,7 @@ class Branch(BaseModel):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     image = VersatileImageField(upload_to='branches/', null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='branch_user')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False}, related_name='branch_user')
 
     def __str__(self):
         return self.name
@@ -66,7 +66,7 @@ class PermissionSet(BaseModel):
         ('PACKING', 'Packing')
     ]
 
-    department = models.ForeignKey(Department, null=True, blank=True, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     tabs =models.CharField(max_length=255)
 
     def __str__(self):
