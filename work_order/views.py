@@ -633,15 +633,26 @@ def profit_loss(request, pk):
 
 #----------------------------Wood Section---------------------------
 def wood_work_orders_list(request):
-    
+    filter_data = {}
+    query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="012").values_list("work_order__pk")
     
     work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
+    
+    if query:
+        work_orders = work_orders.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work_order list - %s" % query
+        filter_data['q'] = query
+        
     context = {
         'page_name' : 'Wood Work Orders',
         'page_title': 'Wood Work Orders',
         'work_orders': work_orders,
+        'filter_data' :filter_data,
     }
     
     return render(request, 'admin_panel/pages/wood/list.html', context) 
@@ -730,14 +741,24 @@ def allocated_wood(request, pk):
 
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
-    
+    filter_data = {}
+    query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="015").values_list("work_order__pk")
     work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
     
+    if query:
+        work_orders = work_orders.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work_order list - %s" % query
+        filter_data['q'] = query
+        
     context = {
         'page_name' : 'Carpentary',
         'page_title': 'Carpentary',
         'carpentary': work_orders,
+        'filter_data' :filter_data,
     }
     
     return render(request, 'admin_panel/pages/wood/carpentary_list.html', context) 
@@ -833,13 +854,22 @@ def allocated_carpentary(request, pk):
 #-----------------------Polish-------------------------------------------------------------------
 
 def polish_list(request):
+    filter_data = {}
+    query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="018").values_list("work_order__pk")
     work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
-    
+    if query:
+        work_orders = work_orders.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work_order list - %s" % query
+        filter_data['q'] = query
     context = {
         'page_name' : 'Polish',
         'page_title': 'Polish',
         'polish': work_orders,
+        'filter_data' :filter_data,
     }
     
     return render(request, 'admin_panel/pages/polish/polish_list.html', context) 
@@ -935,13 +965,22 @@ def allocated_polish(request, pk):
 
 
 def glass_list(request):
+    filter_data = {}
+    query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="020").values_list("work_order__pk")
     work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
-    
+    if query:
+        work_orders = work_orders.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work_order list - %s" % query
+        filter_data['q'] = query
     context = {
         'page_name' : 'Glass',
         'page_title': 'Glass',
         'glass': work_orders,
+        'filter_data' :filter_data,
     }
     
     return render(request, 'admin_panel/pages/glass/glass_list.html', context) 
@@ -1035,13 +1074,22 @@ def allocated_glass(request, pk):
 
 #----------------------------Packing--------------------------------------------------------------------
 def packing_list(request):
+    filter_data = {}
+    query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="022").values_list("work_order__pk")
     work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
-    
+    if query:
+        work_orders = work_orders.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work_order list - %s" % query
+        filter_data['q'] = query
     context = {
         'page_name' : 'Packing',
         'page_title': 'Packing',
         'packing': work_orders,
+        'filter_data' :filter_data,
     }
     
     return render(request, 'admin_panel/pages/packing/packing_list.html', context) 
