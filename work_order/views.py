@@ -29,6 +29,8 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
 from datetime import datetime
 
+import pandas as pd
+
 class ColorAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Color.objects.all()
@@ -347,7 +349,7 @@ def edit_work_order(request, pk):
                         customer_data.save()
                         
                     work_order_form_instance = work_order_form.save(commit=False)
-                    work_order_form_instance.date_updated = datetime.datetime.now()
+                    work_order_form_instance.date_updated = datetime.now()
                     work_order_form_instance.updater = request.user
                     work_order_form_instance.save()
                     
@@ -359,7 +361,7 @@ def edit_work_order(request, pk):
                                 work_order_item.auto_id = get_auto_id(WorkOrderItems)
                                 work_order_item.creator=request.user
                             work_order_item.updater = request.user
-                            work_order_item.date_updated = datetime.datetime.now()
+                            work_order_item.date_updated = datetime.now()
                             work_order_item.save()
                             
                             if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
@@ -390,7 +392,7 @@ def edit_work_order(request, pk):
                                 work_order_image.auto_id = get_auto_id(WorkOrderImages)
                                 work_order_image.creator=request.user
                             work_order_image.updater = request.user
-                            work_order_image.date_updated = datetime.datetime.now()
+                            work_order_image.date_updated = datetime.now()
                             work_order_image.save()
                             
                     for form in work_order_images_formset.deleted_forms:
@@ -1851,6 +1853,39 @@ def delete_orders(request):
 
 @login_required
 # @role_required(['superadmin'])
+def staff_work_order_report(request):
+    """
+    staff's work order report
+    :param request:
+    :return: staff's work order report list view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    
+    instances = Staff.objects.filter(is_deleted=False).order_by("-date_added")
+    
+    if query:
+        instances = instances.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(phone__icontains=query) |
+            Q(employee_id__icontains=query) 
+        )
+        title = "work order list - %s" % query
+        filter_data['q'] = query
+    
+    context = {
+        'instances': instances,
+        'page_name' : 'Work Order List',
+        'page_title' : 'Work Order List',
+        'filter_data' :filter_data,
+    }
+
+    return render(request, 'admin_panel/pages/reports/work_report.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
 def delayed_work_order_report(request):
     """
     delayed work order report
@@ -1860,7 +1895,7 @@ def delayed_work_order_report(request):
     filter_data = {}
     query = request.GET.get("q")
     
-    instances = WorkOrder.objects.filter(delivery_date__gt=datetime.today().date(),is_deleted=False).exclude(status="030").order_by("-date_added")
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(),is_deleted=False).exclude(status="030").order_by("-date_added")
     
     if query:
         instances = instances.filter(
@@ -1879,3 +1914,41 @@ def delayed_work_order_report(request):
 
     return render(request, 'admin_panel/pages/reports/delayed_order_list.html', context)
 
+
+@login_required
+def print_delayed_work_order_report(request):
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030").order_by("-date_added")
+
+    query = request.GET.get("q")
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+
+    context = {
+        'instances': instances,
+        'page_title': 'Print - Delayed Work Order Report',
+    }
+    return render(request, 'admin_panel/pages/reports/delayed_order_print.html', context)
+
+
+@login_required
+def export_delayed_work_orders_excel(request):
+    """ Export delayed work orders as an Excel file """
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030")
+
+    data = []
+    for instance in instances:
+        categories = ", ".join([item.category.name for item in instance.workorderitems_set.all()])
+        data.append([instance.order_no, instance.customer.name, instance.customer.mobile_number, instance.number_of_items(), categories, instance.delivery_date, instance.delayed_days()])
+
+    df = pd.DataFrame(data, columns=["WO No", "Client Name", "Mobile", "No of Items", "Item Category", "Planned Delivery", "Delayed Days"])
+    
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="delayed_work_orders.xlsx"'
+    
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Delayed Orders', index=False)
+    
+    return response
