@@ -67,6 +67,9 @@ urlpatterns = [
 
     re_path(r'delete-model-image/(?P<pk>.*)/$',views.delete_model_image,name='delete-model-image'),
     re_path(r'delete-orders/',views.delete_orders,name='delete-orders'),
+    
+    # reports
+    re_path(r'delayed-work-orders/',views.delayed_work_order_report,name='delayed_work_order_report'),
 
     
 ]

@@ -73,16 +73,17 @@ def work_order_info(request,pk):
     :return: WorkOrder List single view
     """
     
+    model_images_instances = {}
     instance = WorkOrder.objects.get(pk=pk)
     order_item=WorkOrderItems.objects.filter(work_order=instance).first()
     items_instances = WorkOrderItems.objects.filter(work_order=instance)
     images_instances = WorkOrderImages.objects.filter(work_order=instance)
     work_section_details=WorkOrderStaffAssign.objects.filter(work_order=instance)
 
-    if not images_instances:
-        model_images_instances=ModelNumberBasedProductImages.objects.filter(model__model_no=order_item.model_no)
-    else:
-        model_images_instances=[]
+    if order_item:
+        if not images_instances:
+            model_images_instances=ModelNumberBasedProductImages.objects.filter(model__model_no=order_item.model_no)
+            
 
     context = {
         'instance': instance,
@@ -1719,5 +1720,35 @@ def delete_orders(request):
                 description=f"Deleted work orders for ids '{order_ids}'"
             )
             return redirect('work_order:work_order_list')
-        
+
+
+@login_required
+# @role_required(['superadmin'])
+def delayed_work_order_report(request):
+    """
+    delayed work order report
+    :param request:
+    :return: delayed work order report list view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    
+    instances = WorkOrder.objects.filter(delivery_date__gt=datetime.today().date(),is_deleted=False).exclude(status="030").order_by("-date_added")
+    
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "delayed work order list - %s" % query
+        filter_data['q'] = query
+    
+    context = {
+        'instances': instances,
+        'page_name' : 'Delayed Work Order List',
+        'page_title' : 'Delayed Work Order List',
+        'filter_data' :filter_data,
+    }
+
+    return render(request, 'admin_panel/pages/reports/delayed_order_list.html', context)
 

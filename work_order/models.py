@@ -91,8 +91,18 @@ class WorkOrder(BaseModel):
             order_no = f'WO-{date_part}-{random_part}'
             if not WorkOrder.objects.filter(order_no=order_no).exists():
                 return order_no
-
-   
+            
+    def delayed_days(self):
+        """Returns the number of days the order is delayed. Returns 0 if not delayed."""
+        today = timezone.now().date()
+        if self.delivery_date < today:
+            return (today - self.delivery_date).days
+        return 0
+    
+    def number_of_items(self):
+        items_count = WorkOrderItems.objects.filter(work_order=self).count()
+        return items_count
+    
     
 class WorkOrderItems(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
@@ -102,9 +112,9 @@ class WorkOrderItems(BaseModel):
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material_type = models.ForeignKey(MaterialTypeCategory, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     model_no = models.CharField(max_length=255, null=True, blank=True)
-    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    size = models.ForeignKey(Size,null=True,blank=True,on_delete=models.CASCADE)
     remark = models.TextField(null=True, blank=True)
-    color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
+    color = models.ForeignKey(Color,null=True,blank=True,on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
     estimate_rate = models.DecimalField(decimal_places=2,max_digits=20,default=0)
 
