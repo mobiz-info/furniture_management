@@ -80,8 +80,8 @@ def material_list(request):
     
     if query:
         instances = instances.filter(
-            Q(invoice_no__icontains=query) |
-            Q(sales_id__icontains=query) 
+            Q(name__icontains=query) |
+            Q(is_subcategory__icontains=query) 
         )
         title = "material list - %s" % query
         filter_data['q'] = query
