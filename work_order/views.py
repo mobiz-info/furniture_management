@@ -640,7 +640,7 @@ def wood_work_orders_list(request):
     query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="012").values_list("work_order__pk")
     
-    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids,is_deleted=False)
     
     
     if query:
@@ -747,7 +747,7 @@ def carpentary_list(request):
     filter_data = {}
     query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="015").values_list("work_order__pk")
-    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids,is_deleted=False)
     
     if query:
         work_orders = work_orders.filter(
@@ -860,7 +860,7 @@ def polish_list(request):
     filter_data = {}
     query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="018").values_list("work_order__pk")
-    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids,is_deleted=False)
     if query:
         work_orders = work_orders.filter(
             Q(order_no__icontains=query) |
@@ -971,7 +971,7 @@ def glass_list(request):
     filter_data = {}
     query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="020").values_list("work_order__pk")
-    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids,is_deleted=False)
     if query:
         work_orders = work_orders.filter(
             Q(order_no__icontains=query) |
@@ -1080,7 +1080,7 @@ def packing_list(request):
     filter_data = {}
     query = request.GET.get("q")
     work_order_ids = WorkOrderStatus.objects.filter(to_section="022").values_list("work_order__pk")
-    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids)
+    work_orders = WorkOrder.objects.filter(pk__in=work_order_ids,is_deleted=False)
     if query:
         work_orders = work_orders.filter(
             Q(order_no__icontains=query) |

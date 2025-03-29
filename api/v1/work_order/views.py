@@ -38,13 +38,13 @@ def work_order(request,id=None):
 
     if id:
         try:
-            queryset = WorkOrder.objects.get(id=id)
+            queryset = WorkOrder.objects.get(id=id,is_deleted=False)
             serializer = WorkOrderSerializer(queryset)
             return Response(serializer.data)
         except WorkOrder.DoesNotExist:
             return Response({"error": "Work order not found."}, status=404)
     else:
-        queryset = WorkOrder.objects.all()
+        queryset = WorkOrder.objects.filter(is_deleted=False)
 
         if status_value:
             queryset = queryset.filter(status=status_value)
@@ -74,7 +74,7 @@ def work_assign_status(request):
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def work_order_assign(request,pk):
-    work_order = WorkOrder.objects.get(pk=pk)
+    work_order = WorkOrder.objects.get(pk=pk,is_deleted=False)
     serializer = WorkOrderAssignSerializer(data=request.data)
     
     if serializer.is_valid():
@@ -667,7 +667,7 @@ def order_model_numbers(request):
 @renderer_classes((JSONRenderer,))
 def work_order_staff_assign(request, pk):
     try:
-        work_order = WorkOrder.objects.get(pk=pk)
+        work_order = WorkOrder.objects.get(pk=pk,is_deleted=False)
     except WorkOrder.DoesNotExist:
         return Response({
             "status": "false",
@@ -728,7 +728,7 @@ def work_order_staff_assign(request, pk):
 @renderer_classes([JSONRenderer])
 def add_accessory_to_work_order(request, pk):
     try:
-        work_order = WorkOrder.objects.get(pk=pk)
+        work_order = WorkOrder.objects.get(pk=pk,is_deleted=False)
     except WorkOrder.DoesNotExist:
         return Response({
             "status": "false",
@@ -840,7 +840,7 @@ def dispatch_details(request, pk=None):
         
         elif request.method == 'POST':
             try:
-                work_order = WorkOrder.objects.get(pk=pk, status="024")  
+                work_order = WorkOrder.objects.get(pk=pk, status="024",is_deleted=False)  
             except WorkOrder.DoesNotExist:
                 return Response({
                     "StatusCode": 404,
@@ -1096,7 +1096,7 @@ def modelnumberbasedproducts_detail(request, pk):
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def create_work_order_image(request, pk):
-    work_order=WorkOrder.objects.get(id=pk)
+    work_order=WorkOrder.objects.get(id=pk,is_deleted=False)
     serializer = WorkOrderImagesSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(
