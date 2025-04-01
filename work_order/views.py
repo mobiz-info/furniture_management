@@ -28,6 +28,7 @@ from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
 from datetime import datetime
+from openpyxl.styles import Font, PatternFill
 
 import pandas as pd
 
@@ -1951,4 +1952,123 @@ def export_delayed_work_orders_excel(request):
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Delayed Orders', index=False)
     
+    return response
+
+@login_required
+# @role_required(['superadmin'])
+def work_summary(request):
+    """
+    delayed work order report
+    :param request:
+    :return: delayed work order report list view
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(),is_deleted=False).exclude(status="030").order_by("-date_added")
+    
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) 
+        )
+        title = "work order summary list - %s" % query
+        filter_data['q'] = query
+        
+    # Calculate total sum of total_estimate
+    total_estimate_sum = instances.aggregate(Sum('total_estimate'))['total_estimate__sum'] or 0
+
+    context = {
+        'instances': instances,
+        'page_name' : 'Work Order Summary List',
+        'page_title' : 'Work Order Summary List',
+        'filter_data' :filter_data,
+        'total_estimate_sum' :total_estimate_sum,
+    }
+
+    return render(request, 'admin_panel/pages/reports/work_summary.html', context)
+
+@login_required
+def print_work_summary_report(request):
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030").order_by("-date_added")
+
+    query = request.GET.get("q")
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+    # Calculate total sum of total_estimate
+    total_estimate_sum = instances.aggregate(Sum('total_estimate'))['total_estimate__sum'] or 0
+    context = {
+        'instances': instances,
+        'page_title': 'Print -  Work Order Report',
+        'total_estimate_sum' :total_estimate_sum,
+        
+    }
+    return render(request, 'admin_panel/pages/reports/work_summary_reports.html', context)
+
+@login_required
+def export_work_orders_summary_excel(request):
+    """ Export delayed work orders as an Excel file with footer and styling """
+    print("Export function StArted")  # Debugging
+
+    instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030")
+
+    data = []
+    for index, instance in enumerate(instances, start=1):
+        categories = ", ".join([item.category.name for item in instance.workorderitems_set.all()])
+        data.append([
+            index,  # Serial number
+            instance.order_no,
+            instance.customer.name,
+            instance.customer.mobile_number,
+            instance.number_of_items(),
+            categories,
+            instance.delivery_date,
+            instance.get_status_display(),
+            instance.delayed_days(),
+            instance.total_estimate
+        ])
+
+    # Convert to DataFrame
+    df = pd.DataFrame(data, columns=[
+        "#", "WO No", "Client Name", "Mobile Number", "No of Items",
+        "Item Category", "Planned Delivery Date", "Current Section",
+        "Delayed for days", "Item Value"
+    ])
+
+    # Calculate total sum of 'total_estimate' and append footer
+    total_estimate_sum = instances.aggregate(Sum('total_estimate'))['total_estimate__sum'] or 0
+    footer = ["", "", "", "", "", "", "", "Total Item Value:", "", total_estimate_sum]
+    df.loc[len(df)] = footer
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="work_order_summary.xlsx"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Work Orders', index=False)
+
+        # Apply styling
+        workbook = writer.book
+        sheet = writer.sheets['Work Orders']
+
+        # Set header style
+        header_font = Font(bold=True)
+        for col in range(1, len(df.columns) + 1):
+            sheet.cell(row=1, column=col).font = header_font
+
+        # Highlight delayed orders
+        red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")  # Light red
+        for row_idx, instance in enumerate(instances, start=2):  # Start from row 2 (after headers)
+            if instance.delayed_days() > 0:
+                for col_idx in range(1, len(df.columns) + 1):
+                    sheet.cell(row=row_idx, column=col_idx).fill = red_fill
+
+        # Apply footer style (bold text)
+        footer_row = len(df)  # Footer row is the last row
+        for col_idx in range(1, len(df.columns) + 1):
+            sheet.cell(row=footer_row + 1, column=col_idx).font = Font(bold=True)
+    print("Export function completed")  # Debugging
+
     return response
