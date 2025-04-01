@@ -3,94 +3,82 @@
 {% load main_templates_tags %}
 
 {% block content %}
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
             <div class="page-title-box">
-                <div class="row">
+                <div class="row align-items-center">
                     <div class="col-lg-8">
-                        <form method="get" action="{% url 'work_order:model-display' %}">
-                            <select id="category" name="category" style="width: 10rem;margin-right: 40px;"
-                                class="select form-control custom-select"
-                                hx-get="{%url 'work_order:get-subcategories' %}" hx-target="#sub_category">
+                        <form method="get" action="{% url 'work_order:model-display' %}" class="form-inline">
+                            <select id="category" name="category" class="form-control custom-select mr-3"
+                                style="width: 12rem;"
+                                hx-get="{% url 'work_order:get-subcategories' %}" 
+                                hx-target="#sub_category">
                                 <option value="">Select Category</option>
                                 {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
                             </select>
-                            <select style="width: 10rem;" id="sub_category" class="select form-control custom-select"
-                                name="sub_category">
+                            
+                            <select id="sub_category" name="sub_category" class="form-control custom-select mr-3" style="width: 12rem;">
                                 <option value="">Select Sub-category</option>
                                 {% for sub_category in sub_categories %}
-                                <option value="{{ sub_category.id }}">{{ sub_category.name }}</option>
+                                    <option value="{{ sub_category.id }}">{{ sub_category.name }}</option>
                                 {% endfor %}
                             </select>
-                        
-                        <button type="submit" class="btn btn-primary">Apply</button>
-                    </div><!--end col-->
-                    <div class="col-lg-4 col-sm-2 float-right ml-auto">
-                        <!-- <form method="get" action="{% url 'work_order:model-display' %}"> -->
-                            <li class="list-inline-item w-100">
-                                <div class="input-group">
-                                    <input name="q" type="text" id="search_box" placeholder="Enter the model no."
-                                        value="{{ filter_data.q }}" class="form-control" />
-                                    <span class="input-group-append">
-                                        <button type="submit"  class="btn btn-soft-primary btn-sm"><i
-                                                class="fas fa-search"></i></button>
-                                    </span>
-                                </div>
-                            </li>
+                            
+                            <button type="submit" class="btn btn-primary">Apply</button>
                         </form>
                     </div>
-                </div><!--end row-->
-            </div><!-- end page-title-box -->
-        </div><!--end col-->
-    </div>
-    <div style="display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-content: center;" class="row">
-        {%for model,image in work_orders.items%}
-        <div class="card" style="width: 18rem;height: 20rem;margin: 2rem;">
-            <img style="height: 11rem;" src="{{image.image.url}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <p class="card-text"><b>Model no :</b>{{model.model_no}}&nbsp;&nbsp;&nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp;<b>Category : </b>{{model.category.name}}
-                <br><b>Available Size:</b> {% for s in model.size.all%} {{s}} <b>,</b> {%endfor%} <br> <b>Available Colors:</b> {%for c in model.color.all%} {{c}} <b>,</b> {%endfor%}
-                </p>
-                <div><a class="btn btn-info" href="{%url 'work_order:model-info' pk=model.pk%}" >View More</a></div>
+                    <div class="col-lg-4">
+                        <form method="get" action="{% url 'work_order:model-display' %}">
+                            <div class="input-group">
+                                <input name="q" type="text" id="search_box" placeholder="Enter the model no." 
+                                    value="{{ filter_data.q }}" class="form-control" />
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        {%endfor%}
     </div>
-    <div style="font-size:medium;" class="pagination">
+
+    <div class="row d-flex flex-wrap justify-content-start mt-4">
+        {% for model,image in work_orders.items %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100">
+                <img src="{{ image.image.url }}" class="card-img-top" alt="Model Image" style="height: 180px; object-fit: cover;">
+                <div class="card-body">
+                    <h6 class="card-title"><b>Model No:</b> {{ model.model_no }}</h6>
+                    <p class="card-text">
+                        <b>Category:</b> {{ model.category.name }} <br>
+                        <b>Available Sizes:</b> {% for s in model.size.all %} {{ s }}{% if not forloop.last %}, {% endif %} {% endfor %} <br>
+                        <b>Available Colors:</b> {% for c in model.color.all %} {{ c }}{% if not forloop.last %}, {% endif %} {% endfor %}
+                    </p>
+                    <a href="{% url 'work_order:model-info' pk=model.pk %}" class="btn btn-info btn-sm">View More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mt-4 text-center">
         <span class="step-links">
             {% if page_obj.has_previous %}
-                <b><a href="?page=1">&laquo; first</a></b> &nbsp;&nbsp;&nbsp;
-                <b><a href="?page={{ page_obj.previous_page_number }}">previous&nbsp;&nbsp;</a></b>
+                <a href="?page=1" class="btn btn-light btn-sm">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light btn-sm">Previous</a>
             {% endif %}
-    
-            <span class="current">
-                <b>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</b>
-            </span>
-    
+            <span class="mx-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <b><a href="?page={{ page_obj.next_page_number }}">next &laquo;&laquo;&laquo;</a></b>
-                <b><a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a></b>
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light btn-sm">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-light btn-sm">Last &raquo;</a>
             {% endif %}
         </span>
     </div>
 </div>
+
 <script src="https://unpkg.com/htmx.org@1.5.0"></script>
-
-
-
 {% endblock content %}
-
-
-{% block static %}
-
-{% load static %}
-
-
-{% endblock static %}
