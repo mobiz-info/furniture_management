@@ -73,10 +73,12 @@ urlpatterns = [
     re_path(r'print-delayed-work-orders/',views.print_delayed_work_order_report,name='print_delayed_work_order_report'),
     re_path(r'export-delayed-work-orders/',views.export_delayed_work_orders_excel,name='export_delayed_work_orders_excel'),
 
-    re_path(r'work-orders-summary/', views.work_summary, name='work_summary'),
-    re_path(r'print-work-summary-orders/',views.print_work_summary_report,name='print_work_summary_report'),
-    re_path(r'export-work-orders-summary/', views.export_work_orders_summary_excel, name='export_work_orders_summary_excel'),
+    path('work-orders-summary/', views.work_summary, name='work_summary'),
+    path('print-work-summary-orders/',views.print_work_summary_report,name='print_work_summary_report'),
+    path('export-work-orders-summary/', views.export_work_orders_summary_excel, name='export_work_orders_summary_excel'),
+    
+    path('accessories-utilized/', views.accessories_utilized, name='accessories_utilized'),
+    path('print-accessories-utilized/', views.print_accessories_utilized, name='print_accessories_utilized'),
 
-    re_path(r'accessories-utilized/', views.accessories_utilized, name='accessories_utilized'),
 
 ]

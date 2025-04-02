@@ -1970,7 +1970,8 @@ def work_summary(request):
     if query:
         instances = instances.filter(
             Q(order_no__icontains=query) |
-            Q(customer__name__icontains=query) 
+            Q(customer__name__icontains=query) |
+            Q(customer__mobile_number__icontains=query)
         )
         title = "work order summary list - %s" % query
         filter_data['q'] = query
@@ -1997,7 +1998,8 @@ def print_work_summary_report(request):
     if query:
         instances = instances.filter(
             Q(order_no__icontains=query) |
-            Q(customer__name__icontains=query)
+            Q(customer__name__icontains=query) |
+            Q(customer__mobile_number__icontains=query)
         )
     # Calculate total sum of total_estimate
     total_estimate_sum = instances.aggregate(Sum('total_estimate'))['total_estimate__sum'] or 0
@@ -2007,7 +2009,7 @@ def print_work_summary_report(request):
         'total_estimate_sum' :total_estimate_sum,
         
     }
-    return render(request, 'admin_panel/pages/reports/work_summary_reports.html', context)
+    return render(request, 'admin_panel/pages/reports/work_summary_print.html', context)
 
 @login_required
 # @role_required(['superadmin'])
@@ -2097,3 +2099,26 @@ def accessories_utilized(request):
         'page_title' : 'Accessories Utilized Report',
     }
     return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def print_accessories_utilized(request):
+    instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date())
+
+    query = request.GET.get("q")
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(work_order__customer__name__icontains=query) |
+            Q(work_order__customer__mobile_number__icontains=query) |
+            Q(material__name__icontains=query) |
+            Q(sub_material__name__icontains=query) |
+            Q(material_type__name__icontains=query)
+        )
+
+    context = {
+        'instances': instances,
+        'page_name': 'Accessories Utilized Report',
+        'page_title': 'Accessories Utilized Report',
+    }
+    return render(request, 'admin_panel/pages/reports/accessories_utilized_print.html', context)

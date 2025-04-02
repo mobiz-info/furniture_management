@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+        @media print {
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2>Accessories Utilized Report</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>WO No</th>
+                <th>Client Name</th>
+                <th>Mobile Number</th>
+                <th>Material</th>
+                <th>Sub Material</th>
+                <th>Material Type</th>
+                <th>Quality</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Current Section</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ instance.work_order.order_no }}</td>
+                    <td>{{ instance.work_order.customer.name }}</td>
+                    <td>{{ instance.work_order.customer.mobile_number }}</td>
+                    <td>{{ instance.material.name }}</td>
+                    <td>{{ instance.sub_material.name|default:"-" }}</td>
+                    <td>{{ instance.material_type.name|default:"-" }}</td>
+                    <td>{{ instance.quality }}</td>
+                    <td>{{ instance.quantity }}</td>
+                    <td>{{ instance.rate }}</td>
+                    <td>{{ instance.work_order.get_status_display }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="11" style="text-align: center;">No data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

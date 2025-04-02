@@ -7,6 +7,10 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
         }
         table {
             width: 100%;
@@ -18,15 +22,34 @@
             padding: 8px;
             text-align: left;
         }
-        .no-print {
-            display: none;
+        th {
+            background-color: #f2f2f2;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+        @media print {
+            .print-button { display: none; }
         }
     </style>
 </head>
 <body>
     <h2> Work Order Summary Report</h2>
-    <button onclick="window.print()" class="no-print">Print</button>
-    
+    <button class="print-button" onclick="window.print()">Print</button>
+
     <table>
         <thead>
             <tr>
