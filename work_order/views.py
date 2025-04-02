@@ -1989,6 +1989,7 @@ def work_summary(request):
     return render(request, 'admin_panel/pages/reports/work_summary.html', context)
 
 @login_required
+# @role_required(['superadmin'])
 def print_work_summary_report(request):
     instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030").order_by("-date_added")
 
@@ -2009,6 +2010,7 @@ def print_work_summary_report(request):
     return render(request, 'admin_panel/pages/reports/work_summary_reports.html', context)
 
 @login_required
+# @role_required(['superadmin'])
 def export_work_orders_summary_excel(request):
     """ Export delayed work orders as an Excel file with footer and styling """
     print("Export function StArted")  # Debugging
@@ -2072,3 +2074,28 @@ def export_work_orders_summary_excel(request):
     print("Export function completed")  # Debugging
 
     return response
+
+@login_required
+# @role_required(['superadmin'])
+
+def accessories_utilized(request):
+    # instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date(), is_deleted=False,work_order__is_deleted=False).order_by("-date_added")
+    instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date()).all()
+    query = request.GET.get("q")
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(work_order__customer__name__icontains=query) |
+            Q(work_order__customer__mobile_number__icontains=query) |
+            Q(material__name__icontains=query) |
+            Q(sub_material__name__icontains=query) |
+            Q(material_type__name__icontains=query)
+
+        )
+
+    context = {
+        'instances': instances,
+        'page_name' : 'Accessories Utilized Report',
+        'page_title' : 'Accessories Utilized Report',
+    }
+    return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
