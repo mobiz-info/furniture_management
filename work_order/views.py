@@ -2077,7 +2077,6 @@ def export_work_orders_summary_excel(request):
 
 @login_required
 # @role_required(['superadmin'])
-
 def accessories_utilized(request):
     # instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date(), is_deleted=False,work_order__is_deleted=False).order_by("-date_added")
     instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date()).all()
