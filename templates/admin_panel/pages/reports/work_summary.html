@@ -47,7 +47,9 @@
                                     style="color:#000">
                                     <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
                                 </a>
-                                <a href="{% url 'work_order:export_work_orders_summary_excel' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a>
+                                <a href="{% url 'work_order:export_work_orders_summary_excel' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
+                                    target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000">
+                                    <i class="ri-file-excel-2-line text-danger"></i> Export</a>
                             </div>
                         </div><!--end card-header-->
 

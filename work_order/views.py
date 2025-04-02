@@ -2013,10 +2013,20 @@ def print_work_summary_report(request):
 
 @login_required
 # @role_required(['superadmin'])
+@login_required
+# @role_required(['superadmin'])
 def export_work_orders_summary_excel(request):
     """ Export delayed work orders as an Excel file with footer and styling """
 
+    query = request.GET.get("q")
     instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030")
+
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query) |
+            Q(customer__mobile_number__icontains=query)
+        )
 
     data = []
     for index, instance in enumerate(instances, start=1):
@@ -2072,9 +2082,9 @@ def export_work_orders_summary_excel(request):
         footer_row = len(df)  # Footer row is the last row
         for col_idx in range(1, len(df.columns) + 1):
             sheet.cell(row=footer_row + 1, column=col_idx).font = Font(bold=True)
-    print("Export function completed")  # Debugging
 
     return response
+
 
 @login_required
 # @role_required(['superadmin'])
