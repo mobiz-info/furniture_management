@@ -66,6 +66,8 @@
                                             <th class="font-weight-bold text-left">Quality</th>
                                             <th class="font-weight-bold text-left">Quantity</th>
                                             <th class="font-weight-bold text-left">Rate</th>
+                                            <th class="font-weight-bold text-left">Current Section</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -83,6 +85,7 @@
                                                 <td class="text-left">{{ instance.quality }}</td>
                                                 <td class="text-left">{{ instance.quantity }}</td>
                                                 <td class="text-left">{{ instance.rate }}</td>
+                                                <td class="text-left">{{instance.work_order.get_status_display}}</td>
                                             </tr>
                                         {% empty %}
                                             <tr>

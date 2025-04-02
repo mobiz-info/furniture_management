@@ -2013,7 +2013,6 @@ def print_work_summary_report(request):
 # @role_required(['superadmin'])
 def export_work_orders_summary_excel(request):
     """ Export delayed work orders as an Excel file with footer and styling """
-    print("Export function StArted")  # Debugging
 
     instances = WorkOrder.objects.filter(delivery_date__lt=datetime.today().date(), is_deleted=False).exclude(status="030")
 
