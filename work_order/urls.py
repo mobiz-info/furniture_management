@@ -79,6 +79,7 @@ urlpatterns = [
     
     path('accessories-utilized/', views.accessories_utilized, name='accessories_utilized'),
     path('print-accessories-utilized/', views.print_accessories_utilized, name='print_accessories_utilized'),
+    path('export-accessories-utilized/', views.export_accessories_utilized, name='export_accessories_utilized'),
 
 
 ]

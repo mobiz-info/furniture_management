@@ -2132,3 +2132,61 @@ def print_accessories_utilized(request):
         'page_title': 'Accessories Utilized Report',
     }
     return render(request, 'admin_panel/pages/reports/accessories_utilized_print.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def export_accessories_utilized(request):
+    """ Export filtered accessories utilized data to Excel """
+    
+    query = request.GET.get("q")
+    instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date())
+
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(work_order__customer__name__icontains=query) |
+            Q(work_order__customer__mobile_number__icontains=query) |
+            Q(material__name__icontains=query) |
+            Q(sub_material__name__icontains=query) |
+            Q(material_type__name__icontains=query)
+        )
+
+    # Prepare Data for Excel
+    data = []
+    for index, instance in enumerate(instances, start=1):
+        data.append([
+            index,
+            instance.work_order.order_no,
+            instance.work_order.customer.name,
+            instance.work_order.customer.mobile_number,
+            instance.material.name if instance.material else "-",
+            instance.sub_material.name if instance.sub_material else "-",
+            instance.material_type.name if instance.material_type else "-",
+            instance.quality,
+            instance.quantity,
+            instance.rate,
+            instance.work_order.get_status_display(),
+        ])
+
+    # Create DataFrame
+    df = pd.DataFrame(data, columns=[
+        "#", "WO No", "Client Name", "Mobile Number",
+        "Material", "Sub Material", "Material Type","Quality","Quantity",
+        "Rate", "Current Section"
+    ])
+
+    # Generate Excel Response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="accessories_utilized.xlsx"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Accessories Utilized', index=False)
+
+        # Apply Header Styling
+        workbook = writer.book
+        sheet = writer.sheets['Accessories Utilized']
+        header_font = Font(bold=True)
+        for col in range(1, len(df.columns) + 1):
+            sheet.cell(row=1, column=col).font = header_font
+
+    return response
