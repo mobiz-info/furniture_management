@@ -41,24 +41,25 @@
                                 <h4 class="card-title">List view</h4>
                             </div>
                             <div class="col-md-8 text-right">
-                                <a href="{% url 'work_order:print_delayed_work_order_report' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
-                                <a href="{% url 'work_order:export_delayed_work_orders_excel' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a>
+                                <a href="{% url 'work_order:print_work_report' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
+                                <a href="{% url 'work_order:export_work_report_excel' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a>
                             </div>
                         </div>
                         <!--end card-header-->
                         <div class="card-body">
-                            
+
                             <div class="table-responsive">
                                 <table class="table mb-0" style="width:100%;">
                                     <thead>
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
                                             <th class="font-weight-bold text-left">Staff Name</th>
+                                            <th class="font-weight-bold text-left">Employee ID</th>
+                                            <th class="font-weight-bold text-left">Department</th>
+                                            <th class="font-weight-bold text-left">Designation</th>
                                             <th class="font-weight-bold text-left">Section</th>
-                                            <th class="font-weight-bold text-left">Total hr Engaged</th>
-                                            <th class="font-weight-bold text-left">No. of Project Involved</th>
-                                            <th class="font-weight-bold text-left">Cost</th>
-                                            <th class="font-weight-bold text-left">Remark</th>
+                                            <th class="font-weight-bold text-right">Total hr Engaged</th>
+                                            <th class="font-weight-bold text-right">Cost</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -67,19 +68,23 @@
                                         {% for instance in instances %}
                                         <tr>
                                             <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-left">{{instance.order_no}}</td>
-                                            <td class="text-left">{{instance.customer.name}}</td>
-                                            <td class="text-left">{{instance.customer.mobile_number}}</td>
-                                            <td class="text-left">{{instance.number_of_items}} <br> {{instance.total_estimate}}</td>
-                                            <td class="text-left">
-                                                {% for item in instance.workorderitems_set.all %}{{ item.category }}<br>{% endfor %}
-                                            </td>
-                                            <td class="text-left">{{instance.delivery_date|date:"d-M-Y"}}</td>
-                                            <td class="text-left">{{instance.get_status_display}}</td>
-                                            <td class="text-left">{{instance.delayed_days}}</td>
+                                            <td class="text-left">{{instance.staff.get_fullname}}</td>
+                                            <td class="text-left">{{ instance.staff.employee_id }}</td>
+                                            <td class="text-left">{{ instance.staff.department.name }}</td>
+                                            <td class="text-left">{{ instance.staff.designation.name }}</td>
+                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                                            <td class="text-left">{{ instance.time_spent }}</td>
+                                            <td class="text-left">{{ instance.wage }}</td>
+
                                         </tr>
                                         {% endfor %}
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="7" class="text-right"><strong>Total Wage</strong></td>
+                                            <td><strong>{{ total_wage }}</strong></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                                 <!--end /table-->
                                 {% get_pages %}
@@ -98,7 +103,7 @@
                             </div>
                             <!--end /tableresponsive-->
                             <!-- pagination -->
-                            
+
                         </div>
                         <!--end card-body-->
                     </div>
@@ -114,5 +119,4 @@
 {% load static %}
 
 {% endblock static %}
-    
-        
+

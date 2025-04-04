@@ -81,5 +81,8 @@ urlpatterns = [
     path('print-accessories-utilized/', views.print_accessories_utilized, name='print_accessories_utilized'),
     path('export-accessories-utilized/', views.export_accessories_utilized, name='export_accessories_utilized'),
 
+    path('work-report/', views.work_report, name='work_report'),
+    path('print-work-report/', views.print_work_report, name='print_work_report'),
+    path('export-work-report/', views.export_work_report_excel, name='export_work_report_excel'),
 
 ]

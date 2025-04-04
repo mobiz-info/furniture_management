@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+        @media print {
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2>Print-Work Report</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-left">Staff Name</th>
+                <th class="font-weight-bold text-left">Employee ID</th>
+                <th class="font-weight-bold text-left">Department</th>
+                <th class="font-weight-bold text-left">Designation</th>
+                <th class="font-weight-bold text-left">Section</th>
+                <th class="font-weight-bold text-right">Total hr Engaged</th>
+                <th class="font-weight-bold text-right">Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-left">{{ instance.staff.get_fullname }}</td>
+                <td class="text-left">{{ instance.staff.employee_id }}</td>
+                <td class="text-left">{{ instance.staff.department.name }}</td>
+                <td class="text-left">{{ instance.staff.designation.name }}</td>
+                <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                <td class="text-left">{{ instance.time_spent }}</td>
+                <td class="text-left">{{ instance.wage }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="text-right"><strong>Total Wage</strong></td>
+                <td><strong>{{ total_wage }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

@@ -2011,8 +2011,7 @@ def print_work_summary_report(request):
     }
     return render(request, 'admin_panel/pages/reports/work_summary_print.html', context)
 
-@login_required
-# @role_required(['superadmin'])
+
 @login_required
 # @role_required(['superadmin'])
 def export_work_orders_summary_excel(request):
@@ -2188,5 +2187,111 @@ def export_accessories_utilized(request):
         header_font = Font(bold=True)
         for col in range(1, len(df.columns) + 1):
             sheet.cell(row=1, column=col).font = header_font
+
+    return response
+
+
+@login_required
+# @role_required(['superadmin'])
+def work_report(request):
+    query = request.GET.get("q")
+    instances = WorkOrderStaffAssign.objects.select_related(
+        'work_order', 'staff', 'staff__department', 'staff__designation'
+    ).filter(work_order__delivery_date__lt=datetime.today().date())
+
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(staff__first_name__icontains=query) |
+            Q(staff__last_name__icontains=query) |
+            Q(staff__employee_id__icontains=query)
+        )
+
+    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
+
+    context = {
+        'instances': instances,
+        'page_name': 'Work Report',
+        'page_title': 'Work Report',
+        'filter_data': {'q': query} if query else {},
+        'total_wage': total_wage,
+    }
+    return render(request, 'admin_panel/pages/reports/work_report.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def print_work_report(request):
+    query = request.GET.get("q")
+    instances = WorkOrderStaffAssign.objects.select_related(
+        'work_order', 'staff', 'staff__department', 'staff__designation'
+    ).filter(work_order__delivery_date__lt=datetime.today().date())
+
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(staff__first_name__icontains=query) |
+            Q(staff__last_name__icontains=query) |
+            Q(staff__employee_id__icontains=query)
+        )
+
+    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
+
+    context = {
+        'instances': instances,
+        'page_name': 'Print- Work Report',
+        'page_title': 'Print-Work Report',
+        'total_wage': total_wage,
+    }
+    return render(request, 'admin_panel/pages/reports/work_report_print.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def export_work_report_excel(request):
+    query = request.GET.get("q")
+    instances = WorkOrderStaffAssign.objects.select_related(
+        'work_order', 'staff'
+    ).filter(work_order__delivery_date__lt=datetime.today().date())
+
+    if query:
+        instances = instances.filter(
+            Q(work_order__order_no__icontains=query) |
+            Q(staff__first_name__icontains=query) |
+            Q(staff__last_name__icontains=query) |
+            Q(staff__employee_id__icontains=query)
+        )
+
+    data = []
+    for i, obj in enumerate(instances, 1):
+        data.append([
+            i,
+            obj.work_order.order_no,
+            obj.staff.get_fullname(),
+            obj.staff.employee_id,
+            obj.staff.department.name,
+            obj.staff.designation.name,
+            obj.work_order.get_status_display,
+            obj.time_spent,
+            obj.wage,
+        ])
+
+    df = pd.DataFrame(data, columns=[
+        "#", "WO No", "Staff Name", "Employee ID", "Department", "Designation","Section", "Time Spent", "Wage"
+    ])
+
+    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
+    df.loc[len(df)] = ["", "", "", "", "", "","", "Total", total_wage]
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="work_report.xlsx"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Work Report', index=False)
+
+        # Style headers and totals
+        sheet = writer.sheets['Work Report']
+        for cell in sheet[1]:
+            cell.font = Font(bold=True)
+        for cell in sheet[len(df.index) + 1]:
+            cell.font = Font(bold=True)
 
     return response
