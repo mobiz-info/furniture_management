@@ -52,7 +52,12 @@
                                         </div><!-- end card -->
                                     </div><!-- end col -->
                                     {% endif %}
-                                </div><!-- end col -->
+                                    <!-- ✅ Add this for the new amount field -->
+                                    <div class="form-group">
+                                        <label for="amount">{{ material_form.amount.label }} :</label>
+                                        {{ material_form.amount }}
+                                    </div>
+                            </div><!-- end col -->
                             </div><!-- end row -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
