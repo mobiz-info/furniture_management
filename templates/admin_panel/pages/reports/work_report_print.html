@@ -59,8 +59,8 @@
                 <th class="font-weight-bold text-left">Department</th>
                 <th class="font-weight-bold text-left">Designation</th>
                 <th class="font-weight-bold text-left">Section</th>
-                <th class="font-weight-bold text-right">Total hr Engaged</th>
-                <th class="font-weight-bold text-right">Cost</th>
+                <th class="font-weight-bold text-left">Total hr Engaged</th>
+                <th class="font-weight-bold text-left">Cost</th>
             </tr>
         </thead>
         <tbody>
@@ -72,8 +72,8 @@
                 <td class="text-left">{{ instance.staff.department.name }}</td>
                 <td class="text-left">{{ instance.staff.designation.name }}</td>
                 <td class="text-left">{{ instance.work_order.get_status_display }}</td>
-                <td class="text-left">{{ instance.time_spent }}</td>
-                <td class="text-left">{{ instance.wage }}</td>
+                <td class="text-right">{{ instance.time_spent }}</td>
+                <td class="text-right">{{ instance.wage }}</td>
             </tr>
             {% endfor %}
         </tbody>
