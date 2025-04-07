@@ -16,6 +16,7 @@ from django.forms import formset_factory, inlineformset_factory
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
+from django.db.models.functions import TruncDate
 
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
@@ -2258,9 +2259,23 @@ def export_accessories_utilized(request):
 @login_required
 # @role_required(['superadmin'])
 def work_report(request):
+    today = datetime.today().date()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     query = request.GET.get("q")
 
-    filters = Q(work_order__is_deleted=False)
+    # Use today's date if not provided
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
     if query:
         filters &= (
@@ -2274,10 +2289,11 @@ def work_report(request):
         .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
         .filter(filters)
         .values(
-            'staff',
             'staff__first_name',
             'staff__last_name',
-            'staff__department__name'
+            'staff__department__name',
+            'work_order__remark',
+            'date_added',
         )
         .annotate(
             total_hours=Sum('time_spent'),
@@ -2296,18 +2312,35 @@ def work_report(request):
         'page_name': 'Work Report',
         'page_title': 'Work Report',
         'filter_data': {'q': query} if query else {},
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
         'total_hours': total_hours,
         'total_project_count': total_project_count,
         'total_wage': total_wage,
     }
+
     return render(request, 'admin_panel/pages/reports/work_report.html', context)
 
 @login_required
 # @role_required(['superadmin'])
 def print_work_report(request):
+    today = datetime.today().date()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     query = request.GET.get("q")
 
-    filters = Q(work_order__is_deleted=False)
+    # Use today's date if not provided
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
     if query:
         filters &= (
@@ -2321,10 +2354,11 @@ def print_work_report(request):
         .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
         .filter(filters)
         .values(
-            'staff',
             'staff__first_name',
             'staff__last_name',
-            'staff__department__name'
+            'staff__department__name',
+            'work_order__remark',
+            'date_added',
         )
         .annotate(
             total_hours=Sum('time_spent'),
@@ -2343,6 +2377,8 @@ def print_work_report(request):
         'page_name': 'Work Report',
         'page_title': 'Work Report',
         'filter_data': {'q': query} if query else {},
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
         'total_hours': total_hours,
         'total_project_count': total_project_count,
         'total_wage': total_wage,
@@ -2352,8 +2388,23 @@ def print_work_report(request):
 @login_required
 # @role_required(['superadmin'])
 def export_work_report_excel(request):
+    today = datetime.today().date()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     query = request.GET.get("q")
-    filters = Q(work_order__is_deleted=False)
+
+    # Parse dates
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
     if query:
         filters &= (
@@ -2369,7 +2420,9 @@ def export_work_report_excel(request):
         .values(
             'staff__first_name',
             'staff__last_name',
-            'staff__department__name'
+            'staff__department__name',
+            'work_order__remark',
+            'date_added',
         )
         .annotate(
             total_hours=Sum('time_spent'),
@@ -2379,33 +2432,41 @@ def export_work_report_excel(request):
         .order_by('-date_added')
     )
 
-    # Create a pandas DataFrame
-    data = []
-    for instance in instances:
-        data.append({
-            'Staff Name': f"{instance['staff__first_name']} {instance['staff__last_name']}",
-            'Department': instance['staff__department__name'],
-            'Total Hours': instance['total_hours'],
-            'Projects Involved': instance['project_count'],
-            'Cost': instance['total_wage'],
+    # Convert queryset to DataFrame
+    df = pd.DataFrame(instances)
+    df.rename(columns={
+        'date_added': 'Date',
+        'staff__first_name': 'First Name',
+        'staff__last_name': 'Last Name',
+        'staff__department__name': 'Section',
+        'total_hours': 'Total hrs Engaged',
+        'project_count': 'No of Projects Involved',
+        'total_wage': 'Cost',
+        'work_order__remark': 'Remark',
+    }, inplace=True)
+
+    # Format date
+    if not df.empty:
+        df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%d/%m/%Y')
+
+        # Add full name column if needed
+        df['Staff Name'] = df['First Name'] + ' ' + df['Last Name']
+        df.drop(columns=['First Name', 'Last Name'], inplace=True)
+
+        # Rearrange columns
+        df = df[['Date', 'Staff Name', 'Section', 'Total hrs Engaged', 'No of Projects Involved', 'Cost', 'Remark']]
+
+        # Add total row
+        total_row = pd.DataFrame({
+            'Date': [''],
+            'Staff Name': [''],
+            'Section': ['Total'],
+            'Total hrs Engaged': [df['Total hrs Engaged'].sum()],
+            'No of Projects Involved': [df['No of Projects Involved'].sum()],
+            'Cost': [df['Cost'].sum()],
+            'Remark': ['']
         })
-
-    df = pd.DataFrame(data)
-
-    # Calculate totals
-    total_hours = df['Total Hours'].sum()
-    total_projects = df['Projects Involved'].sum()
-    total_wage = df['Cost'].sum()
-
-    # Append totals row
-    total_row = {
-        'Staff Name': 'Total',
-        'Department': '',
-        'Total Hours': total_hours,
-        'Projects Involved': total_projects,
-        'Cost': total_wage,
-    }
-    df.loc[len(df.index)] = total_row
+        df = pd.concat([df, total_row], ignore_index=True)
 
     # Create response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -2423,7 +2484,7 @@ def export_work_report_excel(request):
             cell.font = header_font
 
         # Bold total row
-        total_row_index = len(df.index) + 1
+        total_row_index = len(df.index)
         for cell in sheet[total_row_index]:
             cell.font = header_font
 
