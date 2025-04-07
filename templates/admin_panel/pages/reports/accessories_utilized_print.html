@@ -49,39 +49,41 @@
 <body>
     <h2>Accessories Utilized Report</h2>
     <button class="print-button" onclick="window.print()">Print</button>
-    
+
     <table>
         <thead>
             <tr>
                 <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-left">Delivery Date</th>
                 <th class="font-weight-bold text-left">Item Name</th>
                 <th class="font-weight-bold text-left">Quantity Used</th>
                 <th class="font-weight-bold text-left">Cost</th>
                 <th class="font-weight-bold text-left">Section Name</th>
-
             </tr>
         </thead>
         <tbody>
             {% for instance in instances %}
                 <tr>
                     <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-left">{{ instance.work_order.delivery_date|date:"d/m/Y" }}</td>
                     <td class="text-left">{{ instance.material.name }}</td>
-                    <td class="text-right">{{ instance.quantity }}</td>
-                    <td class="text-right">{{ instance.rate }}</td>
-                    <td class="text-left">{{instance.work_order.get_status_display}}</td>
+                    <td class="text-left">{{ instance.quantity }}</td>
+                    <td class="text-left">{{ instance.rate }}</td>
+                    <td class="text-left">{{ instance.work_order.get_status_display }}</td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="5" style="text-align: center;">No data available</td>
+                    <td colspan="6" class="text-center">No data available</td>
                 </tr>
             {% endfor %}
-            <tfoot>
-                <tr>
-                <td colspan="3" class="font-weight-bold text-right">Total Cost:</td>
-                <td class="font-weight-bold text-left">{{ total_cost }}</td>
-                </tr>
-            </tfoot>
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="font-weight-bold text-right">Total Cost:</td>
+                <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
     </table>
 </body>
 </html>

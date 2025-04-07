@@ -3,121 +3,127 @@
 {% load main_templates_tags %}
 
 {% block content %}
-    <!-- Page Content-->
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Page-Title -->
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="page-title-box">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h4 class="page-title">{{ page_title }}</h4>
-                            </div><!--end col-->
-                            <div class="col-lg-4 col-sm-2 float-right ml-auto">
-                                <form method="get" action="{% url 'work_order:accessories_utilized' %}">
-                                    <li class="list-inline-item w-100">
-                                        <div class="input-group">
-                                            <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
-                                                class="form-control" />
-                                            <span class="input-group-append">
-                                                <button type="submit" class="btn btn-soft-primary btn-sm">
-                                                    <i class="fas fa-search"></i>
-                                                </button>
-                                            </span>
-                                        </div>
-                                    </li>
-                                </form>
-                            </div>
-                        </div><!--end row-->
-                    </div><!-- end page-title-box -->
-                </div><!--end col-->
-            </div><!--end row-->
-            <!-- end page title end breadcrumb -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header d-flex">
-                            <div class="col-lg-4">
-                                <h4 class="card-title">List view</h4>
-                            </div>
-                            <div class="col-md-8 text-right">
-                                <!-- Print Button -->
-                                <a href="{% url 'work_order:print_accessories_utilized' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
-                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000">
-                                    <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
-                                </a>
+<!-- Page Content-->
+<div class="page-content">
+    <div class="container-fluid">
 
-                                <!-- Export Button -->
-                                <a href="{% url 'work_order:export_accessories_utilized' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
-                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000">
-                                    <i class="ri-file-excel-2-line text-danger"></i> Export
-                                </a>
-                            </div>
+        <!-- Page Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h4 class="page-title">{{ page_title }}</h4>
                         </div>
-                        <!--end card-header-->
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table mb-0" style="width:100%;">
-                                    <thead>
-                                        <tr>
-                                            <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-left">Item Name </th>
-                                            <th class="font-weight-bold text-left">Quantity Used </th>
-                                            <th class="font-weight-bold text-left">Cost</th>
-                                            <th class="font-weight-bold text-left">Section Name</th>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% load el_pagination_tags %}
-                                        {% paginate 10 instances %}
-                                        {% for instance in instances %}
-                                            <tr>
-                                                <td class="text-center">{{ forloop.counter }}</td>
-                                                <td class="text-left">{{ instance.material.name }}</td>
-                                                <td class="text-right">{{ instance.quantity }}</td>
-                                                <td class="text-right">{{ instance.rate }}</td>
-                                                <td class="text-left">{{instance.work_order.get_status_display}}</td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="5" class="text-center">No data available</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot>
+        <!-- Filters -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <form method="get" action="{% url 'work_order:accessories_utilized' %}">
+                            <div class="form-row align-items-end">
+                                <div class="col-md-3">
+                                    <label for="start_date">Start Date</label>
+                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ request.GET.start_date }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="end_date">End Date</label>
+                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ request.GET.end_date }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="q">Search</label>
+                                    <input type="text" class="form-control" name="q" id="q" placeholder="Search" value="{{ request.GET.q }}">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="text-right mt-3">
+                            <!-- Print Button -->
+                            <a href="{% url 'work_order:print_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000">
+                                <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
+                            </a>
+
+                            <!-- Export Button -->
+                            <a href="{% url 'work_order:export_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark ml-2" style="color:#000">
+                                <i class="ri-file-excel-2-line text-danger"></i> Export
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table mb-0" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="font-weight-bold text-center">#</th>
+                                        <th class="font-weight-bold text-left">Delivery Date</th>
+                                        <th class="font-weight-bold text-left">Item Name</th>
+                                        <th class="font-weight-bold text-left">Quantity Used</th>
+                                        <th class="font-weight-bold text-left">Cost</th>
+                                        <th class="font-weight-bold text-left">Section Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% load el_pagination_tags %}
+                                    {% paginate 10 instances %}
+                                    {% for instance in instances %}
                                         <tr>
-                                            <td colspan="3" class="font-weight-bold text-right">Total Cost:</td>
-                                            <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td class="text-left">{{ instance.work_order.delivery_date|date:"d/m/Y" }}</td>
+                                            <td class="text-left">{{ instance.material.name }}</td>
+                                            <td class="text-left">{{ instance.quantity }}</td>
+                                            <td class="text-left">{{ instance.rate }}</td>
+                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
                                         </tr>
-                                    </tfoot>
-                                </table>
-                                <!--end /table-->
-                                {% get_pages %}
-                                <div class="clearfix"></div>
-                                <div class="row pagi my-3">
-                                    <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
-                                    <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
-                                        <div class="m-t-10">
-                                            Showing {{ title }}
-                                            <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                            <span class="current_end_status">{{ pages.current_end_index }}</span> of
-                                            <span class="total_count">{{ pages.total_count }}</span>
-                                        </div>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No data available</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="font-weight-bold text-right">Total Cost:</td>
+                                        <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- Pagination -->
+                            {% get_pages %}
+                            <div class="clearfix"></div>
+                            <div class="row pagi my-3">
+                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                    <div class="m-t-10">
+                                        Showing {{ title }}
+                                        <span class="current_page_index">{{ pages.current_start_index }}</span> -
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of
+                                        <span class="total_count">{{ pages.total_count }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <!--end /tableresponsive-->
                         </div>
-                        <!--end card-body-->
+                        <!-- end table responsive -->
                     </div>
-                    <!--end card-->
-                </div> <!-- end col -->
+                </div>
             </div>
-        </div><!-- container -->
-    </div>
-    <!-- end page content -->
+        </div>
+
+    </div><!-- container -->
+</div>
+<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
