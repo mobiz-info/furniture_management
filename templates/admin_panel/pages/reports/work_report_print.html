@@ -47,7 +47,8 @@
     </style>
 </head>
 <body>
-    <h2>Print-Work Report</h2>
+
+    <h2>Print - Work Report</h2>
     <button class="print-button" onclick="window.print()">Print</button>
 
     <table>
@@ -55,34 +56,36 @@
             <tr>
                 <th class="font-weight-bold text-center">#</th>
                 <th class="font-weight-bold text-left">Staff Name</th>
-                <th class="font-weight-bold text-left">Employee ID</th>
-                <th class="font-weight-bold text-left">Department</th>
-                <th class="font-weight-bold text-left">Designation</th>
                 <th class="font-weight-bold text-left">Section</th>
                 <th class="font-weight-bold text-left">Total hr Engaged</th>
+                <th class="font-weight-bold text-left">No of Projects Involved</th>
                 <th class="font-weight-bold text-left">Cost</th>
+                <th class="font-weight-bold text-left">Remark</th>
             </tr>
         </thead>
         <tbody>
             {% for instance in instances %}
-            <tr>
-                <td class="text-center">{{ forloop.counter }}</td>
-                <td class="text-left">{{ instance.staff.get_fullname }}</td>
-                <td class="text-left">{{ instance.staff.employee_id }}</td>
-                <td class="text-left">{{ instance.staff.department.name }}</td>
-                <td class="text-left">{{ instance.staff.designation.name }}</td>
-                <td class="text-left">{{ instance.work_order.get_status_display }}</td>
-                <td class="text-center">{{ instance.time_spent }}</td>
-                <td class="text-right">{{ instance.wage }}</td>
-            </tr>
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-left">{{ instance.staff__first_name }} {{ instance.staff__last_name }}</td>
+                    <td class="text-left">{{ instance.staff__department__name }}</td>
+                    <td class="text-right">{{ instance.total_hours }}</td>
+                    <td class="text-right">{{ instance.project_count }}</td>
+                    <td class="text-right">{{ instance.total_wage }}</td>
+                    <td class="text-left">{{ instance.work_order__remark|default:"--" }}</td>
+                </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="7" class="text-right"><strong>Total Wage</strong></td>
-                <td><strong>{{ total_wage }}</strong></td>
+                <td colspan="3" class="text-right"><strong>Total</strong></td>
+                <td class="text-right"><strong>{{ total_hours }}</strong></td>
+                <td class="text-right"><strong>{{ total_project_count }}</strong></td>
+                <td class="text-right"><strong>{{ total_wage }}</strong></td>
+                <td></td>
             </tr>
         </tfoot>
     </table>
+
 </body>
 </html>

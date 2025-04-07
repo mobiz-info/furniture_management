@@ -3,120 +3,125 @@
 {% load main_templates_tags %}
 
 {% block content %}
-    <!-- Page Content-->
-    <div class="page-content">
-
-        <div class="container-fluid">
-            <!-- Page-Title -->
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="page-title-box">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h4 class="page-title">{{page_title}}</h4>
-                            </div><!--end col-->
-                            <div class="col-lg-4 col-sm-2 float-right ml-auto">
-                                <form method="get" action="{% url 'product:material_list' %}">
-                                    <li class="list-inline-item w-100">
-                                        <div class="input-group">
-                                            <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
-                                                class="form-control" />
-                                            <span class="input-group-append">
-                                                <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
-                                            </span>
-                                        </div>
-                                    </li>
-                                </form>
-                            </div>
-                        </div><!--end row-->
-                    </div><!-- end page-title-box -->
-                </div><!--end col-->
-            </div><!--end row-->
-            <!-- end page title end breadcrumb -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header d-flex">
-                            <div class="col-lg-4">
-                                <h4 class="card-title">List view</h4>
-                            </div>
-                            <div class="col-md-8 text-right">
-                                <a href="{% url 'work_order:print_work_report' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print</a>
-                                <a href="{% url 'work_order:export_work_report_excel' %}" target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000"><i class="ri-file-excel-2-line text-danger"></i> Export</a>
-                            </div>
+<!-- Page Content-->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h4 class="page-title">{{ page_title }}</h4>
+                        </div><!--end col-->
+                        <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                            <form method="get" action="{% url 'work_order:work_report' %}">
+                                <li class="list-inline-item w-100">
+                                    <div class="input-group">
+                                        <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
+                                               class="form-control" />
+                                        <span class="input-group-append">
+                                            <button type="submit" class="btn btn-soft-primary btn-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </li>
+                            </form>
                         </div>
-                        <!--end card-header-->
-                        <div class="card-body">
+                    </div><!--end row-->
+                </div><!-- end page-title-box -->
+            </div><!--end col-->
+        </div><!--end row-->
+        <!-- end page title end breadcrumb -->
 
-                            <div class="table-responsive">
-                                <table class="table mb-0" style="width:100%;">
-                                    <thead>
-                                        <tr>
-                                            <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-left">Staff Name</th>
-                                            <th class="font-weight-bold text-left">Employee ID</th>
-                                            <th class="font-weight-bold text-left">Department</th>
-                                            <th class="font-weight-bold text-left">Designation</th>
-                                            <th class="font-weight-bold text-left">Section</th>
-                                            <th class="font-weight-bold text-left">Total hr Engaged</th>
-                                            <th class="font-weight-bold text-left">Cost</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% load el_pagination_tags %}
-                                        {% paginate 10 instances %}
-                                        {% for instance in instances %}
-                                        <tr>
-                                            <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-left">{{instance.staff.get_fullname}}</td>
-                                            <td class="text-left">{{ instance.staff.employee_id }}</td>
-                                            <td class="text-left">{{ instance.staff.department.name }}</td>
-                                            <td class="text-left">{{ instance.staff.designation.name }}</td>
-                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
-                                            <td class="text-center">{{ instance.time_spent }}</td>
-                                            <td class="text-right">{{ instance.wage }}</td>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex">
+                        <div class="col-lg-4">
+                            <h4 class="card-title">List view</h4>
+                        </div>
+                        <div class="col-md-8 text-right">
+                            <a href="{% url 'work_order:print_work_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                               target="_blank" 
+                               class="btn btn-light text-capitalize border-0 ripple-surface-dark" 
+                               style="color:#000">
+                                <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
+                            </a>
+                            <a href="{% url 'work_order:export_work_report_excel' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                               target="_blank" 
+                               class="btn btn-light text-capitalize border-0 ripple-surface-dark" 
+                               style="color:#000">
+                                <i class="ri-file-excel-2-line text-danger"></i> Export
+                            </a>
+                        </div>
+                    </div>
+                    <!--end card-header-->
 
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table mb-0" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="font-weight-bold text-center">#</th>
+                                        <th class="font-weight-bold text-left">Staff Name</th>
+                                        <th class="font-weight-bold text-left">Section</th>
+                                        <th class="font-weight-bold text-left">Total hr Engaged</th>
+                                        <th class="font-weight-bold text-left">No of Projects Involved</th>
+                                        <th class="font-weight-bold text-left">Cost</th>
+                                        <th class="font-weight-bold text-left">Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% load el_pagination_tags %}
+                                    {% paginate 10 instances %}
+                                    {% for instance in instances %}
                                         <tr>
-                                            <td colspan="7" class="text-right"><strong>Total Wage</strong></td>
-                                            <td><strong>{{ total_wage }}</strong></td>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td class="text-left">{{ instance.staff__first_name }} {{ instance.staff__last_name }}</td>
+                                            <td class="text-left">{{ instance.staff__department__name }}</td>
+                                            <td class="text-right">{{ instance.total_hours }}</td>
+                                            <td class="text-right">{{ instance.project_count }}</td>
+                                            <td class="text-right">{{ instance.total_wage }}</td>
+                                            <td class="text-left">{{ instance.work_order__remark|default:"--" }}</td>
                                         </tr>
-                                    </tfoot>
-                                </table>
-                                <!--end /table-->
-                                {% get_pages %}
-                                <div class="clearfix"></div>
-                                <div class="row pagi my-3">
-                                    <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
-                                    <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
-                                        <div class="m-t-10">
-                                            Showing {{title}}
-                                            <span class="current_page_index">{{ pages.current_start_index }}</span> - <span
-                                                class="current_end_status">{{ pages.current_end_index }}</span> of <span
-                                                class="total_count">{{ pages.total_count }}</span>
-                                        </div>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Total</strong></td>
+                                        <td class="text-right"><strong>{{ total_hours }}</strong></td>
+                                        <td class="text-right"><strong>{{ total_project_count }}</strong></td>
+                                        <td class="text-right"><strong>{{ total_wage }}</strong></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <!--end /table-->
+                            {% get_pages %}
+                            <div class="clearfix"></div>
+                            <div class="row pagi my-3">
+                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                    <div class="m-t-10">
+                                        Showing {{ title }}
+                                        <span class="current_page_index">{{ pages.current_start_index }}</span> - 
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of 
+                                        <span class="total_count">{{ pages.total_count }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <!--end /tableresponsive-->
-                            <!-- pagination -->
-
                         </div>
-                        <!--end card-body-->
+                        <!--end /tableresponsive-->
+                        <!-- pagination -->
                     </div>
-                    <!--end card-->
-                </div> <!-- end col -->
-            </div>
-        </div><!-- container -->
-    <!-- end page content -->
+                    <!--end card-body-->
+                </div>
+                <!--end card-->
+            </div> <!-- end col -->
+        </div>
+    </div><!-- container -->
+</div>
+<!-- end page content -->
 {% endblock content %}
-
-
-{% block static %}
-{% load static %}
-
-{% endblock static %}
-

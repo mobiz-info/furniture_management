@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Count, Sum
 
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
@@ -2258,25 +2259,45 @@ def export_accessories_utilized(request):
 # @role_required(['superadmin'])
 def work_report(request):
     query = request.GET.get("q")
-    instances = WorkOrderStaffAssign.objects.select_related(
-        'work_order', 'staff', 'staff__department', 'staff__designation'
-    ).filter(work_order__delivery_date__lt=datetime.today().date())
+
+    filters = Q(work_order__is_deleted=False)
 
     if query:
-        instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
+        filters &= (
             Q(staff__first_name__icontains=query) |
             Q(staff__last_name__icontains=query) |
-            Q(staff__employee_id__icontains=query)
+            Q(staff__department__name__icontains=query)
         )
 
-    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
+    instances = (
+        WorkOrderStaffAssign.objects
+        .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
+        .filter(filters)
+        .values(
+            'staff',
+            'staff__first_name',
+            'staff__last_name',
+            'staff__department__name'
+        )
+        .annotate(
+            total_hours=Sum('time_spent'),
+            total_wage=Sum('wage'),
+            project_count=Count('work_order', distinct=True)
+        )
+        .order_by('-date_added')
+    )
+
+    total_hours = instances.aggregate(total=Sum('total_hours'))['total'] or 0
+    total_project_count = instances.aggregate(total=Sum('project_count'))['total'] or 0
+    total_wage = instances.aggregate(total=Sum('total_wage'))['total'] or 0
 
     context = {
         'instances': instances,
         'page_name': 'Work Report',
         'page_title': 'Work Report',
         'filter_data': {'q': query} if query else {},
+        'total_hours': total_hours,
+        'total_project_count': total_project_count,
         'total_wage': total_wage,
     }
     return render(request, 'admin_panel/pages/reports/work_report.html', context)
@@ -2285,24 +2306,45 @@ def work_report(request):
 # @role_required(['superadmin'])
 def print_work_report(request):
     query = request.GET.get("q")
-    instances = WorkOrderStaffAssign.objects.select_related(
-        'work_order', 'staff', 'staff__department', 'staff__designation'
-    ).filter(work_order__delivery_date__lt=datetime.today().date())
+
+    filters = Q(work_order__is_deleted=False)
 
     if query:
-        instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
+        filters &= (
             Q(staff__first_name__icontains=query) |
             Q(staff__last_name__icontains=query) |
-            Q(staff__employee_id__icontains=query)
+            Q(staff__department__name__icontains=query)
         )
 
-    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
+    instances = (
+        WorkOrderStaffAssign.objects
+        .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
+        .filter(filters)
+        .values(
+            'staff',
+            'staff__first_name',
+            'staff__last_name',
+            'staff__department__name'
+        )
+        .annotate(
+            total_hours=Sum('time_spent'),
+            total_wage=Sum('wage'),
+            project_count=Count('work_order', distinct=True)
+        )
+        .order_by('-date_added')
+    )
+
+    total_hours = instances.aggregate(total=Sum('total_hours'))['total'] or 0
+    total_project_count = instances.aggregate(total=Sum('project_count'))['total'] or 0
+    total_wage = instances.aggregate(total=Sum('total_wage'))['total'] or 0
 
     context = {
         'instances': instances,
-        'page_name': 'Print- Work Report',
-        'page_title': 'Print-Work Report',
+        'page_name': 'Work Report',
+        'page_title': 'Work Report',
+        'filter_data': {'q': query} if query else {},
+        'total_hours': total_hours,
+        'total_project_count': total_project_count,
         'total_wage': total_wage,
     }
     return render(request, 'admin_panel/pages/reports/work_report_print.html', context)
@@ -2311,50 +2353,78 @@ def print_work_report(request):
 # @role_required(['superadmin'])
 def export_work_report_excel(request):
     query = request.GET.get("q")
-    instances = WorkOrderStaffAssign.objects.select_related(
-        'work_order', 'staff'
-    ).filter(work_order__delivery_date__lt=datetime.today().date())
+    filters = Q(work_order__is_deleted=False)
 
     if query:
-        instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
+        filters &= (
             Q(staff__first_name__icontains=query) |
             Q(staff__last_name__icontains=query) |
-            Q(staff__employee_id__icontains=query)
+            Q(staff__department__name__icontains=query)
         )
 
+    instances = (
+        WorkOrderStaffAssign.objects
+        .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
+        .filter(filters)
+        .values(
+            'staff__first_name',
+            'staff__last_name',
+            'staff__department__name'
+        )
+        .annotate(
+            total_hours=Sum('time_spent'),
+            total_wage=Sum('wage'),
+            project_count=Count('work_order', distinct=True)
+        )
+        .order_by('-date_added')
+    )
+
+    # Create a pandas DataFrame
     data = []
-    for i, obj in enumerate(instances, 1):
-        data.append([
-            i,
-            obj.work_order.order_no,
-            obj.staff.get_fullname(),
-            obj.staff.employee_id,
-            obj.staff.department.name,
-            obj.staff.designation.name,
-            obj.work_order.get_status_display,
-            obj.time_spent,
-            obj.wage,
-        ])
+    for instance in instances:
+        data.append({
+            'Staff Name': f"{instance['staff__first_name']} {instance['staff__last_name']}",
+            'Department': instance['staff__department__name'],
+            'Total Hours': instance['total_hours'],
+            'Projects Involved': instance['project_count'],
+            'Cost': instance['total_wage'],
+        })
 
-    df = pd.DataFrame(data, columns=[
-        "#", "WO No", "Staff Name", "Employee ID", "Department", "Designation","Section", "Time Spent", "Wage"
-    ])
+    df = pd.DataFrame(data)
 
-    total_wage = instances.aggregate(Sum('wage'))['wage__sum'] or 0
-    df.loc[len(df)] = ["", "", "", "", "", "","", "Total", total_wage]
+    # Calculate totals
+    total_hours = df['Total Hours'].sum()
+    total_projects = df['Projects Involved'].sum()
+    total_wage = df['Cost'].sum()
 
+    # Append totals row
+    total_row = {
+        'Staff Name': 'Total',
+        'Department': '',
+        'Total Hours': total_hours,
+        'Projects Involved': total_projects,
+        'Cost': total_wage,
+    }
+    df.loc[len(df.index)] = total_row
+
+    # Create response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="work_report.xlsx"'
 
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Work Report', index=False)
 
-        # Style headers and totals
+        # Style header and total row
         sheet = writer.sheets['Work Report']
+        header_font = Font(bold=True)
+
+        # Bold header row
         for cell in sheet[1]:
-            cell.font = Font(bold=True)
-        for cell in sheet[len(df.index) + 1]:
-            cell.font = Font(bold=True)
+            cell.font = header_font
+
+        # Bold total row
+        total_row_index = len(df.index) + 1
+        for cell in sheet[total_row_index]:
+            cell.font = header_font
 
     return response
