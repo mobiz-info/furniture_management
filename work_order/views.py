@@ -2031,30 +2031,26 @@ def export_work_orders_summary_excel(request):
 
     data = []
     for index, instance in enumerate(instances, start=1):
-        categories = ", ".join([item.category.name for item in instance.workorderitems_set.all()])
         data.append([
             index,  # Serial number
             instance.order_no,
             instance.customer.name,
             instance.customer.mobile_number,
             instance.number_of_items(),
-            categories,
             instance.delivery_date,
             instance.get_status_display(),
-            instance.delayed_days(),
             instance.total_estimate
         ])
 
     # Convert to DataFrame
     df = pd.DataFrame(data, columns=[
         "#", "WO No", "Client Name", "Mobile Number", "No of Items",
-        "Item Category", "Planned Delivery Date", "Current Section",
-        "Delayed for days", "Item Value"
+        "Delivery Date", "Current Stage", "Order Value"
     ])
 
     # Calculate total sum of 'total_estimate' and append footer
     total_estimate_sum = instances.aggregate(Sum('total_estimate'))['total_estimate__sum'] or 0
-    footer = ["", "", "", "", "", "", "", "Total Item Value:", "", total_estimate_sum]
+    footer = [""] * 7 + [total_estimate_sum]
     df.loc[len(df)] = footer
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
