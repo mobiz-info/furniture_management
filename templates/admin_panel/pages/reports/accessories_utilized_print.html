@@ -53,39 +53,34 @@
     <table>
         <thead>
             <tr>
-                <th>#</th>
-                <th>WO No</th>
-                <th>Client Name</th>
-                <th>Mobile Number</th>
-                <th>Material</th>
-                <th>Sub Material</th>
-                <th>Material Type</th>
-                <th>Quality</th>
-                <th>Quantity</th>
-                <th>Rate</th>
-                <th>Current Section</th>
+                <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-left">Item Name</th>
+                <th class="font-weight-bold text-left">Quantity Used</th>
+                <th class="font-weight-bold text-left">Cost</th>
+                <th class="font-weight-bold text-left">Section Name</th>
+
             </tr>
         </thead>
         <tbody>
             {% for instance in instances %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ instance.work_order.order_no }}</td>
-                    <td>{{ instance.work_order.customer.name }}</td>
-                    <td>{{ instance.work_order.customer.mobile_number }}</td>
-                    <td>{{ instance.material.name }}</td>
-                    <td>{{ instance.sub_material.name|default:"-" }}</td>
-                    <td>{{ instance.material_type.name|default:"-" }}</td>
-                    <td>{{ instance.quality }}</td>
-                    <td>{{ instance.quantity }}</td>
-                    <td>{{ instance.rate }}</td>
-                    <td>{{ instance.work_order.get_status_display }}</td>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-left">{{ instance.material.name }}</td>
+                    <td class="text-right">{{ instance.quantity }}</td>
+                    <td class="text-right">{{ instance.rate }}</td>
+                    <td class="text-left">{{instance.work_order.get_status_display}}</td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="11" style="text-align: center;">No data available</td>
+                    <td colspan="5" style="text-align: center;">No data available</td>
                 </tr>
             {% endfor %}
+            <tfoot>
+                <tr>
+                <td colspan="3" class="font-weight-bold text-right">Total Cost:</td>
+                <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                </tr>
+            </tfoot>
         </tbody>
     </table>
 </body>

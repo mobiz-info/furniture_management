@@ -2093,17 +2093,16 @@ def accessories_utilized(request):
     query = request.GET.get("q")
     if query:
         instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
-            Q(work_order__customer__name__icontains=query) |
-            Q(work_order__customer__mobile_number__icontains=query) |
             Q(material__name__icontains=query) |
-            Q(sub_material__name__icontains=query) |
             Q(material_type__name__icontains=query)
 
         )
+    #  Calculate total cost
+    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
 
     context = {
         'instances': instances,
+        'total_cost':total_cost,
         'page_name' : 'Accessories Utilized Report',
         'page_title' : 'Accessories Utilized Report',
     }
@@ -2117,16 +2116,16 @@ def print_accessories_utilized(request):
     query = request.GET.get("q")
     if query:
         instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
-            Q(work_order__customer__name__icontains=query) |
-            Q(work_order__customer__mobile_number__icontains=query) |
             Q(material__name__icontains=query) |
             Q(sub_material__name__icontains=query) |
             Q(material_type__name__icontains=query)
         )
+        #  Calculate total cost
+    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
 
     context = {
         'instances': instances,
+        'total_cost':total_cost,
         'page_name': 'Accessories Utilized Report',
         'page_title': 'Accessories Utilized Report',
     }
@@ -2136,15 +2135,12 @@ def print_accessories_utilized(request):
 # @role_required(['superadmin'])
 def export_accessories_utilized(request):
     """ Export filtered accessories utilized data to Excel """
-    
+
     query = request.GET.get("q")
     instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date())
 
     if query:
         instances = instances.filter(
-            Q(work_order__order_no__icontains=query) |
-            Q(work_order__customer__name__icontains=query) |
-            Q(work_order__customer__mobile_number__icontains=query) |
             Q(material__name__icontains=query) |
             Q(sub_material__name__icontains=query) |
             Q(material_type__name__icontains=query)
@@ -2152,26 +2148,26 @@ def export_accessories_utilized(request):
 
     # Prepare Data for Excel
     data = []
+    total_cost = 0  # to accumulate total
     for index, instance in enumerate(instances, start=1):
+        rate = instance.rate or 0
+        total_cost += rate
         data.append([
             index,
-            instance.work_order.order_no,
-            instance.work_order.customer.name,
-            instance.work_order.customer.mobile_number,
             instance.material.name if instance.material else "-",
-            instance.sub_material.name if instance.sub_material else "-",
-            instance.material_type.name if instance.material_type else "-",
-            instance.quality,
             instance.quantity,
-            instance.rate,
+            rate,
             instance.work_order.get_status_display(),
         ])
 
+    # Append total cost row
+    data.append([
+        "", "", "","TOTAL", total_cost, 
+    ])
+
     # Create DataFrame
     df = pd.DataFrame(data, columns=[
-        "#", "WO No", "Client Name", "Mobile Number",
-        "Material", "Sub Material", "Material Type","Quality","Quantity",
-        "Rate", "Current Section"
+        "#", "Item Name", "Quantity Used", "Cost", "Section Name"
     ])
 
     # Generate Excel Response
@@ -2181,12 +2177,17 @@ def export_accessories_utilized(request):
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Accessories Utilized', index=False)
 
-        # Apply Header Styling
+        # Style headers
         workbook = writer.book
         sheet = writer.sheets['Accessories Utilized']
         header_font = Font(bold=True)
         for col in range(1, len(df.columns) + 1):
             sheet.cell(row=1, column=col).font = header_font
+
+        # Style total row (last row)
+        total_row = len(df) + 1  # +1 because Excel is 1-based
+        sheet.cell(row=total_row, column=3).font = Font(bold=True)  # "TOTAL" label cell
+        sheet.cell(row=total_row, column=4).font = Font(bold=True)  # Total Cost cell
 
     return response
 

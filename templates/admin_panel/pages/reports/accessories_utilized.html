@@ -62,16 +62,10 @@
                                     <thead>
                                         <tr>
                                             <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-left">WO No</th>
-                                            <th class="font-weight-bold text-left">Client Name</th>
-                                            <th class="font-weight-bold text-left">Mobile Number</th>
-                                            <th class="font-weight-bold text-left">Material</th>
-                                            <th class="font-weight-bold text-left">Sub Material</th>
-                                            <th class="font-weight-bold text-left">Material Type</th>
-                                            <th class="font-weight-bold text-left">Quality</th>
-                                            <th class="font-weight-bold text-left">Quantity</th>
-                                            <th class="font-weight-bold text-left">Rate</th>
-                                            <th class="font-weight-bold text-left">Current Section</th>
+                                            <th class="font-weight-bold text-left">Item Name </th>
+                                            <th class="font-weight-bold text-left">Quantity Used </th>
+                                            <th class="font-weight-bold text-left">Cost</th>
+                                            <th class="font-weight-bold text-left">Section Name</th>
 
                                         </tr>
                                     </thead>
@@ -81,23 +75,23 @@
                                         {% for instance in instances %}
                                             <tr>
                                                 <td class="text-center">{{ forloop.counter }}</td>
-                                                <td class="text-left">{{ instance.work_order.order_no }}</td>
-                                                <td class="text-left">{{ instance.work_order.customer.name }}</td>
-                                                <td class="text-left">{{ instance.work_order.customer.mobile_number }}</td>
                                                 <td class="text-left">{{ instance.material.name }}</td>
-                                                <td class="text-left">{{ instance.sub_material.name|default:"-" }}</td>
-                                                <td class="text-left">{{ instance.material_type.name|default:"-" }}</td>
-                                                <td class="text-left">{{ instance.quality }}</td>
-                                                <td class="text-left">{{ instance.quantity }}</td>
-                                                <td class="text-left">{{ instance.rate }}</td>
+                                                <td class="text-right">{{ instance.quantity }}</td>
+                                                <td class="text-right">{{ instance.rate }}</td>
                                                 <td class="text-left">{{instance.work_order.get_status_display}}</td>
                                             </tr>
                                         {% empty %}
                                             <tr>
-                                                <td colspan="11" class="text-center">No data available</td>
+                                                <td colspan="5" class="text-center">No data available</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="font-weight-bold text-right">Total Cost:</td>
+                                            <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                                 <!--end /table-->
                                 {% get_pages %}
