@@ -54,22 +54,26 @@
         <thead>
             <tr>
                 <th class="font-weight-bold text-center">#</th>
-                <th class="font-weight-bold text-left">Delivery Date</th>
+                <th class="font-weight-bold text-left">Date Added</th>
                 <th class="font-weight-bold text-left">Item Name</th>
                 <th class="font-weight-bold text-left">Quantity Used</th>
                 <th class="font-weight-bold text-left">Cost</th>
                 <th class="font-weight-bold text-left">Section Name</th>
+                <th class="font-weight-bold text-left">Delivery Date</th>
+
             </tr>
         </thead>
         <tbody>
             {% for instance in instances %}
                 <tr>
                     <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="text-left">{{ instance.work_order.delivery_date|date:"d/m/Y" }}</td>
+                    <td class="text-left">{{ instance.date_added|date:"d-m-Y"}}</td>
                     <td class="text-left">{{ instance.material.name }}</td>
                     <td class="text-left">{{ instance.quantity }}</td>
                     <td class="text-left">{{ instance.rate }}</td>
                     <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                    <td class="text-left">{{ instance.work_order.delivery_date|date:"d/m/Y" }}</td>
+
                 </tr>
             {% empty %}
                 <tr>
@@ -79,9 +83,10 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="4" class="font-weight-bold text-right">Total Cost:</td>
+                <td colspan="3" class="font-weight-bold text-right">Totals:</td>
+                <td class="font-weight-bold text-left">{{ total_quantity }}</td>
                 <td class="font-weight-bold text-left">{{ total_cost }}</td>
-                <td></td>
+                <td colspan="2"></td>
             </tr>
         </tfoot>
     </table>

@@ -2091,7 +2091,6 @@ def accessories_utilized(request):
     end_date = request.GET.get('end_date')
     query = request.GET.get("q")
 
-    # Parse or default to today's date
     if start_date and end_date:
         try:
             start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -2101,8 +2100,7 @@ def accessories_utilized(request):
     else:
         start_date_obj = end_date_obj = today
 
-    # Filtering
-    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(work_order__delivery_date__range=(start_date_obj, end_date_obj))
+    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
     if query:
         filters &= (
@@ -2112,12 +2110,15 @@ def accessories_utilized(request):
 
     instances = WoodWorkAssign.objects.select_related(
         'work_order', 'material', 'material_type'
-    ).filter(filters).order_by('-work_order__delivery_date')
+    ).filter(filters).order_by('-date_added')
 
+    # Directly sum if fields are numeric
+    total_quantity = instances.aggregate(total=Sum('quantity'))['total'] or 0
     total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
 
     context = {
         'instances': instances,
+        'total_quantity': total_quantity,
         'total_cost': total_cost,
         'page_name': 'Accessories Utilized Report',
         'page_title': 'Accessories Utilized Report',
@@ -2135,55 +2136,6 @@ def print_accessories_utilized(request):
     end_date = request.GET.get('end_date')
     query = request.GET.get("q")
 
-    # Base queryset
-    instances = WoodWorkAssign.objects.filter(
-        is_deleted=False,
-        work_order__is_deleted=False
-    )
-    # instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date())
-
-
-    # Date filtering
-    if start_date and end_date:
-        instances = instances.filter(
-            work_order__delivery_date__range=[start_date, end_date]
-        )
-    else:
-        instances = instances.filter(
-            work_order__delivery_date=today
-        )
-
-    # Search filtering
-    if query:
-        instances = instances.filter(
-            Q(material__name__icontains=query) |
-            Q(material_type__name__icontains=query)
-        )
-
-    # Total cost calculation
-    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
-
-    context = {
-        'instances': instances,
-        'total_cost':total_cost,
-        'page_name': 'Accessories Utilized Report',
-        'page_title': 'Accessories Utilized Report',
-    }
-    return render(request, 'admin_panel/pages/reports/accessories_utilized_print.html', context)
-
-from datetime import datetime
-
-@login_required
-# @role_required(['superadmin'])
-def export_accessories_utilized(request):
-    """ Export filtered accessories utilized data to Excel """
-
-    today = datetime.today().date()
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    query = request.GET.get("q")
-
-    # Parse start and end dates
     if start_date and end_date:
         try:
             start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -2193,64 +2145,115 @@ def export_accessories_utilized(request):
     else:
         start_date_obj = end_date_obj = today
 
-    # Filter instances
-    instances = WoodWorkAssign.objects.filter(
-        is_deleted=False,
-        work_order__is_deleted=False,
-        work_order__delivery_date__range=(start_date_obj, end_date_obj)
-    )
+    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
     if query:
-        instances = instances.filter(
+        filters &= (
             Q(material__name__icontains=query) |
-            Q(sub_material__name__icontains=query) |
             Q(material_type__name__icontains=query)
         )
 
-    # Prepare Data for Excel
+    instances = WoodWorkAssign.objects.select_related(
+        'work_order', 'material', 'material_type'
+    ).filter(filters).order_by('-date_added')
+
+    # Directly sum if fields are numeric
+    total_quantity = instances.aggregate(total=Sum('quantity'))['total'] or 0
+    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
+
+    context = {
+        'instances': instances,
+        'total_quantity': total_quantity,
+        'total_cost': total_cost,
+        'page_name': 'Accessories Utilized Report',
+        'page_title': 'Accessories Utilized Report',
+        'filter_data': {'q': query} if query else {},
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+    }
+
+    return render(request, 'admin_panel/pages/reports/accessories_utilized_print.html', context)
+
+from datetime import datetime
+
+@login_required
+# @role_required(['superadmin'])
+def export_accessories_utilized(request):
+    today = datetime.today().date()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    query = request.GET.get("q")
+
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
+
+    if query:
+        filters &= (
+            Q(material__name__icontains=query) |
+            Q(material_type__name__icontains=query)
+        )
+
+    instances = WoodWorkAssign.objects.select_related(
+        'work_order', 'material', 'material_type'
+    ).filter(filters).order_by('-date_added')
+
+    # Totals
+    total_quantity = instances.aggregate(total=Sum('quantity'))['total'] or 0
+    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
+
+    # Build data for DataFrame
     data = []
-    total_cost = 0
-    for index, instance in enumerate(instances, start=1):
-        rate = instance.rate or 0
-        total_cost += rate
-        data.append([
-            index,
-            instance.work_order.delivery_date.strftime('%d/%m/%Y') if instance.work_order.delivery_date else '',
-            instance.material.name if instance.material else "-",
-            instance.quantity,
-            rate,
-            instance.work_order.get_status_display(),
-        ])
+    for idx, instance in enumerate(instances, start=1):
+        data.append({
+            '#': idx,
+            'Date Added': instance.date_added.strftime('%d-%m-%Y') if instance.date_added else '',
+            'Item Name': instance.material.name if instance.material else '',
+            'Quantity Used': float(instance.quantity),
+            'Cost': float(instance.rate),
+            'Section Name': instance.work_order.get_status_display() if instance.work_order else '',
+            'Delivery Date': instance.work_order.delivery_date.strftime('%d/%m/%Y') if instance.work_order and instance.work_order.delivery_date else ''
+        })
 
-    # Append total row
-    data.append(["", "", "", "", "TOTAL", total_cost])
+    df = pd.DataFrame(data)
 
-    # Create DataFrame
-    df = pd.DataFrame(data, columns=[
-        "#", "Delivery Date", "Item Name", "Quantity Used", "Cost", "Section Name"
-    ])
-
-    # Generate Excel Response
+    # Prepare Excel response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="accessories_utilized.xlsx"'
 
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Accessories Utilized', index=False)
 
-        # Style headers and total row
-        workbook = writer.book
+        # Styling and Totals
         sheet = writer.sheets['Accessories Utilized']
         header_font = Font(bold=True)
         for col in range(1, len(df.columns) + 1):
             sheet.cell(row=1, column=col).font = header_font
 
-        total_row = len(df) + 1
-        sheet.cell(row=total_row, column=5).font = Font(bold=True)
-        sheet.cell(row=total_row, column=6).font = Font(bold=True)
+        # Determine column indexes (1-based)
+        item_col = df.columns.get_loc('Item Name') + 1
+        qty_col = df.columns.get_loc('Quantity Used') + 1
+        cost_col = df.columns.get_loc('Cost') + 1
+
+        # Totals row (after data)
+        total_row = len(df) + 2
+        sheet.cell(row=total_row, column=item_col).value = 'Total:'
+        sheet.cell(row=total_row, column=qty_col).value = total_quantity
+        sheet.cell(row=total_row, column=cost_col).value = total_cost
+
+        # Bold total row
+        sheet.cell(row=total_row, column=item_col).font = Font(bold=True)
+        sheet.cell(row=total_row, column=qty_col).font = Font(bold=True)
+        sheet.cell(row=total_row, column=cost_col).font = Font(bold=True)
 
     return response
-
-
 
 @login_required
 # @role_required(['superadmin'])
