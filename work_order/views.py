@@ -2489,9 +2489,203 @@ def export_work_report_excel(request):
 @login_required
 # @role_required(['superadmin'])
 def work_order_used_accessories_report(request):
+    today = datetime.today().date()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    query = request.GET.get("q")
+    project_name = request.GET.get("project_name")
+
+    # Default to today's date if not provided
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(
+        is_deleted=False,
+        work_order__is_deleted=False,
+        date_added__date__range=(start_date_obj, end_date_obj)
+    )
+
+    if query:
+        filters &= (
+            Q(work_order__order_no__icontains=query) |
+            Q(material__name__icontains=query) |
+            Q(model_no__icontains=query)
+        )
+
+    if project_name:
+        filters &= Q(work_order__order_no=project_name)
+
+    queryset = (
+        WorkOrderItems.objects
+        .filter(filters)
+        .exclude(work_order__status="030")
+        .select_related('work_order', 'material', 'material_type')
+        .order_by("-date_added")
+    )
+
+    # Calculate totals
+    total_quantity = queryset.aggregate(total=Sum('quantity'))['total'] or 0
+    total_rate = queryset.aggregate(total=Sum('estimate_rate'))['total'] or 0
+    total_cost = sum([item.quantity * item.estimate_rate for item in queryset])
+
+    project_names = WorkOrder.objects.filter(is_deleted=False).values_list('order_no', flat=True).distinct()
+
     context = {
+        'instances': queryset,
         'page_name': 'Work Order Used Accessories Report',
         'page_title': 'Work Order Used Accessories Report',
-        
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+        'project_names': project_names,
+        'selected_project': project_name,
+        'total_quantity': total_quantity,
+        'total_rate': total_rate,
+        'total_cost': total_cost,
     }
     return render(request, 'admin_panel/pages/reports/work_order_used_accessories_report.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def print_work_order_used_accessories_report(request):
+    today = datetime.today().date()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    query = request.GET.get("q")
+    project_name = request.GET.get("project_name")
+
+    # Default to today's date if not provided
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+
+    filters = Q(
+        is_deleted=False,
+        work_order__is_deleted=False,
+        date_added__date__range=(start_date_obj, end_date_obj)
+    )
+
+    if query:
+        filters &= (
+            Q(work_order__order_no__icontains=query) |
+            Q(material__name__icontains=query) |
+            Q(model_no__icontains=query)
+        )
+
+    if project_name:
+        filters &= Q(work_order__order_no=project_name)
+
+    queryset = (
+        WorkOrderItems.objects
+        .filter(filters)
+        .exclude(work_order__status="030")
+        .select_related('work_order', 'material', 'material_type')
+        .order_by("-date_added")
+    )
+
+    # Calculate totals
+    total_quantity = queryset.aggregate(total=Sum('quantity'))['total'] or 0
+    total_rate = queryset.aggregate(total=Sum('estimate_rate'))['total'] or 0
+    total_cost = sum([item.quantity * item.estimate_rate for item in queryset])
+
+    project_names = WorkOrder.objects.filter(is_deleted=False).values_list('order_no', flat=True).distinct()
+
+    context = {
+        'instances': queryset,
+        'page_name': 'Work Order Used Accessories Report',
+        'page_title': 'Work Order Used Accessories Report',
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+        'project_names': project_names,
+        'selected_project': project_name,
+        'total_quantity': total_quantity,
+        'total_rate': total_rate,
+        'total_cost': total_cost,
+    }
+    return render(request, 'admin_panel/pages/reports/wo_used_accessories_report.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def export_work_order_used_accessories_report(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    project_name = request.GET.get('project_name')
+    search_query = request.GET.get('q')
+
+    queryset = WorkOrderItems.objects.select_related('work_order', 'material').filter(is_deleted=False)
+
+    if start_date:
+        queryset = queryset.filter(date_added__date__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(date_added__date__lte=end_date)
+    if project_name:
+        queryset = queryset.filter(work_order__order_no__icontains=project_name)
+    if search_query:
+        queryset = queryset.filter(
+            Q(material__name__icontains=search_query) |
+            Q(work_order__order_no__icontains=search_query)
+        )
+
+    data = []
+    for obj in queryset:
+        data.append({
+            'Order Added Date': obj.date_added.strftime('%d-%m-%Y') if obj.date_added else '',
+            'Project Name': obj.work_order.order_no,
+            'Accessories Used': obj.material.name if obj.material else '',
+            'Quantity': obj.quantity,
+            'Rate': obj.estimate_rate,
+            'Total': obj.quantity * obj.estimate_rate,
+            'Section Name': obj.work_order.get_status_display(),
+        })
+
+    df = pd.DataFrame(data)
+
+    # Calculate totals
+    total_quantity = df['Quantity'].sum() if not df.empty else 0
+    total_rate = df['Rate'].sum() if not df.empty else 0
+    total_cost = df['Total'].sum() if not df.empty else 0
+
+    # Add a total row
+    total_row = {
+        'Order Added Date': '',
+        'Project Name': '',
+        'Accessories Used': 'Total',
+        'Quantity': total_quantity,
+        'Rate': total_rate,
+        'Total': total_cost,
+        'Section Name': ''
+    }
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"work_order_used_accessories_report_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Work Report', index=False)
+
+        sheet = writer.sheets['Work Report']
+        header_font = Font(bold=True)
+
+        # Bold header row
+        for cell in sheet[1]:
+            cell.font = header_font
+
+        # Bold total row
+        total_row_index = len(df.index)
+        for cell in sheet[total_row_index]:
+            cell.font = header_font
+
+    return response

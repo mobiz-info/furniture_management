@@ -1,81 +1,76 @@
-
 {% extends 'admin_panel/base.html' %}
 {% load static %}
 {% load main_templates_tags %}
-{% load work_order_templatetags %}
+{% load el_pagination_tags %}
 
 {% block content %}
+<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
-        <!-- Page-Title -->
+        <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-title-box">
                     <div class="row">
                         <div class="col-lg-8">
-                            <h4 class="page-title">{{page_title}}</h4>
-                        </div><!--end col-->
-                        <div class="col-lg-4 col-sm-2 float-right ml-auto">
-                            <form method="get" action="{% url 'work_order:wood_work_orders_list' %}">
-                                <li class="list-inline-item w-100">
-                                    <div class="input-group">
-                                        <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
-                                               class="form-control" />
-                                        <span class="input-group-append">
-                                            <button type="submit" class="btn btn-soft-primary btn-sm"><i class="fas fa-search"></i></button>
-                                        </span>
-                                    </div>
-                                </li>
-                            </form>
+                            <h4 class="page-title">{{ page_title }}</h4>
                         </div>
-                    </div><!--end row-->                                                              
-                </div><!-- end page-title-box -->
-            </div><!--end col-->
-        </div><!--end row-->
-        <!-- end page title end breadcrumb -->
+                    </div>
+                </div>
 
-        <div class="row">
-            <div class="col-lg-12">
+                <!-- Card -->
                 <div class="card">
-                    <div class="card-header d-flex" style="flex-direction: row; justify-content: space-between; align-items: center;">
-                        <div class="col-lg-2">
-                            <h4 class="card-title">Accessories Used View</h4>
-                        </div>
-                        <div class="col-md-4 mt-3 text-center">
-                            <div class="toggle-search">
-                                <div class="toggle">
-                                    <label>
-                                        <input type="radio" name="assignment_status" value="unassigned" checked>
-                                        Date
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="assignment_status" value="assigned">
-                                        Project
-                                    </label>
+                    <div class="card-header">
+                        <div class="d-flex align-items-end justify-content-between flex-wrap">
+                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <form method="get" action="{% url 'work_order:work_order_used_accessories_report' %}" class="form-inline flex-wrap">
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="start_date" class="mr-2">Start Date</label>
+                                    <input type="date" class="form-control" name="start_date" id="start_date"
+                                        value="{{ request.GET.start_date }}">
                                 </div>
-                            </div>
-                        </div>
-                        <!-- Filter and other elements -->
-                        <div class="col-md-4 text-right">
-                            <div class="dropdown" style="display: inline;width: max-content;">
-                                <button class="btn btn-info dropdown-toggle" type="button" id="filterMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="ri-filter-fill"></i> Filter
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterMenuButton">
-                                    <form action="." method="GET" class="px-4 py-3">
-                                        <div class="form-group">
-                                            <label for="inputField">Select Date</label>
-                                            <input type="text" id="reportrange" class="form-control" name="date_range" value="{% if not filter_data.date_range %}{{first_date_formatted}} - {{last_date_formatted}}{% else %}{{filter_data.date_range}}{% endif %}" style="display: inline;width: max-content;">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="inputField">Name</label>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="inputField">Location</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Apply</button>
-                                  </form>
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="end_date" class="mr-2">End Date</label>
+                                    <input type="date" class="form-control" name="end_date" id="end_date"
+                                        value="{{ request.GET.end_date }}">
                                 </div>
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="project_name" class="mr-2">Project Name</label>
+                                    <select name="project_name" class="form-control">
+                                        <option value="">All</option>
+                                        {% for name in project_names %}
+                                            <option value="{{ name }}" {% if name == selected_project %}selected{% endif %}>{{ name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="q" class="mr-2">Search</label>
+                                    <div class="input-group">
+                                        <input name="q" type="text" value="{{ request.GET.q|default:'' }}">
+
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-soft-primary btn-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="mb-2 ml-2">
+                                <a href="{% url 'work_order:print_work_order_used_accessories_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.project_name %}&project_name={{ request.GET.project_name }}{% endif %}"
+                                target="_blank"
+                                class="btn btn-light border-0 ripple-surface-dark mr-2"
+                                style="color:#000">
+                                    <i class="ri-printer-line text-primary"></i> Print
+                                </a>
+                                <a href="{% url 'work_order:export_work_order_used_accessories_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.project_name %}&project_name={{ request.GET.project_name }}{% endif %}"
+                                target="_blank"
+                                class="btn btn-light border-0 ripple-surface-dark"
+                                style="color:#000">
+                                    <i class="ri-file-excel-2-line text-danger"></i> Export
+                                </a>
+
                             </div>
                         </div>
                     </div>
@@ -85,167 +80,74 @@
                             <table class="table mb-0" style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <th class="font-weight-bold text-center">Sl No</th>
-                                        <th class="font-weight-bold text-center">Project Name</th>
-                                        <th class="font-weight-bold text-center">Customer Name</th>
-                                        <th class="font-weight-bold text-center">No of Items</th>
-                                        <th class="font-weight-bold text-center">Delivery Date</th>
-                                        <th class="font-weight-bold text-center">Wood Assigned</th>
-                                        <th class="font-weight-bold text-center">Assign staff</th>
-                                        <th class="font-weight-bold text-right">Action</th>
+                                        <th class="font-weight-bold text-center">#</th>
+                                        <th class="font-weight-bold text-left"> Order Added Date</th>
+                                        <th class="font-weight-bold text-left">Project Name</th>
+                                        <th class="font-weight-bold text-left">Accessories Used</th>
+                                        <th class="font-weight-bold text-left">Quantity</th>
+                                        <th class="font-weight-bold text-left">Rate</th>
+                                        <th class="font-weight-bold text-left">Total</th>
+                                        <th class="font-weight-bold text-left">Section Name</th>
                                     </tr>
                                 </thead>
-                                <tbody id="work-orders-table">
-                                    {% for order in work_orders %}
-                                    <tr class="{% if order.is_assigned %}assigned{% else %}unassigned{% endif %}">
-                                        <td class="text-center">{{forloop.counter}}</td>
-                                        <td class="text-center">{{ order.order_no }}</td>
-                                        <td class="text-center">{{ order.customer.name }}</td>
-                                        <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
-                                        <td class="text-center">{{ order.delivery_date }}</td>
-                                        {% if order.is_assigned %}
-                                            <td class="text-center"><a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{order.id }}">Allocated</a></td>
-                                        {% else %}
-                                            <td class="text-center"><a href="{% url 'work_order:assign_wood' order.id %}">Assign Wood</a></td>
-                                        {% endif %}
-                                        <td class="text-center"><a href="{% url 'work_order:wood-order-staff-assign' order.id %}">Assign staff</a></td>
-                                        <td class="text-right">
-                                            <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{order.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
-                                            <a href="{% url 'work_order:work_order_info' pk=order.pk %}"><i class="las la-eye text-success font-18"></i></a>
-                                            <a href="{% url 'work_order:edit_work_order' pk=order.pk %}"><i class="las la-pen text-info font-18"></i></a>
-                                            <a data-id="{{order.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" href="{% url 'work_order:delete_work_order' pk=order.pk %}"><i class="las la-trash-alt text-danger font-18"></i></a>
-                                        </td>
-                                    </tr>
+                                <tbody>
+                                    {% load el_pagination_tags %}
+                                    {% paginate 10 instances %}
+                                    {% for instance in instances %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td class="text-left">{{ instance.date_added|date:"d-m-Y"}}</td>
+                                            <td class="text-left">{{ instance.work_order.order_no}}</td>
+                                            <td class="text-left">{{ instance.material.name }}</td>
+                                            <td class="text-left">{{ instance.quantity }}</td>
+                                            <td class="text-left">{{ instance.estimate_rate }}</td>
+                                            <td class="text-left">{{ instance.total_price }}</td>
+                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No data available</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="font-weight-bold text-right">Total:</td>
+                                        <td class="font-weight-bold text-left">{{ total_quantity }}</td>
+                                        <td class="font-weight-bold text-left">{{ total_rate }}</td>
+                                        <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+
                             </table>
+
+                            <!-- Pagination -->
+                            {% get_pages %}
+                            <div class="clearfix"></div>
+                            <div class="row pagi my-3">
+                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                    <div class="m-t-10">
+                                        Showing {{ title }}
+                                        <span class="current_page_index">{{ pages.current_start_index }}</span> -
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of
+                                        <span class="total_count">{{ pages.total_count }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <!-- end table responsive -->
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal -->
-<div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignModalLabel">Assigned Wood Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <div id="assigned-wood-details">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div><!-- container -->
 </div>
- <!-- Modal -->
- <div class="modal fade" id="WorkAssignModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Assign Section</h5>
-            <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close" onclick="clearForm()">
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <form action="{% url 'work_order:assign_work_order' %}" method="POST" enctype="multipart/form-data" class="ajax redirect">
-              <div class="modal-body">
-                  {% csrf_token %}
-                  {% work_order_status_assign_form as workstatusassignform %}
-                  <input type="hidden" name="order_id" class="form-control" id="orderIdModalField">
-                  <div class="form-group">
-                      <label for="recipient-name" class="col-form-label">Status:</label>
-                      {{workstatusassignform.to_section}}
-                  </div>
-                  <div class="form-group">
-                      <label for="message-text" class="col-form-label">Remark:</label>
-                      {{workstatusassignform.description}}
-                  </div>
-              </div>
-              <div class="modal-footer">
-                  <button type="submit" class="btn bg-gradient-primary" >Submit</button>
-              </div>
-          </form>
-        </div>
-      </div>
-</div>
-
+<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var radioButtons = document.getElementsByName('assignment_status');
-        var tableRows = document.getElementById('work-orders-table').getElementsByTagName('tr');
-
-        function filterOrders() {
-            var selectedValue = document.querySelector('input[name="assignment_status"]:checked').value;
-            
-            for (var i = 0; i < tableRows.length; i++) {
-                if (selectedValue === 'assigned' && tableRows[i].classList.contains('assigned')) {
-                    tableRows[i].style.display = '';
-                } else if (selectedValue === 'unassigned' && tableRows[i].classList.contains('unassigned')) {
-                    tableRows[i].style.display = '';
-                } else {
-                    tableRows[i].style.display = 'none';
-                }
-            }
-        }
-
-        for (var i = 0; i < radioButtons.length; i++) {
-            radioButtons[i].addEventListener('change', filterOrders);
-        }
-
-        // Initial filter on page load
-        filterOrders();
-
-        // Modal related code
-        document.querySelectorAll('.view-assignments').forEach(function(element) {
-            element.addEventListener('click', function(event) {
-                var orderId = event.target.getAttribute('data-order-id');
-                fetchAssignedWoodDetails(orderId);
-            });
-        });
-
-        function fetchAssignedWoodDetails(orderId) {
-            var url = "{% url 'work_order:allocated_wood' 0 %}".replace('0', orderId);
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.html) {
-                        document.getElementById('assigned-wood-details').innerHTML = data.html;
-                    } else {
-                        console.error('No HTML content received');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching assigned wood details:', error);
-                });
-        }
-    });
-</script>
-
-<script>
-function handleButtonClick(button) {
-    $('#WorkAssignModal').modal('show');
-    var orderId = $(button).attr("data-unique_id");
-    $("#orderIdModalField").val(orderId);
-};
-
-function clearForm() {
-    // Clear the form fields
-    document.getElementById('orderIdModalField').value = '';
-    document.getElementById('id_status').value = '';
-    document.getElementById('id_description').value = '';
-    $('#WorkAssignModal').modal('hide');
-}
-</script>
+    {% load static %}
 {% endblock static %}
