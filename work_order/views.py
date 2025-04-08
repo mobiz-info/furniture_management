@@ -2091,32 +2091,29 @@ def accessories_utilized(request):
     end_date = request.GET.get('end_date')
     query = request.GET.get("q")
 
-    # Base queryset
-    instances = WoodWorkAssign.objects.filter(
-        is_deleted=False,
-        work_order__is_deleted=False
-    )
-    # instances = WoodWorkAssign.objects.filter(work_order__delivery_date__lt=datetime.today().date())
-
-
-    # Date filtering
+    # Parse or default to today's date
     if start_date and end_date:
-        instances = instances.filter(
-            work_order__delivery_date__range=[start_date, end_date]
-        )
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
     else:
-        instances = instances.filter(
-            work_order__delivery_date=today
-        )
+        start_date_obj = end_date_obj = today
 
-    # Search filtering
+    # Filtering
+    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(work_order__delivery_date__range=(start_date_obj, end_date_obj))
+
     if query:
-        instances = instances.filter(
+        filters &= (
             Q(material__name__icontains=query) |
             Q(material_type__name__icontains=query)
         )
 
-    # Total cost calculation
+    instances = WoodWorkAssign.objects.select_related(
+        'work_order', 'material', 'material_type'
+    ).filter(filters).order_by('-work_order__delivery_date')
+
     total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
 
     context = {
@@ -2124,9 +2121,12 @@ def accessories_utilized(request):
         'total_cost': total_cost,
         'page_name': 'Accessories Utilized Report',
         'page_title': 'Accessories Utilized Report',
+        'filter_data': {'q': query} if query else {},
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
     }
-    return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
 
+    return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
 @login_required
 # @role_required(['superadmin'])
 def print_accessories_utilized(request):
@@ -2485,3 +2485,13 @@ def export_work_report_excel(request):
             cell.font = header_font
 
     return response
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_used_accessories_report(request):
+    context = {
+        'page_name': 'Work Order Used Accessories Report',
+        'page_title': 'Work Order Used Accessories Report',
+        
+    }
+    return render(request, 'admin_panel/pages/reports/work_order_used_accessories_report.html', context)

@@ -1,12 +1,12 @@
 {% extends 'admin_panel/base.html' %}
 {% load static %}
 {% load main_templates_tags %}
+{% load el_pagination_tags %}
 
 {% block content %}
-<!-- Page Content-->
+<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
-
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -17,50 +17,53 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Filters -->
-        <div class="row">
-            <div class="col-lg-12">
+                <!-- Card -->
                 <div class="card">
                     <div class="card-header">
-                        <form method="get" action="{% url 'work_order:accessories_utilized' %}">
-                            <div class="form-row align-items-end">
-                                <div class="col-md-3">
-                                    <label for="start_date">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ request.GET.start_date }}">
+                        <div class="d-flex align-items-end justify-content-between flex-wrap">
+                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <form method="get" action="{% url 'work_order:work_report' %}" class="form-inline flex-wrap">
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="start_date" class="mr-2">Start Date</label>
+                                    <input type="date" class="form-control" name="start_date" id="start_date"
+                                           value="{{ request.GET.start_date }}">
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="end_date">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ request.GET.end_date }}">
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="end_date" class="mr-2">End Date</label>
+                                    <input type="date" class="form-control" name="end_date" id="end_date"
+                                           value="{{ request.GET.end_date }}">
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="q">Search</label>
-                                    <input type="text" class="form-control" name="q" id="q" placeholder="Search" value="{{ request.GET.q }}">
-                                </div>
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                                </div>
-                            </div>
-                        </form>
+                                <div class="form-group mb-2 mr-2">
+                                    <label for="q" class="mr-2">Search</label>
+                                    <div class="input-group">
+                                        <input name="q" type="text" value="{{ request.GET.q|default:'' }}">
 
-                        <div class="text-right mt-3">
-                            <!-- Print Button -->
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-soft-primary btn-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="mb-2 ml-2">
                             <a href="{% url 'work_order:print_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark" style="color:#000">
-                                <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
-                            </a>
-
-                            <!-- Export Button -->
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
+                                   style="color:#000">
+                                    <i class="ri-printer-line text-primary"></i> Print
+                                </a>
                             <a href="{% url 'work_order:export_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                target="_blank" class="btn btn-light text-capitalize border-0 ripple-surface-dark ml-2" style="color:#000">
-                                <i class="ri-file-excel-2-line text-danger"></i> Export
-                            </a>
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark"
+                                   style="color:#000">
+                                    <i class="ri-file-excel-2-line text-danger"></i> Export
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Table -->
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table mb-0" style="width:100%;">
