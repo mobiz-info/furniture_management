@@ -2174,7 +2174,6 @@ def print_accessories_utilized(request):
 
     return render(request, 'admin_panel/pages/reports/accessories_utilized_print.html', context)
 
-from datetime import datetime
 
 @login_required
 # @role_required(['superadmin'])
