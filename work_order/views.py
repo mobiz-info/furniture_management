@@ -2517,7 +2517,7 @@ def work_order_used_accessories_report(request):
     results = []
     total_quantity = 0
     total_cost = 0
-    rate_list = []
+    total_rate = 0  # This will hold the sum of all rates
 
     for order in work_orders:
         combined_items = []
@@ -2549,7 +2549,7 @@ def work_order_used_accessories_report(request):
 
             results.extend(combined_items)
 
-    # 🔍 Search filter
+    #  Search filter
     if search_query:
         results = [
             item for item in results if
@@ -2557,16 +2557,24 @@ def work_order_used_accessories_report(request):
             search_query.lower() in item['material'].name.lower()
         ]
 
-    # 💰 Totals after filtering
+    # Totals after filtering
     for item in results:
-        total_quantity += float(item['quantity'])
-        total_cost += float(item['total'])
-        rate_list.append(float(item['rate']))
+        try:
+            quantity = float(item['quantity'])
+        except (ValueError, TypeError):
+            quantity = 0
+        try:
+            rate = float(item['rate'])
+        except (ValueError, TypeError):
+            rate = 0
+
+        total_quantity += quantity
+        total_cost += item['total']
+        total_rate += rate
 
     results.sort(key=lambda x: x['date_added'], reverse=True)
-    average_rate = round(sum(rate_list) / len(rate_list), 2) if rate_list else 0
 
-    # 🧠 Project dropdown list
+    #  Project dropdown list
     project_names = WorkOrder.objects.filter(
         Q(id__in=WoodWorkAssign.objects.values('work_order')) |
         Q(id__in=Carpentary.objects.values('work_order')) |
@@ -2579,7 +2587,7 @@ def work_order_used_accessories_report(request):
     context = {
         'instances': results,
         'total_quantity': round(total_quantity, 2),
-        'total_rate': average_rate,
+        'total_rate': round(total_rate, 2),
         'total_cost': round(total_cost, 2),
         'start_date': start_date,
         'end_date': end_date,
@@ -2619,7 +2627,7 @@ def print_work_order_used_accessories_report(request):
     results = []
     total_quantity = 0
     total_cost = 0
-    rate_list = []
+    total_rate = 0  # This will hold the sum of all rates
 
     for order in work_orders:
         combined_items = []
@@ -2651,7 +2659,7 @@ def print_work_order_used_accessories_report(request):
 
             results.extend(combined_items)
 
-    # 🔍 Search filter
+    #  Search filter
     if search_query:
         results = [
             item for item in results if
@@ -2659,16 +2667,24 @@ def print_work_order_used_accessories_report(request):
             search_query.lower() in item['material'].name.lower()
         ]
 
-    # 💰 Totals after filtering
+    # Totals after filtering
     for item in results:
-        total_quantity += float(item['quantity'])
-        total_cost += float(item['total'])
-        rate_list.append(float(item['rate']))
+        try:
+            quantity = float(item['quantity'])
+        except (ValueError, TypeError):
+            quantity = 0
+        try:
+            rate = float(item['rate'])
+        except (ValueError, TypeError):
+            rate = 0
+
+        total_quantity += quantity
+        total_cost += item['total']
+        total_rate += rate
 
     results.sort(key=lambda x: x['date_added'], reverse=True)
-    average_rate = round(sum(rate_list) / len(rate_list), 2) if rate_list else 0
 
-    # 🧠 Project dropdown list
+    #  Project dropdown list
     project_names = WorkOrder.objects.filter(
         Q(id__in=WoodWorkAssign.objects.values('work_order')) |
         Q(id__in=Carpentary.objects.values('work_order')) |
@@ -2681,7 +2697,7 @@ def print_work_order_used_accessories_report(request):
     context = {
         'instances': results,
         'total_quantity': round(total_quantity, 2),
-        'total_rate': average_rate,
+        'total_rate': round(total_rate, 2),
         'total_cost': round(total_cost, 2),
         'start_date': start_date,
         'end_date': end_date,
@@ -2689,6 +2705,7 @@ def print_work_order_used_accessories_report(request):
         'selected_project': selected_project,
         'search_query': search_query,
     }
+
     return render(request, 'admin_panel/pages/reports/wo_used_accessories_report.html', context)
 
 @login_required
@@ -2720,6 +2737,7 @@ def export_work_order_used_accessories_report(request):
     results = []
     total_quantity = 0
     total_cost = 0
+    total_rate = 0
 
     for order in work_orders:
         combined_items = []
@@ -2768,6 +2786,7 @@ def export_work_order_used_accessories_report(request):
             'Section Name': instance['section'],
         }
         total_quantity += float(instance['quantity'])
+        total_rate += float(instance['rate'])        
         total_cost += float(instance['total'])
         data.append(row)
 
@@ -2779,7 +2798,7 @@ def export_work_order_used_accessories_report(request):
         'Project Name': 'Total',
         'Accessories Used': '',
         'Quantity': round(total_quantity, 2),
-        'Rate': '',
+        'Rate': round(total_rate, 2),
         'Total': round(total_cost, 2),
         'Section Name': ''
     }
