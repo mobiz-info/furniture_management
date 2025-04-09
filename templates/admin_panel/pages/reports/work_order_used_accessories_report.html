@@ -2,6 +2,7 @@
 {% load static %}
 {% load main_templates_tags %}
 {% load el_pagination_tags %}
+{% load accessory_tags %}
 
 {% block content %}
 <!-- Page Content -->
@@ -27,13 +28,14 @@
                                 <div class="form-group mb-2 mr-2">
                                     <label for="start_date" class="mr-2">Start Date</label>
                                     <input type="date" class="form-control" name="start_date" id="start_date"
-                                        value="{{ request.GET.start_date }}">
+                                        value="{{ request.GET.start_date|default:start_date|date:'Y-m-d' }}">
                                 </div>
                                 <div class="form-group mb-2 mr-2">
                                     <label for="end_date" class="mr-2">End Date</label>
                                     <input type="date" class="form-control" name="end_date" id="end_date"
-                                        value="{{ request.GET.end_date }}">
+                                        value="{{ request.GET.end_date|default:end_date|date:'Y-m-d' }}">
                                 </div>
+
                                 <div class="form-group mb-2 mr-2">
                                     <label for="project_name" class="mr-2">Project Name</label>
                                     <select name="project_name" class="form-control">
@@ -78,39 +80,39 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table mb-0" style="width:100%;">
-                                <thead>
-                                    <tr>
-                                        <th class="font-weight-bold text-center">#</th>
-                                        <th class="font-weight-bold text-left"> Order Added Date</th>
-                                        <th class="font-weight-bold text-left">Project Name</th>
-                                        <th class="font-weight-bold text-left">Accessories Used</th>
-                                        <th class="font-weight-bold text-left">Quantity</th>
-                                        <th class="font-weight-bold text-left">Rate</th>
-                                        <th class="font-weight-bold text-left">Total</th>
-                                        <th class="font-weight-bold text-left">Section Name</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% load el_pagination_tags %}
-                                    {% paginate 10 instances %}
-                                    {% for instance in instances %}
+                                    <thead>
                                         <tr>
-                                            <td class="text-center">{{ forloop.counter }}</td>
-                                            <td class="text-left">{{ instance.date_added|date:"d-m-Y"}}</td>
-                                            <td class="text-left">{{ instance.work_order.order_no}}</td>
-                                            <td class="text-left">{{ instance.material.name }}</td>
-                                            <td class="text-left">{{ instance.quantity }}</td>
-                                            <td class="text-left">{{ instance.estimate_rate }}</td>
-                                            <td class="text-left">{{ instance.total_price }}</td>
-                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                                            <th class="font-weight-bold text-center">#</th>
+                                            <th class="font-weight-bold text-left">Order Added Date</th>
+                                            <th class="font-weight-bold text-left">Project Name</th>
+                                            <th class="font-weight-bold text-left">Accessories Used</th>
+                                            <th class="font-weight-bold text-left">Quantity</th>
+                                            <th class="font-weight-bold text-left">Rate</th>
+                                            <th class="font-weight-bold text-left">Total</th>
+                                            <th class="font-weight-bold text-left">Section Name</th>
                                         </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center">No data available</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                                <tfoot>
+                                    </thead>
+                                    <tbody>
+                                        {% load el_pagination_tags %}
+                                        {% paginate 10 instances %}
+                                        {% for instance in instances %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-left">{{ instance.date_added|date:"d-m-Y" }}</td>
+                                                <td class="text-left">{{ instance.work_order.order_no }}</td>
+                                                <td class="text-left">{{ instance.material.name }}</td>
+                                                <td class="text-left">{{ instance.quantity }}</td>
+                                                <td class="text-left">{{ instance.rate }}</td>
+                                                <td class="text-left">{{ instance.quantity|multiply:instance.rate }}</td>
+                                                <td class="text-left">{{ instance.section }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="8" class="text-center">No accessories used data found.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                     <tfoot>
                                     <tr>
                                         <td colspan="4" class="font-weight-bold text-right">Total:</td>
                                         <td class="font-weight-bold text-left">{{ total_quantity }}</td>
@@ -119,8 +121,8 @@
                                         <td></td>
                                     </tr>
                                 </tfoot>
+                                </table>
 
-                            </table>
 
                             <!-- Pagination -->
                             {% get_pages %}

@@ -16,7 +16,7 @@ from django.forms import formset_factory, inlineformset_factory
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
-from django.db.models.functions import TruncDate
+from django.db.models import Exists, OuterRef
 
 # rest framework
 from api.v1.customers.serializers import CustomerSerializer
@@ -29,7 +29,7 @@ from settings.models import *
 from main.decorators import role_required
 from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill
 
 import pandas as pd
@@ -2491,182 +2491,296 @@ def export_work_report_excel(request):
 @login_required
 # @role_required(['superadmin'])
 def work_order_used_accessories_report(request):
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    selected_project = request.GET.get('project_name')
+    search_query = request.GET.get('q', '').strip()
+
     today = datetime.today().date()
+    yesterday = today - timedelta(days=1)
 
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    query = request.GET.get("q")
-    project_name = request.GET.get("project_name")
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else yesterday
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
 
-    # Default to today's date if not provided
-    if start_date and end_date:
-        try:
-            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
-        except ValueError:
-            start_date_obj = end_date_obj = today
-    else:
-        start_date_obj = end_date_obj = today
+    work_orders = WorkOrder.objects.filter(
+        Q(id__in=WoodWorkAssign.objects.values('work_order')) |
+        Q(id__in=Carpentary.objects.values('work_order')) |
+        Q(id__in=Polish.objects.values('work_order')) |
+        Q(id__in=Glass.objects.values('work_order')) |
+        Q(id__in=Packing.objects.values('work_order')),
+        is_deleted=False
+    ).distinct().order_by('-date_added')
 
-    filters = Q(
-        is_deleted=False,
-        work_order__is_deleted=False,
-        date_added__date__range=(start_date_obj, end_date_obj)
-    )
+    if selected_project:
+        work_orders = work_orders.filter(order_no=selected_project)
 
-    if query:
-        filters &= (
-            Q(work_order__order_no__icontains=query) |
-            Q(material__name__icontains=query) |
-            Q(model_no__icontains=query)
-        )
+    results = []
+    total_quantity = 0
+    total_cost = 0
+    rate_list = []
 
-    if project_name:
-        filters &= Q(work_order__order_no=project_name)
+    for order in work_orders:
+        combined_items = []
 
-    queryset = (
-        WorkOrderItems.objects
-        .filter(filters)
-        .exclude(work_order__status="030")
-        .select_related('work_order', 'material', 'material_type')
-        .order_by("-date_added")
-    )
+        for model in [WoodWorkAssign, Carpentary, Polish, Glass, Packing]:
+            entries = model.objects.filter(
+                work_order=order,
+                is_deleted=False,
+                date_added__date__range=(start_date, end_date)
+            ).order_by('-date_added')
 
-    # Calculate totals
-    total_quantity = queryset.aggregate(total=Sum('quantity'))['total'] or 0
-    total_rate = queryset.aggregate(total=Sum('estimate_rate'))['total'] or 0
-    total_cost = sum([item.quantity * item.estimate_rate for item in queryset])
+            for entry in entries:
+                combined_items.append({
+                    'date_added': entry.date_added,
+                    'work_order': entry.work_order,
+                    'material': entry.material,
+                    'quantity': entry.quantity,
+                    'rate': entry.rate,
+                    'total': float(entry.quantity) * float(entry.rate),
+                    'section': model.__name__,
+                })
 
-    project_names = WorkOrder.objects.filter(is_deleted=False).values_list('order_no', flat=True).distinct()
+        if combined_items:
+            latest_status = order.workorderstatus_set.order_by('-date_added').first()
+            latest_section = latest_status.get_to_section_display() if latest_status else order.get_status_display()
+
+            for item in combined_items:
+                item['section'] = latest_section
+
+            results.extend(combined_items)
+
+    # 🔍 Search filter
+    if search_query:
+        results = [
+            item for item in results if
+            search_query.lower() in item['work_order'].order_no.lower() or
+            search_query.lower() in item['material'].name.lower()
+        ]
+
+    # 💰 Totals after filtering
+    for item in results:
+        total_quantity += float(item['quantity'])
+        total_cost += float(item['total'])
+        rate_list.append(float(item['rate']))
+
+    results.sort(key=lambda x: x['date_added'], reverse=True)
+    average_rate = round(sum(rate_list) / len(rate_list), 2) if rate_list else 0
+
+    # 🧠 Project dropdown list
+    project_names = WorkOrder.objects.filter(
+        Q(id__in=WoodWorkAssign.objects.values('work_order')) |
+        Q(id__in=Carpentary.objects.values('work_order')) |
+        Q(id__in=Polish.objects.values('work_order')) |
+        Q(id__in=Glass.objects.values('work_order')) |
+        Q(id__in=Packing.objects.values('work_order')),
+        is_deleted=False
+    ).values_list('order_no', flat=True).distinct()
 
     context = {
-        'instances': queryset,
-        'page_name': 'Work Order Used Accessories Report',
-        'page_title': 'Work Order Used Accessories Report',
-        'start_date': start_date_obj.strftime('%Y-%m-%d'),
-        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+        'instances': results,
+        'total_quantity': round(total_quantity, 2),
+        'total_rate': average_rate,
+        'total_cost': round(total_cost, 2),
+        'start_date': start_date,
+        'end_date': end_date,
         'project_names': project_names,
-        'selected_project': project_name,
-        'total_quantity': total_quantity,
-        'total_rate': total_rate,
-        'total_cost': total_cost,
+        'selected_project': selected_project,
+        'search_query': search_query,
     }
+
     return render(request, 'admin_panel/pages/reports/work_order_used_accessories_report.html', context)
 
 @login_required
 # @role_required(['superadmin'])
 def print_work_order_used_accessories_report(request):
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    selected_project = request.GET.get('project_name')
+    search_query = request.GET.get('q', '').strip()
+
     today = datetime.today().date()
+    yesterday = today - timedelta(days=1)
 
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    query = request.GET.get("q")
-    project_name = request.GET.get("project_name")
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else yesterday
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
 
-    # Default to today's date if not provided
-    if start_date and end_date:
-        try:
-            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
-        except ValueError:
-            start_date_obj = end_date_obj = today
-    else:
-        start_date_obj = end_date_obj = today
+    work_orders = WorkOrder.objects.filter(
+        Q(id__in=WoodWorkAssign.objects.values('work_order')) |
+        Q(id__in=Carpentary.objects.values('work_order')) |
+        Q(id__in=Polish.objects.values('work_order')) |
+        Q(id__in=Glass.objects.values('work_order')) |
+        Q(id__in=Packing.objects.values('work_order')),
+        is_deleted=False
+    ).distinct().order_by('-date_added')
 
-    filters = Q(
-        is_deleted=False,
-        work_order__is_deleted=False,
-        date_added__date__range=(start_date_obj, end_date_obj)
-    )
+    if selected_project:
+        work_orders = work_orders.filter(order_no=selected_project)
 
-    if query:
-        filters &= (
-            Q(work_order__order_no__icontains=query) |
-            Q(material__name__icontains=query) |
-            Q(model_no__icontains=query)
-        )
+    results = []
+    total_quantity = 0
+    total_cost = 0
+    rate_list = []
 
-    if project_name:
-        filters &= Q(work_order__order_no=project_name)
+    for order in work_orders:
+        combined_items = []
 
-    queryset = (
-        WorkOrderItems.objects
-        .filter(filters)
-        .exclude(work_order__status="030")
-        .select_related('work_order', 'material', 'material_type')
-        .order_by("-date_added")
-    )
+        for model in [WoodWorkAssign, Carpentary, Polish, Glass, Packing]:
+            entries = model.objects.filter(
+                work_order=order,
+                is_deleted=False,
+                date_added__date__range=(start_date, end_date)
+            ).order_by('-date_added')
 
-    # Calculate totals
-    total_quantity = queryset.aggregate(total=Sum('quantity'))['total'] or 0
-    total_rate = queryset.aggregate(total=Sum('estimate_rate'))['total'] or 0
-    total_cost = sum([item.quantity * item.estimate_rate for item in queryset])
+            for entry in entries:
+                combined_items.append({
+                    'date_added': entry.date_added,
+                    'work_order': entry.work_order,
+                    'material': entry.material,
+                    'quantity': entry.quantity,
+                    'rate': entry.rate,
+                    'total': float(entry.quantity) * float(entry.rate),
+                    'section': model.__name__,
+                })
 
-    project_names = WorkOrder.objects.filter(is_deleted=False).values_list('order_no', flat=True).distinct()
+        if combined_items:
+            latest_status = order.workorderstatus_set.order_by('-date_added').first()
+            latest_section = latest_status.get_to_section_display() if latest_status else order.get_status_display()
+
+            for item in combined_items:
+                item['section'] = latest_section
+
+            results.extend(combined_items)
+
+    # 🔍 Search filter
+    if search_query:
+        results = [
+            item for item in results if
+            search_query.lower() in item['work_order'].order_no.lower() or
+            search_query.lower() in item['material'].name.lower()
+        ]
+
+    # 💰 Totals after filtering
+    for item in results:
+        total_quantity += float(item['quantity'])
+        total_cost += float(item['total'])
+        rate_list.append(float(item['rate']))
+
+    results.sort(key=lambda x: x['date_added'], reverse=True)
+    average_rate = round(sum(rate_list) / len(rate_list), 2) if rate_list else 0
+
+    # 🧠 Project dropdown list
+    project_names = WorkOrder.objects.filter(
+        Q(id__in=WoodWorkAssign.objects.values('work_order')) |
+        Q(id__in=Carpentary.objects.values('work_order')) |
+        Q(id__in=Polish.objects.values('work_order')) |
+        Q(id__in=Glass.objects.values('work_order')) |
+        Q(id__in=Packing.objects.values('work_order')),
+        is_deleted=False
+    ).values_list('order_no', flat=True).distinct()
 
     context = {
-        'instances': queryset,
-        'page_name': 'Work Order Used Accessories Report',
-        'page_title': 'Work Order Used Accessories Report',
-        'start_date': start_date_obj.strftime('%Y-%m-%d'),
-        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+        'instances': results,
+        'total_quantity': round(total_quantity, 2),
+        'total_rate': average_rate,
+        'total_cost': round(total_cost, 2),
+        'start_date': start_date,
+        'end_date': end_date,
         'project_names': project_names,
-        'selected_project': project_name,
-        'total_quantity': total_quantity,
-        'total_rate': total_rate,
-        'total_cost': total_cost,
+        'selected_project': selected_project,
+        'search_query': search_query,
     }
     return render(request, 'admin_panel/pages/reports/wo_used_accessories_report.html', context)
 
 @login_required
 # @role_required(['superadmin'])
 def export_work_order_used_accessories_report(request):
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    project_name = request.GET.get('project_name')
-    search_query = request.GET.get('q')
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    selected_project = request.GET.get('project_name')
+    search_query = request.GET.get('q', '').strip()
 
-    queryset = WorkOrderItems.objects.select_related('work_order', 'material').filter(is_deleted=False)
+    today = datetime.today().date()
+    yesterday = today - timedelta(days=1)
 
-    if start_date:
-        queryset = queryset.filter(date_added__date__gte=start_date)
-    if end_date:
-        queryset = queryset.filter(date_added__date__lte=end_date)
-    if project_name:
-        queryset = queryset.filter(work_order__order_no__icontains=project_name)
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else yesterday
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
+
+    work_orders = WorkOrder.objects.filter(
+        Q(id__in=WoodWorkAssign.objects.values('work_order')) |
+        Q(id__in=Carpentary.objects.values('work_order')) |
+        Q(id__in=Polish.objects.values('work_order')) |
+        Q(id__in=Glass.objects.values('work_order')) |
+        Q(id__in=Packing.objects.values('work_order')),
+        is_deleted=False
+    ).distinct().order_by('-date_added')
+
+    if selected_project:
+        work_orders = work_orders.filter(order_no=selected_project)
+
+    results = []
+    total_quantity = 0
+    total_cost = 0
+
+    for order in work_orders:
+        combined_items = []
+        for model in [WoodWorkAssign, Carpentary, Polish, Glass, Packing]:
+            entries = model.objects.filter(
+                work_order=order,
+                is_deleted=False,
+                date_added__date__range=(start_date, end_date)
+            ).order_by('-date_added')
+            for entry in entries:
+                combined_items.append({
+                    'date_added': entry.date_added,
+                    'work_order': entry.work_order,
+                    'material': entry.material,
+                    'quantity': entry.quantity,
+                    'rate': entry.rate,
+                    'total': float(entry.quantity) * float(entry.rate),
+                    'section': model.__name__,
+                })
+
+        if combined_items:
+            latest_status = order.workorderstatus_set.order_by('-date_added').first()
+            latest_section = latest_status.get_to_section_display() if latest_status else order.get_status_display()
+
+            for item in combined_items:
+                item['section'] = latest_section
+            results.extend(combined_items)
+
     if search_query:
-        queryset = queryset.filter(
-            Q(material__name__icontains=search_query) |
-            Q(work_order__order_no__icontains=search_query)
-        )
+        results = [
+            item for item in results if
+            search_query.lower() in item['work_order'].order_no.lower() or
+            search_query.lower() in item['material'].name.lower()
+        ]
 
     data = []
-    for obj in queryset:
-        data.append({
-            'Order Added Date': obj.date_added.strftime('%d-%m-%Y') if obj.date_added else '',
-            'Project Name': obj.work_order.order_no,
-            'Accessories Used': obj.material.name if obj.material else '',
-            'Quantity': obj.quantity,
-            'Rate': obj.estimate_rate,
-            'Total': obj.quantity * obj.estimate_rate,
-            'Section Name': obj.work_order.get_status_display(),
-        })
+    for i, instance in enumerate(results, start=1):
+        row = {
+            '#': i,
+            'Order Added Date': instance['date_added'].strftime('%d-%m-%Y'),
+            'Project Name': instance['work_order'].order_no,
+            'Accessories Used': instance['material'].name,
+            'Quantity': instance['quantity'],
+            'Rate': instance['rate'],
+            'Total': instance['total'],
+            'Section Name': instance['section'],
+        }
+        total_quantity += float(instance['quantity'])
+        total_cost += float(instance['total'])
+        data.append(row)
 
     df = pd.DataFrame(data)
 
-    # Calculate totals
-    total_quantity = df['Quantity'].sum() if not df.empty else 0
-    total_rate = df['Rate'].sum() if not df.empty else 0
-    total_cost = df['Total'].sum() if not df.empty else 0
-
-    # Add a total row
     total_row = {
+        '#': '',
         'Order Added Date': '',
-        'Project Name': '',
-        'Accessories Used': 'Total',
-        'Quantity': total_quantity,
-        'Rate': total_rate,
-        'Total': total_cost,
+        'Project Name': 'Total',
+        'Accessories Used': '',
+        'Quantity': round(total_quantity, 2),
+        'Rate': '',
+        'Total': round(total_cost, 2),
         'Section Name': ''
     }
     df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
@@ -2676,18 +2790,18 @@ def export_work_order_used_accessories_report(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='Work Report', index=False)
+        df.to_excel(writer, sheet_name='Used Accessories Report', index=False)
+        sheet = writer.sheets['Used Accessories Report']
 
-        sheet = writer.sheets['Work Report']
-        header_font = Font(bold=True)
+        bold_font = Font(bold=True)
 
         # Bold header row
         for cell in sheet[1]:
-            cell.font = header_font
+            cell.font = bold_font
 
-        # Bold total row
-        total_row_index = len(df.index)
-        for cell in sheet[total_row_index]:
-            cell.font = header_font
+        # Bold total row (last row in sheet)
+        total_row_idx = df.shape[0] + 1  # +1 for header row
+        for cell in sheet[total_row_idx]:
+            cell.font = bold_font
 
     return response
