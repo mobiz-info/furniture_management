@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+        @media print {
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2>Print-Production Cost Report</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-center">Date Added</th>
+                <th class="font-weight-bold text-left">Order No</th>
+                <th class="font-weight-bold text-left">Customer Name</th>
+                <th class="font-weight-bold text-left">No Of Items</th>
+                <th class="font-weight-bold text-right">Estimated Rate</th>
+                <th class="font-weight-bold text-center">Status</th>
+                <th class="font-weight-bold text-center">Actual Cost</th>
+                <th class="font-weight-bold text-center">Profit/Loss</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-center">{{ instance.date_added|date:"d-M-Y" }}</td>
+                    <td class="text-left">{{ instance.order_no }}</td>
+                    <td class="text-left">{{ instance.customer.name }}</td>
+                    <td class="text-left">{{ instance.number_of_items }}</td>
+                    <td class="text-right">{{ instance.total_estimate }}</td>
+                    <td class="text-center">{{ instance.get_status_display }}</td>
+                    <td class="text-center">{{ instance.get_actual_cost }}</td>
+                    <td class="text-center">{{ instance.get_profit_or_loss }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" class="text-right"><strong>Grand Total</strong></th>
+                <th class="text-left"><strong>{{ total_items }}</strong></th>
+                <th class="text-right"><strong>{{ total_estimate }}</strong></th>
+                <th></th>
+                <th class="text-center"><strong>{{ total_actual_cost }}</strong></th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

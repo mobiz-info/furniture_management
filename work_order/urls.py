@@ -88,5 +88,9 @@ urlpatterns = [
     path('work-order-used-accessories-report/', views.work_order_used_accessories_report, name='work_order_used_accessories_report'),
     path('print-work-order-used-accessories-report/', views.print_work_order_used_accessories_report, name='print_work_order_used_accessories_report'),
     path('export-work-order-used-accessories-report/', views.export_work_order_used_accessories_report, name='export_work_order_used_accessories_report'),
+    
+    path('production-cost-wo-list/', views.production_cost_wo_list, name='production_cost_wo_list'),
+    path('production-cost-wo-print/', views.production_cost_wo_print, name='production_cost_wo_print'),
+    path('production-cost-wo-export/', views.production_cost_wo_export, name='production_cost_wo_export'),
 
 ]

@@ -2824,3 +2824,206 @@ def export_work_order_used_accessories_report(request):
             cell.font = bold_font
 
     return response
+
+def production_cost_wo_list(request):
+    """
+    WorkOrder list view filtered by date and search
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+        filter_data['q'] = query
+
+    instances = instances.order_by("-date_added")
+    
+    # Totals
+    total_items = sum([instance.number_of_items() for instance in instances])
+    total_estimate = sum([instance.total_estimate for instance in instances])
+    total_actual_cost = sum([instance.get_actual_cost() for instance in instances])
+
+    context = {
+        'instances': instances,
+        'page_name': 'Production Cost Report List',
+        'page_title': 'Production Cost Report List',
+        'filter_data': filter_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_items': total_items,
+        'total_estimate': total_estimate,
+        'total_actual_cost': total_actual_cost,
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_list.html', context)
+
+def production_cost_wo_print(request):
+    """
+    WorkOrder list view filtered by date and search
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+        filter_data['q'] = query
+
+    instances = instances.order_by("-date_added")
+    
+    # Totals
+    total_items = sum([instance.number_of_items() for instance in instances])
+    total_estimate = sum([instance.total_estimate for instance in instances])
+    total_actual_cost = sum([instance.get_actual_cost() for instance in instances])
+
+    context = {
+        'instances': instances,
+        'page_name': 'Print-Production Cost Report',
+        'page_title': 'Print-Production Cost Report',
+        'filter_data': filter_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_items': total_items,
+        'total_estimate': total_estimate,
+        'total_actual_cost': total_actual_cost,
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_print.html', context)
+
+def production_cost_wo_export(request):
+    """
+    Export Production Cost Report in Excel format
+    """
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+
+    instances = instances.order_by("-date_added")
+
+    # Prepare data for DataFrame
+    data = []
+    for i, instance in enumerate(instances, 1):
+        data.append({
+            "#": i,
+            "Date Added": instance.date_added.strftime("%d-%m-%Y"),
+            "Order No": instance.order_no,
+            "Customer Name": instance.customer.name,
+            "No Of Items": instance.number_of_items(),
+            "Estimated Rate": float(instance.total_estimate),
+            "Status": instance.get_status_display(),
+            "Actual Cost": float(instance.get_actual_cost()),
+            "Profit/Loss": instance.get_profit_or_loss(),
+        })
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Add Total row
+    total_row = {
+        "#": "",
+        "Date Added": "",
+        "Order No": "Total",
+        "Customer Name": "",
+        "No Of Items": df["No Of Items"].sum(),
+        "Estimated Rate": df["Estimated Rate"].sum(),
+        "Status": "",
+        "Actual Cost": df["Actual Cost"].sum(),
+        "Profit/Loss": "",
+    }
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+
+    # Prepare response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"production_cost_report_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Export to Excel
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Production Cost Report', index=False)
+        sheet = writer.sheets['Production Cost Report']
+
+        bold_font = Font(bold=True)
+
+        # Bold header row
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+        # Bold total row
+        total_row_idx = df.shape[0] + 1  # +1 for header row
+        for cell in sheet[total_row_idx]:
+            cell.font = bold_font
+
+    return response
