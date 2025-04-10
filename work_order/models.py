@@ -105,55 +105,30 @@ class WorkOrder(BaseModel):
         return items_count
     
     def get_actual_cost(self):
-        # Wood Cost: from WoodWorkAssign rate
         wood_cost = WoodWorkAssign.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-
-        # Labour Cost: from WorkOrderStaffAssign wage
         labour_cost = WorkOrderStaffAssign.objects.filter(work_order=self).aggregate(total=Sum('wage'))['total'] or 0
 
-        # Accessories Cost: sum of rate from all relevant models
         accessories_wood = WoodWorkAssign.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
         accessories_carpentary = Carpentary.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
         accessories_polish = Polish.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
         accessories_glass = Glass.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
         accessories_packing = Packing.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        dispatch_amount = self.dispatch_details.amount if hasattr(self, 'dispatch_details') else 0
 
         accessories_cost = (
             accessories_wood +
             accessories_carpentary +
             accessories_polish +
             accessories_glass +
-            accessories_packing +
-            dispatch_amount
+            accessories_packing 
         )
 
         actual_cost = wood_cost + labour_cost + accessories_cost
         return round(actual_cost, 2)
+
     
     def get_profit_or_loss(self):
-        # Labour Cost
-        labour_cost = WorkOrderStaffAssign.objects.filter(work_order=self).aggregate(total=Sum('wage'))['total'] or 0
-
-        # Accessories Cost
-        accessories_wood = WoodWorkAssign.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        accessories_carpentary = Carpentary.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        accessories_polish = Polish.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        accessories_glass = Glass.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        accessories_packing = Packing.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
-        dispatch_amount = self.dispatch_details.amount if hasattr(self, 'dispatch_details') else 0
-
-        accessories_cost = (
-            accessories_wood +
-            accessories_carpentary +
-            accessories_polish +
-            accessories_glass +
-            accessories_packing +
-            dispatch_amount
-        )
-
-        total_actual = labour_cost + accessories_cost
-        profit_or_loss_value = total_actual - self.total_estimate
+        actual_cost = self.get_actual_cost()
+        profit_or_loss_value = actual_cost - self.total_estimate
 
         if profit_or_loss_value > 0:
             return "Profit"

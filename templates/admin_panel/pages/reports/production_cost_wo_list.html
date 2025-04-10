@@ -93,10 +93,11 @@
                                             <td class="text-right">{{instance.total_estimate}}</td>
                                             <td class="text-center">{{instance.get_status_display}}</td>
                                             <td class="text-center">{{instance.get_actual_cost}}</td>
-                                            <td class="text-center">{{ instance.get_profit_or_loss }}</td>
-
-
-
+                                            <td class="text-center">
+                                                <a href="{% url 'work_order:work_order_profit_loss' instance.pk %}">
+                                                    {{ instance.get_profit_or_loss }}
+                                                </a>
+                                            </td>
                                         </tr>
                                     {% empty %}
                                         <tr>

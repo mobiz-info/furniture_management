@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load work_order_templatetags %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Print - Work Order Profit Loss</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <h3 class="mb-4">Work Order Profit/Loss - {{ work_order.order_no }}</h3>
+
+    {% get_work_order_costs work_order as costs %}
+
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-center">#</th>
+                <th class="text-center">Date Added</th>
+                <th class="text-left">Labour Cost</th>
+                <th class="text-left">Accessories Cost</th>
+                <th class="text-left">Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center">1</td>
+                <td class="text-center">{{ work_order.date_added|date:"Y-m-d" }}</td>
+                <td class="text-left">{{ costs.labour_cost }}</td>
+                <td class="text-left">{{ costs.accessories_total }}</td>
+                <td class="text-left">{{ costs.total_cost }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

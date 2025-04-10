@@ -2825,6 +2825,8 @@ def export_work_order_used_accessories_report(request):
 
     return response
 
+@login_required
+# @role_required(['superadmin'])
 def production_cost_wo_list(request):
     """
     WorkOrder list view filtered by date and search
@@ -2881,6 +2883,9 @@ def production_cost_wo_list(request):
     }
     return render(request, 'admin_panel/pages/reports/production_cost_wo_list.html', context)
 
+
+@login_required
+# @role_required(['superadmin'])
 def production_cost_wo_print(request):
     """
     WorkOrder list view filtered by date and search
@@ -2937,6 +2942,9 @@ def production_cost_wo_print(request):
     }
     return render(request, 'admin_panel/pages/reports/production_cost_wo_print.html', context)
 
+
+@login_required
+# @role_required(['superadmin'])
 def production_cost_wo_export(request):
     """
     Export Production Cost Report in Excel format
@@ -3024,6 +3032,102 @@ def production_cost_wo_export(request):
         # Bold total row
         total_row_idx = df.shape[0] + 1  # +1 for header row
         for cell in sheet[total_row_idx]:
+            cell.font = bold_font
+
+    return response
+
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_view(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_name': 'Work Order Profit Loss List',
+        'page_title': 'Work Order Profit Loss list',
+    }
+    return render(request, 'admin_panel/pages/reports/work_order_profit_loss.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_name': 'Print-Production Cost Report',
+        'page_title': 'Print-Production Cost Report',
+    }
+    return render(request, 'admin_panel/pages/reports/work_order_profit_loss_print.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_export(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+
+    # Calculations
+    wood_cost = WoodWorkAssign.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    labour_cost = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(total=Sum('wage'))['total'] or 0
+    accessories_carpentary = Carpentary.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_polish = Polish.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_glass = Glass.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_packing = Packing.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+
+    accessories_total = (
+        wood_cost +
+        accessories_carpentary +
+        accessories_polish +
+        accessories_glass +
+        accessories_packing
+    )
+    total_cost = wood_cost + labour_cost + accessories_total
+
+    # Data for table
+    data = [{
+        "#": 1,
+        "Order No": work_order.order_no,
+        "Order Added Date": work_order.date_added.strftime('%Y-%m-%d'),
+        "Labour Cost": float(labour_cost),
+        "Accessories Cost": float(accessories_total),
+        "Total Cost": float(total_cost),
+    }]
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Append Total Row
+    total_row = {
+        "#": "",
+        "Order No": "",
+        "Order Added Date": "Total",
+        "Labour Cost": round(labour_cost, 2),
+        "Accessories Cost": round(accessories_total, 2),
+        "Total Cost": round(total_cost, 2),
+    }
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+
+    # Prepare response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"work_order_profit_loss_report_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Write to Excel
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Profit Loss', index=False)
+        sheet = writer.sheets['Profit Loss']
+
+        # Styling
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+        bold_font = Font(bold=True)
+
+        # Style header
+        for cell in sheet[1]:
+            cell.font = header_font
+            cell.fill = header_fill
+
+        # Style total row
+        total_row_index = df.shape[0] + 1  # +1 for header
+        for cell in sheet[total_row_index]:
             cell.font = bold_font
 
     return response

@@ -92,5 +92,9 @@ urlpatterns = [
     path('production-cost-wo-list/', views.production_cost_wo_list, name='production_cost_wo_list'),
     path('production-cost-wo-print/', views.production_cost_wo_print, name='production_cost_wo_print'),
     path('production-cost-wo-export/', views.production_cost_wo_export, name='production_cost_wo_export'),
+    path("work-order/<uuid:pk>/profit-loss/", views.work_order_profit_loss_view, name="work_order_profit_loss"),
+    path("work-order/<uuid:pk>/profit-loss-print/", views.work_order_profit_loss_print, name="work_order_profit_loss_print"),
+    path("work-order/<uuid:pk>/profit-loss-export/", views.work_order_profit_loss_export, name="work_order_profit_loss_export"),
+
 
 ]
