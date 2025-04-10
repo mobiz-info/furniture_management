@@ -3168,7 +3168,7 @@ def work_order_labour_detail_export(request, pk):
             '#': index,
             'Date Added': assignment.date_added.strftime('%d-%m-%Y') ,
             'Staff Name': assignment.staff.get_fullname(),
-            'Time Spent': assignment.time_spent,
+            'Hours Engaged': assignment.time_spent,
             'Wage': assignment.wage,
         })
 
