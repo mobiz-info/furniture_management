@@ -2,12 +2,12 @@
 {% load static %}
 {% load main_templates_tags %}
 {% load el_pagination_tags %}
-{% load work_order_templatetags %}
 
 {% block content %}
 <!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
+
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -25,13 +25,13 @@
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
                             <h4 class="card-title mb-3 mr-3">List view</h4>
                             <div class="mb-2 ml-2">
-                                <a href="{% url 'work_order:work_order_profit_loss_print' work_order.pk %}"
+                                <a href="{% url 'work_order:work_order_labour_detail_print' work_order.pk %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark mr-2"
                                    style="color:#000">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
-                                <a href="{% url 'work_order:work_order_profit_loss_export' work_order.pk %}"
+                                <a href="{% url 'work_order:work_order_labour_detail_export' work_order.pk %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark"
                                    style="color:#000">
@@ -43,41 +43,43 @@
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <h3 class="mb-4">Work Order Profit/Loss - {{ work_order.order_no }}</h3>
-
-                            {% get_work_order_costs work_order as costs %}
-
+                            <h4>Work Order Details - {{ work_order.order_no }}</h4>
                             <table class="table mb-0" style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Date Added</th>
-                                        <th class="text-left">Labour Cost</th>
-                                        <th class="text-left">Accessories Cost</th>
-                                        <th class="text-left">Total Cost</th>
+                                        <th>#</th>
+                                        <th>Date Added</th>
+                                        <th>Staff Name</th>
+                                        <th>Hours Engaged</th>
+                                        <th>Wage</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-center">{{ work_order.date_added|date:"Y-m-d" }}</td>
-                                        <td class="text-left">
-                                            <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}" style="text-decoration:none;">
-                                                {{ costs.labour_cost }}
-                                            </a>
-                                        </td>
-                                        <td class="text-left">{{ costs.accessories_total }}</td>
-                                        <td class="text-left">{{ costs.total_cost }}</td>
-                                    </tr>
+                                    {% for item in staff_assignments %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ item.date_added|date:'d-m-Y' }}</td>
+                                            <td>{{ item.staff.get_fullname }}</td>
+                                            <td>{{ item.time_spent }}</td>
+                                            <td>{{ item.wage }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No labour assigned.</td>
+                                        </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                         <!-- end table responsive -->
                     </div>
                 </div>
+                <!-- end card -->
             </div>
         </div>
-    </div><!-- container -->
+        <!-- end row -->
+    </div>
+    <!-- end container-fluid -->
 </div>
 <!-- end page content -->
 {% endblock content %}

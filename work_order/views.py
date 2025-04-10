@@ -3131,3 +3131,59 @@ def work_order_profit_loss_export(request, pk):
             cell.font = bold_font
 
     return response
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_view(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    return render(request, 'admin_panel/pages/reports/production_cost_labour_detail.html', {
+        'work_order': work_order,
+        'staff_assignments': staff_assignments,
+        'page_title': 'Production Cost Work Order Labour Details',
+        'page_name': 'Production Cost Work Order Labour Details'
+    
+
+    })
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    return render(request, 'admin_panel/pages/reports/production_cost_labour_detail_print.html', {
+        'work_order': work_order,
+        'staff_assignments': staff_assignments,
+        'page_title': 'Print-Production Cost Work Order Labour Details',
+        'page_name': 'Print-Production Cost Work Order Labour Details'
+    })
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_export(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+    data = []
+    for index, assignment in enumerate(staff_assignments, 1):
+        data.append({
+            '#': index,
+            'Date Added': assignment.date_added.strftime('%d-%m-%Y') ,
+            'Staff Name': assignment.staff.get_fullname(),
+            'Time Spent': assignment.time_spent,
+            'Wage': assignment.wage,
+        })
+
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"work_order_labour_detail_{work_order.order_no}_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Labour Details')
+        sheet = writer.sheets['Labour Details']
+
+        bold_font = Font(bold=True)
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+    return response

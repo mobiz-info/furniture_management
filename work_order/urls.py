@@ -95,6 +95,9 @@ urlpatterns = [
     path("work-order/<uuid:pk>/profit-loss/", views.work_order_profit_loss_view, name="work_order_profit_loss"),
     path("work-order/<uuid:pk>/profit-loss-print/", views.work_order_profit_loss_print, name="work_order_profit_loss_print"),
     path("work-order/<uuid:pk>/profit-loss-export/", views.work_order_profit_loss_export, name="work_order_profit_loss_export"),
+    path('labour-detail/<uuid:pk>/', views.work_order_labour_detail_view, name='work_order_labour_detail'),
+    path('labour-detail/print/<uuid:pk>/', views.work_order_labour_detail_print, name='work_order_labour_detail_print'),
+    path('labour-detail/export/<uuid:pk>/', views.work_order_labour_detail_export, name='work_order_labour_detail_export'),
 
 
 ]
