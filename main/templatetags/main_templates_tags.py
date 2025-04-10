@@ -31,9 +31,9 @@ def get_username(request):
     if user.is_superuser==True:
         username = request.user.username
         user_image = ""
-    # else:
-        # employee_details = Staff.objects.get(user=user)
-        username = ""
+    else:
+        employee_details = Staff.objects.get(user=user)
+        username = employee_details.get_fullname()  
         user_image = ""
         
     return {

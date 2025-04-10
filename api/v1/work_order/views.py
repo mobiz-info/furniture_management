@@ -32,7 +32,6 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-
 def work_order(request,id=None):
     status_value = request.query_params.get('status_value')  
 
@@ -44,7 +43,8 @@ def work_order(request,id=None):
         except WorkOrder.DoesNotExist:
             return Response({"error": "Work order not found."}, status=404)
     else:
-        queryset = WorkOrder.objects.all()
+        assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
+        queryset = WorkOrder.objects.filter(pk__in=assigned_work_order_ids)
 
         if status_value:
             queryset = queryset.filter(status=status_value)
@@ -171,13 +171,13 @@ def assign_wood_api(request, pk=None):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-
 def carpentary_details(request,id=None):
     try:
         if id:
             queryset=Carpentary.objects.get(id=id)
             serializer=CarpentarySerializer(queryset)
             return Response(serializer.data)
+        assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
         queryset=Carpentary.objects.all()
         serializer=CarpentarySerializer(queryset,many=True)
         return Response(serializer.data)
