@@ -31,8 +31,9 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
 from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill
-
 import pandas as pd
+
+from work_order.templatetags.work_order_templatetags import get_accessories_by_work_order
 
 class ColorAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -3215,3 +3216,70 @@ def production_cost_wo_used_accessories_print(request, pk):
     
     }
     return render(request, 'admin_panel/pages/reports/production_cost_wo_used_accessories_print.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
+def production_cost_wo_used_accessories_excel(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    data = get_accessories_by_work_order(work_order)
+
+    items = data.get('items', [])
+    if not items:
+        return HttpResponse("No accessories found for this work order.", status=404)
+
+    # Prepare data for DataFrame
+    table_data = []
+    total_rate = total_quantity = total_cost = 0
+
+    for item in items:
+        rate = item.get('rate') or 0
+        quantity = item.get('quantity') or 0
+        cost = item.get('total_cost') or 0
+
+        table_data.append({
+            'Date Added': item.get('date_added').strftime('%Y-%m-%d') if item.get('date_added') else '',
+            'Section': item.get('section', ''),
+            'Accessories': item.get('material', ''),
+            'Rate': rate,
+            'Quantity': quantity,
+            'Total Cost': cost,
+        })
+
+        total_rate += rate
+        total_quantity += quantity
+        total_cost += cost
+
+    # Add total row
+    table_data.append({
+        'Date Added': '',
+        'Section': '',
+        'Accessories': 'Total',
+        'Rate': total_rate,
+        'Quantity': total_quantity,
+        'Total Cost': total_cost,
+    })
+
+    df = pd.DataFrame(table_data)
+
+    # Prepare the response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"used_accessories_{work_order.order_no}_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Write to Excel with styling
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Used Accessories')
+        sheet = writer.sheets['Used Accessories']
+
+        # Bold header row
+        bold_font = Font(bold=True)
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+        # Bold total row
+        total_row_index = len(df) + 1  # 1-based index in Excel (including header)
+        for cell in sheet[total_row_index]:
+            cell.font = Font(bold=True)
+
+    return response
