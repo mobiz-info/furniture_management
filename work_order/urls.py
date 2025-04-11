@@ -98,6 +98,7 @@ urlpatterns = [
     path('labour-detail/<uuid:pk>/', views.work_order_labour_detail_view, name='work_order_labour_detail'),
     path('labour-detail/print/<uuid:pk>/', views.work_order_labour_detail_print, name='work_order_labour_detail_print'),
     path('labour-detail/export/<uuid:pk>/', views.work_order_labour_detail_export, name='work_order_labour_detail_export'),
+    path('work-order/<uuid:pk>/accessories-detail/', views.production_cost_wo_used_accessories_detail, name='production_cost_wo_used_accessories_detail'),
 
 
 ]

@@ -3187,3 +3187,16 @@ def work_order_labour_detail_export(request, pk):
             cell.font = bold_font
 
     return response
+
+@login_required
+# @role_required(['superadmin'])
+
+def production_cost_wo_used_accessories_detail(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_title': 'Production Cost Work Order Accessories Used Details',
+        'page_name': 'Production Cost Work Order Accessories Used Details'
+    
+    }
+    return render(request, 'admin_panel/pages/reports/prod_cost_wo_used_accessories_detail.html', context)
