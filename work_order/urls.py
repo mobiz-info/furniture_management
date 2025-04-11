@@ -20,6 +20,9 @@ urlpatterns = [
     re_path(r'^wood_work_orders_list/', views.wood_work_orders_list, name='wood_work_orders_list'),
     re_path(r'^assign_wood/(?P<pk>.*)/$', views.assign_wood, name='assign_wood'),
     re_path(r'^allocated_wood/(?P<pk>.*)/$', views.allocated_wood, name='allocated_wood'),
+    re_path(r'^edit_wood_assignment/(?P<pk>.*)/$', views.edit_wood_assignment, name='edit_wood_assignment'),
+    # path("work-order/<int:pk>/edit-wood-assignment/", views.edit_wood_assignment, name="edit_wood_assignment"),
+
     #-----------------Carpentary--------------------------
     re_path(r'^carpentary_list/', views.carpentary_list, name='carpentary_list'),
     re_path(r'^assign_carpentary/(?P<pk>.*)/$', views.assign_carpentary, name='assign_carpentary'),
