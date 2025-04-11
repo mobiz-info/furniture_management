@@ -76,7 +76,7 @@
             {% for item in accessories %}
             <tr>
                 <td class="text-center">{{ forloop.counter }}</td>
-                <td class="text-center">{{ item.date_added|date:"Y-m-d" }}</td>
+                <td class="text-center">{{ item.date_added|date:"d-m-Y" }}</td>
                 <td class="text-left">{{ item.section }}</td>
                 <td class="text-left">{{ item.material }}</td>
                 <td class="text-left">{{ item.rate }}</td>

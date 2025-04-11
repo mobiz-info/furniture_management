@@ -60,7 +60,7 @@
                                 <tbody>
                                     <tr>
                                         <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-center">{{ work_order.date_added|date:"Y-m-d" }}</td>
+                                        <td class="text-center">{{ work_order.date_added|date:"d-m-Y" }}</td>
                                         <td class="text-left">
                                             <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}" style="text-decoration:none;">
                                                 {{ costs.labour_cost }}
