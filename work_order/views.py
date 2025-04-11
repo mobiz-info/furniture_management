@@ -3200,3 +3200,18 @@ def production_cost_wo_used_accessories_detail(request, pk):
     
     }
     return render(request, 'admin_panel/pages/reports/prod_cost_wo_used_accessories_detail.html', context)
+
+
+
+@login_required
+# @role_required(['superadmin'])
+
+def production_cost_wo_used_accessories_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_title': 'Print-Production Cost Work Order Accessories Used ',
+        'page_name': 'Print-Production Cost Work Order Accessories Used '
+    
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_used_accessories_print.html', context)
