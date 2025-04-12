@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load accessory_tags %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Print - Work Order Used Accessories Report</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-left">Order Added Date</th>
+                <th class="font-weight-bold text-left">Project Name</th>
+                <th class="font-weight-bold text-left">Accessories Used</th>
+                <th class="font-weight-bold text-left">Quantity</th>
+                <th class="font-weight-bold text-left">Rate</th>
+                <th class="font-weight-bold text-left">Total</th>
+                <th class="font-weight-bold text-left">Section Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-left">{{ instance.date_added|date:"d-m-Y" }}</td>
+                    <td class="text-left">{{ instance.work_order.order_no }}</td>
+                    <td class="text-left">{{ instance.material.name }}</td>
+                    <td class="text-left">{{ instance.quantity }}</td>
+                    <td class="text-left">{{ instance.rate }}</td>
+                    <td class="text-left">{{ instance.quantity|multiply:instance.rate }}</td>
+                    <td class="text-left">{{ instance.section }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No accessories used data found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="font-weight-bold text-right">Total:</td>
+                <td class="font-weight-bold text-left">{{ total_quantity }}</td>
+                <td class="font-weight-bold text-left">{{ total_rate }}</td>
+                <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

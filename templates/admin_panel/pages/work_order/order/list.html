@@ -103,12 +103,23 @@
                                             <td class="text-right">{{instance.total_estimate}}</td>
                                             
                                             <td class="text-right">
-                                                <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{instance.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
-                                                <a href="{% url 'work_order:work_order_info' pk=instance.pk %}"><i class="las la-eye text-success font-18"></i></a>
-                                                <a href="{% url 'work_order:edit_work_order' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>
-                                                <a href="{% url 'work_order:profit_loss' pk=instance.pk %}"><i class="las la-chart-line text-primary font-18"></i></a>
-                                                <a data-id="{{instance.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" href="{% url 'work_order:delete_work_order' pk=instance.pk %}"><i class="las la-trash-alt text-danger font-18"></i></a>
-                                            </td>
+                                            <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{ instance.pk }}" onclick="handleButtonClick(this)" title="Assign Work">
+                                                <i class="las la-people-carry text-warning font-18"></i>
+                                            </a>
+                                            <a href="{% url 'work_order:work_order_info' pk=instance.pk %}" title="View Details">
+                                                <i class="las la-eye text-success font-18"></i>
+                                            </a>
+                                            <a href="{% url 'work_order:edit_work_order' pk=instance.pk %}" title="Edit Work Order">
+                                                <i class="las la-pen text-info font-18"></i>
+                                            </a>
+                                            <a href="{% url 'work_order:profit_loss' pk=instance.pk %}" title="Profit & Loss">
+                                                <i class="las la-chart-line text-primary font-18"></i>
+                                            </a>
+                                            <a data-id="{{ instance.pk }}" data-text="{{ confirm_delete_message }}" data-title="Are you sure?" href="{% url 'work_order:delete_work_order' pk=instance.pk %}" title="Delete Work Order">
+                                                <i class="las la-trash-alt text-danger font-18"></i>
+                                            </a>
+                                        </td>
+
                                         </tr>
                                         {% endfor %}
 

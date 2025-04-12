@@ -180,11 +180,27 @@
             </li>
 
             <li>
-                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Reports</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                <a href="javascript: void(0);"> <i class="las la-clipboard-list align-self-center menu-icon"></i><span>Reports</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:delayed_work_order_report' %}"><i class="ti-control-record"></i> Delayed Work Orders</a>
                         </li>   
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:work_summary' %}"><i class="ti-control-record"></i> Work Orders Summary</a>
+                        </li>   
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:accessories_utilized' %}"><i class="ti-control-record"></i> Accessories Utilized</a>
+                        </li>   
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:work_report' %}"><i class="ti-control-record"></i> Work Report</a>
+                        </li>   
+                    </li>
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:work_order_used_accessories_report' %}"><i class="ti-control-record"></i> Work Order Used Accessories</a>
+                        </li>
                     </li>
                 </ul>
             </li>

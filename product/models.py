@@ -16,7 +16,8 @@ class Materials(BaseModel):
     name = models.CharField(max_length=200)
     is_subcategory = models.BooleanField(default=False)
     image = VersatileImageField('Image', upload_to="product/material", blank=True, null=True)
-    
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
     class Meta:
         db_table = 'product_material'
         verbose_name = ('Product Material')

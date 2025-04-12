@@ -23,7 +23,7 @@
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
                             <h4 class="card-title mb-3 mr-3">List view</h4>
-                            <form method="get" action="{% url 'work_order:work_report' %}" class="form-inline flex-wrap">
+                            <form method="get" action="{% url 'work_order:accessories_utilized' %}" class="form-inline flex-wrap">
                                 <div class="form-group mb-2 mr-2">
                                     <label for="start_date" class="mr-2">Start Date</label>
                                     <input type="date" class="form-control" name="start_date" id="start_date"
@@ -48,13 +48,13 @@
                                 </div>
                             </form>
                             <div class="mb-2 ml-2">
-                                <a href="{% url 'work_order:print_work_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                            <a href="{% url 'work_order:print_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark mr-2"
                                    style="color:#000">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
-                                <a href="{% url 'work_order:export_work_report_excel' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                            <a href="{% url 'work_order:export_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark"
                                    style="color:#000">
@@ -70,61 +70,70 @@
                                 <thead>
                                     <tr>
                                         <th class="font-weight-bold text-center">#</th>
-                                        <th class="font-weight-bold text-left">Date</th>
-                                        <th class="font-weight-bold text-left">Staff Name</th>
-                                        <th class="font-weight-bold text-left">Section</th>
-                                        <th class="font-weight-bold text-left">Total hrs Engaged</th>
-                                        <th class="font-weight-bold text-left">No of Projects Involved</th>
+                                        <th class="font-weight-bold text-left">Date Added</th>
+                                        <th class="font-weight-bold text-left">Item Name</th>
+                                        <th class="font-weight-bold text-left">Quantity Used</th>
                                         <th class="font-weight-bold text-left">Cost</th>
-                                        <th class="font-weight-bold text-left">Remark</th>
+                                        <th class="font-weight-bold text-left">Section Name</th>
+                                        <th class="font-weight-bold text-left">Delivery Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% load el_pagination_tags %}
                                     {% paginate 10 instances %}
                                     {% for instance in instances %}
                                         <tr>
                                             <td class="text-center">{{ forloop.counter }}</td>
-                                            <td class="text-left">{{ instance.date_added|date:"d/m/Y" }}</td>
-                                            <td class="text-left">{{ instance.staff__first_name }} {{ instance.staff__last_name }}</td>
-                                            <td class="text-left">{{ instance.staff__department__name }}</td>
-                                            <td class="text-right">{{ instance.total_hours }}</td>
-                                            <td class="text-right">{{ instance.project_count }}</td>
-                                            <td class="text-right">{{ instance.total_wage }}</td>
-                                            <td class="text-left">{{ instance.work_order__remark|default:"--" }}</td>
+                                            <td class="text-left">{{ instance.date_added|date:"d/m/Y"}}</td>
+                                            <td class="text-left">{{ instance.material.name }}</td>
+                                            <td class="text-left">{{ instance.quantity }}</td>
+                                            <td class="text-left">{{ instance.rate }}</td>
+                                            <td class="text-left">{{ instance.work_order.get_status_display }}</td>
+                                            <td class="text-left">{{ instance.work_order.delivery_date|date:"d/m/Y" }}</td>
+
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No data available</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="4" class="text-right"><strong>Total</strong></td>
-                                        <td class="text-right"><strong>{{ total_hours }}</strong></td>
-                                        <td class="text-right"><strong>{{ total_project_count }}</strong></td>
-                                        <td class="text-right"><strong>{{ total_wage }}</strong></td>
-                                        <td></td>
+                                        <td colspan="3" class="font-weight-bold text-right">Totals:</td>
+                                        <td class="font-weight-bold text-left">{{ total_quantity }}</td>
+                                        <td class="font-weight-bold text-left">{{ total_cost }}</td>
+                                        <td colspan="2"></td>
                                     </tr>
                                 </tfoot>
                             </table>
-                        </div>
 
-                        <!-- Pagination -->
-                        {% get_pages %}
-                        <div class="row pagi my-3">
-                            <div class="col-sm-6 text-left my-pagina">
-                                {% show_pages %}
-                            </div>
-                            <div class="col-sm-6 text-right tot my-pagination align-items-center">
-                                <div class="mt-2">
-                                    Showing 
-                                    <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                    <span class="current_end_status">{{ pages.current_end_index }}</span> of 
-                                    <span class="total_count">{{ pages.total_count }}</span>
+                            <!-- Pagination -->
+                            {% get_pages %}
+                            <div class="clearfix"></div>
+                            <div class="row pagi my-3">
+                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
+                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                    <div class="m-t-10">
+                                        Showing {{ title }}
+                                        <span class="current_page_index">{{ pages.current_start_index }}</span> -
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of
+                                        <span class="total_count">{{ pages.total_count }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div><!-- end card-body -->
-                </div><!-- end card -->
-            </div><!-- end col -->
-        </div><!-- end row -->
-    </div><!-- end container -->
-</div><!-- end page-content -->
+                        <!-- end table responsive -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- container -->
+</div>
+<!-- end page content -->
 {% endblock content %}
+
+{% block static %}
+    {% load static %}
+{% endblock static %}

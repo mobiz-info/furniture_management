@@ -83,6 +83,7 @@
                                             <th class="font-weight-bold text-left">Name</th>
                                             <th class="font-weight-bold text-center">Sub Category</th>
                                             <th class="font-weight-bold text-right">Image</th>
+                                            <th class="font-weight-bold text-right">Cost</th>
                                             <th class="text-right">Action</th>
                                         </tr>
                                     </thead>
@@ -95,6 +96,7 @@
                                             <td class="text-left">{{instance.name}}</td>
                                             <td class="text-center">{{instance.is_subcategory}}</td>
                                             <td class="text-center">{% if instance.image %}{{instance.image.url}}{% endif %}</td>
+                                            <td class="text-center">{{instance.amount}}</td>
                                             <td class="text-right">
                                                 <a href="{% url 'product:material_info' pk=instance.pk %}"><i class="las la-eye text-info font-18"></i></a>
                                                 <a href="{% url 'product:edit_material' pk=instance.pk %}"><i class="las la-pen text-info font-18"></i></a>

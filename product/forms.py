@@ -11,11 +11,13 @@ class MaterialsForm(forms.ModelForm):
     
     class Meta:
         model = Materials
-        fields = ['name','is_subcategory','image']
+        fields = ['name','is_subcategory','image','amount']
 
         widgets = {
             'name': TextInput(attrs={'type':'text','class': 'required form-control','placeholder' : 'Enter Material Name'}), 
             'image': FileInput(attrs={'class': 'form-control dropify'}),
+            'amount': TextInput(attrs={'type': 'number', 'step': '0.01', 'class': 'form-control', 'placeholder': 'Enter Amount'})
+
         }
         
 

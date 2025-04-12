@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .print-button:hover {
+            background-color: #303f9f;
+        }
+        @media print {
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2> Work Order Summary Report</h2>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="font-weight-bold text-center">#</th>
+                <th class="font-weight-bold text-left">WO No</th>
+                <th class="font-weight-bold text-left">Client Name</th>
+                <th class="font-weight-bold text-left">Mobile Number</th>
+                <th class="font-weight-bold text-left">No of Items </th>
+                <th class="font-weight-bold text-left">Delivery Date</th>
+                <th class="font-weight-bold text-left">Current Stage</th>
+                <th class="font-weight-bold text-center">Order Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instance in instances %}
+                <tr class="{% if instance.delayed_days > 0 %}delayed{% endif %}">
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-left">{{ instance.order_no }}</td>
+                    <td class="text-left">{{ instance.customer.name }}</td>
+                    <td class="text-left">{{ instance.customer.mobile_number }}</td>
+                    <td class="text-left">{{ instance.number_of_items }}</td>
+                    <td class="text-left">{{ instance.delivery_date|date:"d-m-Y" }}</td>
+                    <td class="text-left">{{ instance.get_status_display }}</td>
+                    <td class="text-left">{{ instance.total_estimate }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="font-weight-bold text-right">Total Order Value:</td>
+                <td class="font-weight-bold text-left">{{ total_estimate_sum }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Inline CSS for Delayed Orders -->
+    <style>
+        .delayed {
+            background-color: #f8d7da; /* Light red background */
+            color: #721c24; /* Dark red text */
+        }
+    </style>
+</body>
+</html>
