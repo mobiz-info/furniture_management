@@ -40,24 +40,12 @@
                                     <tr class="form_set_row formset">
                                         {{ item.id }}
                                         <td><span class="material">{{ item.material }}</span> 
-                                            {% if item.instance.material %}
-                                            <img src="{{ item.instance.material }}" height="100px" width="100px">
-                                            {% endif %}
                                         </td>
                                         <td><span class="quality">{{ item.quality }}</span> 
-                                            {% if item.instance.quality %}
-                                            <img src="{{ item.instance.quality }}" height="100px" width="100px">
-                                            {% endif %}
                                         </td>
                                         <td><span class="quantity">{{ item.quantity }}</span> 
-                                            {% if item.instance.quantity %}
-                                            <img src="{{ item.instance.quantity }}" height="100px" width="100px">
-                                            {% endif %}
                                         </td>
                                         <td><span class="rate">{{ item.rate }}</span> 
-                                            {% if item.instance.rate %}
-                                            <img src="{{ item.instance.rate }}" height="100px" width="100px">
-                                            {% endif %}
                                         </td>
                                         <td></td>
                                     </tr>

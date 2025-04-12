@@ -749,24 +749,78 @@ def allocated_wood(request, pk):
 
 def edit_wood_assignment(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
-    formset = WoodWorksAssignFormSet(instance=work_order, queryset=WoodWorkAssign.objects.filter(work_order=work_order))
+    wood_assign_instances = WoodWorkAssign.objects.filter(work_order=work_order)
+    
+    if wood_assign_instances.exists():
+        extra = 0
+    else:
+        extra = 1 
 
-    if request.method == "POST":
-        formset = WoodWorksAssignFormSet(request.POST, instance=work_order)
+    WoodWorkAssignFormset = inlineformset_factory(
+        WorkOrder,
+        WoodWorkAssign,
+        extra=extra,
+        form=WoodWorksAssignForm,
+    )
+    if request.method == 'POST':
+        formset = WoodWorkAssignFormset(request.POST,request.FILES,
+                                        instance=work_order,
+                                        prefix='formset',
+                                        form_kwargs={'empty_permitted': False})  
+        
         if formset.is_valid():
-            formset.save()
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'redirect_url': reverse('work_order:wood_work_orders_list')})
-            return redirect("work_order:wood_work_orders_list")
-        else:
-            print("Form errors:", formset.errors)
+            
+            for form in formset:
+                if form not in formset.deleted_forms:
+                    data = form.save(commit=False)
+                    data.creator = request.user
+                    data.date_updated = datetime.today()
+                    if not data.auto_id :
+                        data.auto_id = get_auto_id(WoodWorkAssign)
+                        data.updater = request.user
+                    data.save()
+                    
+            for s in formset.deleted_forms:
+                s.instance.delete()
+        
+        response_data = {
+            "status": "true",
+            "title": "Successfully Updated",
+            "message": "updated successfully.",
+            "redirect": "true",
+            "redirect_url": reverse('work_order:wood_work_orders_list')
+        }
+        return HttpResponse(json.dumps(response_data), content_type='application/javascript')
+    
+    else:
+        formset = WoodWorkAssignFormset(instance=work_order,prefix='formset', form_kwargs={'empty_permitted': False})
+        
+        context = {
+            'formset': formset,
+            
+            'page_name': 'Edit Wood Assigned',
+            'page_title': 'Edit Wood Assigned',
+            'url': reverse('work_order:edit_wood_assignment', kwargs={'pk': pk}),
+        }
+        return render(request, 'admin_panel/pages/wood/assign_wood.html', context)
+    # formset = WoodWorksAssignFormSet(instance=work_order, queryset=WoodWorkAssign.objects.filter(work_order=work_order))
 
-    return render(request, "admin_panel/pages/wood/edit_wood_assignments.html", {
-        "formset": formset,
-        "page_title": f"Edit Wood Assignments for {work_order.order_no}",
-        "url": request.path,
-        "work_order": work_order,
-    })
+    # if request.method == "POST":
+    #     formset = WoodWorksAssignFormSet(request.POST, instance=work_order)
+    #     if formset.is_valid():
+    #         formset.save()
+    #         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+    #             return JsonResponse({'redirect_url': reverse('work_order:wood_work_orders_list')})
+    #         return redirect("work_order:wood_work_orders_list")
+    #     else:
+    #         print("Form errors:", formset.errors)
+
+    # return render(request, "admin_panel/pages/wood/edit_wood_assignments.html", {
+    #     "formset": formset,
+    #     "page_title": f"Edit Wood Assignments for {work_order.order_no}",
+    #     "url": request.path,
+    #     "work_order": work_order,
+    # })
 
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
