@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 from versatileimagefield.fields import VersatileImageField
 
@@ -96,7 +97,37 @@ class WorkOrder(BaseModel):
         items_count = WorkOrderItems.objects.filter(work_order=self).count()
         return items_count
     
+    def get_actual_cost(self):
+        wood_cost = WoodWorkAssign.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+        labour_cost = WorkOrderStaffAssign.objects.filter(work_order=self).aggregate(total=Sum('wage'))['total'] or 0
+
+        accessories_wood = WoodWorkAssign.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+        accessories_carpentary = Carpentary.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+        accessories_polish = Polish.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+        accessories_glass = Glass.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+        accessories_packing = Packing.objects.filter(work_order=self).aggregate(total=Sum('rate'))['total'] or 0
+
+        accessories_cost = (
+            accessories_wood +
+            accessories_carpentary +
+            accessories_polish +
+            accessories_glass +
+            accessories_packing 
+        )
+
+        actual_cost = wood_cost + labour_cost + accessories_cost
+        return round(actual_cost, 2)
+
     
+    def get_profit_or_loss(self):
+        actual_cost = self.get_actual_cost()
+        profit_or_loss_value = actual_cost - self.total_estimate
+
+        if profit_or_loss_value > 0:
+            return "Profit"
+        elif profit_or_loss_value < 0:
+            return "Loss"
+        return "Break-even"
 class WorkOrderItems(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})

@@ -31,8 +31,9 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 from django.core.paginator import Paginator, PageNotAnInteger,EmptyPage
 from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill
-
 import pandas as pd
+
+from work_order.templatetags.work_order_templatetags import get_accessories_by_work_order
 
 class ColorAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -745,6 +746,27 @@ def allocated_wood(request, pk):
 
     html = render_to_string('admin_panel/pages/wood/allocated_wood.html', context, request=request)
     return JsonResponse({'html': html})
+
+def edit_wood_assignment(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    formset = WoodWorksAssignFormSet(instance=work_order, queryset=WoodWorkAssign.objects.filter(work_order=work_order))
+
+    if request.method == "POST":
+        formset = WoodWorksAssignFormSet(request.POST, instance=work_order)
+        if formset.is_valid():
+            formset.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'redirect_url': reverse('work_order:wood_work_orders_list')})
+            return redirect("work_order:wood_work_orders_list")
+        else:
+            print("Form errors:", formset.errors)
+
+    return render(request, "admin_panel/pages/wood/edit_wood_assignments.html", {
+        "formset": formset,
+        "page_title": f"Edit Wood Assignments for {work_order.order_no}",
+        "url": request.path,
+        "work_order": work_order,
+    })
 
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
@@ -2823,5 +2845,463 @@ def export_work_order_used_accessories_report(request):
         total_row_idx = df.shape[0] + 1  # +1 for header row
         for cell in sheet[total_row_idx]:
             cell.font = bold_font
+
+    return response
+
+@login_required
+# @role_required(['superadmin'])
+def production_cost_wo_list(request):
+    """
+    WorkOrder list view filtered by date and search
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+        filter_data['q'] = query
+
+    instances = instances.order_by("-date_added")
+    
+    # Totals
+    total_items = sum([instance.number_of_items() for instance in instances])
+    total_estimate = sum([instance.total_estimate for instance in instances])
+    total_actual_cost = sum([instance.get_actual_cost() for instance in instances])
+
+    context = {
+        'instances': instances,
+        'page_name': 'Production Cost Report List',
+        'page_title': 'Production Cost Report List',
+        'filter_data': filter_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_items': total_items,
+        'total_estimate': total_estimate,
+        'total_actual_cost': total_actual_cost,
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_list.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
+def production_cost_wo_print(request):
+    """
+    WorkOrder list view filtered by date and search
+    """
+    filter_data = {}
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+        filter_data['q'] = query
+
+    instances = instances.order_by("-date_added")
+    
+    # Totals
+    total_items = sum([instance.number_of_items() for instance in instances])
+    total_estimate = sum([instance.total_estimate for instance in instances])
+    total_actual_cost = sum([instance.get_actual_cost() for instance in instances])
+
+    context = {
+        'instances': instances,
+        'page_name': 'Print-Production Cost Report',
+        'page_title': 'Print-Production Cost Report',
+        'filter_data': filter_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_items': total_items,
+        'total_estimate': total_estimate,
+        'total_actual_cost': total_actual_cost,
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_print.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
+def production_cost_wo_export(request):
+    """
+    Export Production Cost Report in Excel format
+    """
+    query = request.GET.get("q")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Default: Yesterday & Today
+    if not start_date and not end_date:
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        start_date = yesterday.strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(is_deleted=False)
+
+    # Date filter
+    if start_date and end_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            instances = instances.filter(date_added__date__range=(start, end))
+        except ValueError:
+            pass  # Invalid date format, ignore
+
+    # Search filter
+    if query:
+        instances = instances.filter(
+            Q(order_no__icontains=query) |
+            Q(customer__name__icontains=query)
+        )
+
+    instances = instances.order_by("-date_added")
+
+    # Prepare data for DataFrame
+    data = []
+    for i, instance in enumerate(instances, 1):
+        data.append({
+            "#": i,
+            "Date Added": instance.date_added.strftime("%d-%m-%Y"),
+            "Order No": instance.order_no,
+            "Customer Name": instance.customer.name,
+            "No Of Items": instance.number_of_items(),
+            "Estimated Rate": float(instance.total_estimate),
+            "Status": instance.get_status_display(),
+            "Actual Cost": float(instance.get_actual_cost()),
+            "Profit/Loss": instance.get_profit_or_loss(),
+        })
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Add Total row
+    total_row = {
+        "#": "",
+        "Date Added": "",
+        "Order No": "Total",
+        "Customer Name": "",
+        "No Of Items": df["No Of Items"].sum(),
+        "Estimated Rate": df["Estimated Rate"].sum(),
+        "Status": "",
+        "Actual Cost": df["Actual Cost"].sum(),
+        "Profit/Loss": "",
+    }
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+
+    # Prepare response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"production_cost_report_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Export to Excel
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Production Cost Report', index=False)
+        sheet = writer.sheets['Production Cost Report']
+
+        bold_font = Font(bold=True)
+
+        # Bold header row
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+        # Bold total row
+        total_row_idx = df.shape[0] + 1  # +1 for header row
+        for cell in sheet[total_row_idx]:
+            cell.font = bold_font
+
+    return response
+
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_view(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_name': 'Work Order Profit Loss List',
+        'page_title': 'Work Order Profit Loss list',
+    }
+    return render(request, 'admin_panel/pages/reports/work_order_profit_loss.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_name': 'Print-Production Cost Report',
+        'page_title': 'Print-Production Cost Report',
+    }
+    return render(request, 'admin_panel/pages/reports/work_order_profit_loss_print.html', context)
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_profit_loss_export(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+
+    # Calculations
+    wood_cost = WoodWorkAssign.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    labour_cost = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(total=Sum('wage'))['total'] or 0
+    accessories_carpentary = Carpentary.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_polish = Polish.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_glass = Glass.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    accessories_packing = Packing.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+
+    accessories_total = (
+        wood_cost +
+        accessories_carpentary +
+        accessories_polish +
+        accessories_glass +
+        accessories_packing
+    )
+    total_cost = wood_cost + labour_cost + accessories_total
+
+    # Data for table
+    data = [{
+        "#": 1,
+        "Order No": work_order.order_no,
+        "Order Added Date": work_order.date_added.strftime('%Y-%m-%d'),
+        "Labour Cost": float(labour_cost),
+        "Accessories Cost": float(accessories_total),
+        "Total Cost": float(total_cost),
+    }]
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Append Total Row
+    total_row = {
+        "#": "",
+        "Order No": "",
+        "Order Added Date": "Total",
+        "Labour Cost": round(labour_cost, 2),
+        "Accessories Cost": round(accessories_total, 2),
+        "Total Cost": round(total_cost, 2),
+    }
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+
+    # Prepare response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"work_order_profit_loss_report_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Write to Excel
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Profit Loss', index=False)
+        sheet = writer.sheets['Profit Loss']
+
+        # Styling
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+        bold_font = Font(bold=True)
+
+        # Style header
+        for cell in sheet[1]:
+            cell.font = header_font
+            cell.fill = header_fill
+
+        # Style total row
+        total_row_index = df.shape[0] + 1  # +1 for header
+        for cell in sheet[total_row_index]:
+            cell.font = bold_font
+
+    return response
+
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_view(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    return render(request, 'admin_panel/pages/reports/production_cost_labour_detail.html', {
+        'work_order': work_order,
+        'staff_assignments': staff_assignments,
+        'page_title': 'Production Cost Work Order Labour Details',
+        'page_name': 'Production Cost Work Order Labour Details'
+    
+
+    })
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    return render(request, 'admin_panel/pages/reports/production_cost_labour_detail_print.html', {
+        'work_order': work_order,
+        'staff_assignments': staff_assignments,
+        'page_title': 'Print-Production Cost Work Order Labour Details',
+        'page_name': 'Print-Production Cost Work Order Labour Details'
+    })
+@login_required
+# @role_required(['superadmin'])
+def work_order_labour_detail_export(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+    data = []
+    for index, assignment in enumerate(staff_assignments, 1):
+        data.append({
+            '#': index,
+            'Date Added': assignment.date_added.strftime('%d-%m-%Y') ,
+            'Staff Name': assignment.staff.get_fullname(),
+            'Hours Engaged': assignment.time_spent,
+            'Wage': assignment.wage,
+        })
+
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"work_order_labour_detail_{work_order.order_no}_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Labour Details')
+        sheet = writer.sheets['Labour Details']
+
+        bold_font = Font(bold=True)
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+    return response
+
+@login_required
+# @role_required(['superadmin'])
+
+def production_cost_wo_used_accessories_detail(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_title': 'Production Cost Work Order Accessories Used Details',
+        'page_name': 'Production Cost Work Order Accessories Used Details'
+    
+    }
+    return render(request, 'admin_panel/pages/reports/prod_cost_wo_used_accessories_detail.html', context)
+
+
+
+@login_required
+# @role_required(['superadmin'])
+
+def production_cost_wo_used_accessories_print(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    context = {
+        'work_order': work_order,
+        'page_title': 'Print-Production Cost Work Order Accessories Used ',
+        'page_name': 'Print-Production Cost Work Order Accessories Used '
+    
+    }
+    return render(request, 'admin_panel/pages/reports/production_cost_wo_used_accessories_print.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
+def production_cost_wo_used_accessories_excel(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    data = get_accessories_by_work_order(work_order)
+
+    items = data.get('items', [])
+    if not items:
+        return HttpResponse("No accessories found for this work order.", status=404)
+
+    # Prepare data for DataFrame
+    table_data = []
+    total_rate = total_quantity = total_cost = 0
+
+    for item in items:
+        rate = item.get('rate') or 0
+        quantity = item.get('quantity') or 0
+        cost = item.get('total_cost') or 0
+
+        table_data.append({
+            'Date Added': item.get('date_added').strftime('%Y-%m-%d') if item.get('date_added') else '',
+            'Section': item.get('section', ''),
+            'Accessories': item.get('material', ''),
+            'Rate': rate,
+            'Quantity': quantity,
+            'Total Cost': cost,
+        })
+
+        total_rate += rate
+        total_quantity += quantity
+        total_cost += cost
+
+    # Add total row
+    table_data.append({
+        'Date Added': '',
+        'Section': '',
+        'Accessories': 'Total',
+        'Rate': total_rate,
+        'Quantity': total_quantity,
+        'Total Cost': total_cost,
+    })
+
+    df = pd.DataFrame(table_data)
+
+    # Prepare the response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    filename = f"used_accessories_{work_order.order_no}_{timezone.now().date()}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Write to Excel with styling
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Used Accessories')
+        sheet = writer.sheets['Used Accessories']
+
+        # Bold header row
+        bold_font = Font(bold=True)
+        for cell in sheet[1]:
+            cell.font = bold_font
+
+        # Bold total row
+        total_row_index = len(df) + 1  # 1-based index in Excel (including header)
+        for cell in sheet[total_row_index]:
+            cell.font = Font(bold=True)
 
     return response

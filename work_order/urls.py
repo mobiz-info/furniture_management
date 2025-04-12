@@ -20,6 +20,9 @@ urlpatterns = [
     re_path(r'^wood_work_orders_list/', views.wood_work_orders_list, name='wood_work_orders_list'),
     re_path(r'^assign_wood/(?P<pk>.*)/$', views.assign_wood, name='assign_wood'),
     re_path(r'^allocated_wood/(?P<pk>.*)/$', views.allocated_wood, name='allocated_wood'),
+    re_path(r'^edit_wood_assignment/(?P<pk>.*)/$', views.edit_wood_assignment, name='edit_wood_assignment'),
+    # path("work-order/<int:pk>/edit-wood-assignment/", views.edit_wood_assignment, name="edit_wood_assignment"),
+
     #-----------------Carpentary--------------------------
     re_path(r'^carpentary_list/', views.carpentary_list, name='carpentary_list'),
     re_path(r'^assign_carpentary/(?P<pk>.*)/$', views.assign_carpentary, name='assign_carpentary'),
@@ -88,5 +91,19 @@ urlpatterns = [
     path('work-order-used-accessories-report/', views.work_order_used_accessories_report, name='work_order_used_accessories_report'),
     path('print-work-order-used-accessories-report/', views.print_work_order_used_accessories_report, name='print_work_order_used_accessories_report'),
     path('export-work-order-used-accessories-report/', views.export_work_order_used_accessories_report, name='export_work_order_used_accessories_report'),
+    
+    path('production-cost-wo-list/', views.production_cost_wo_list, name='production_cost_wo_list'),
+    path('production-cost-wo-print/', views.production_cost_wo_print, name='production_cost_wo_print'),
+    path('production-cost-wo-export/', views.production_cost_wo_export, name='production_cost_wo_export'),
+    path("work-order/<uuid:pk>/profit-loss/", views.work_order_profit_loss_view, name="work_order_profit_loss"),
+    path("work-order/<uuid:pk>/profit-loss-print/", views.work_order_profit_loss_print, name="work_order_profit_loss_print"),
+    path("work-order/<uuid:pk>/profit-loss-export/", views.work_order_profit_loss_export, name="work_order_profit_loss_export"),
+    path('labour-detail/<uuid:pk>/', views.work_order_labour_detail_view, name='work_order_labour_detail'),
+    path('labour-detail/print/<uuid:pk>/', views.work_order_labour_detail_print, name='work_order_labour_detail_print'),
+    path('labour-detail/export/<uuid:pk>/', views.work_order_labour_detail_export, name='work_order_labour_detail_export'),
+    path('work-order/<uuid:pk>/accessories-detail/', views.production_cost_wo_used_accessories_detail, name='production_cost_wo_used_accessories_detail'),
+    path('work-order/<uuid:pk>/accessories-print/', views.production_cost_wo_used_accessories_print, name='production_cost_wo_used_accessories_print'),
+    path('work-order/<uuid:pk>/accessories-excel/', views.production_cost_wo_used_accessories_excel, name='production_cost_wo_used_accessories_excel'),
+
 
 ]

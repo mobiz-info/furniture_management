@@ -1,0 +1,97 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% load main_templates_tags %}
+{% load el_pagination_tags %}
+{% load work_order_templatetags %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h4 class="page-title">{{ page_title }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-end justify-content-between flex-wrap">
+                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <div class="mb-2 ml-2">
+                                <a href="{% url 'work_order:work_order_profit_loss_print' work_order.pk %}"
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
+                                   style="color:#000">
+                                    <i class="ri-printer-line text-primary"></i> Print
+                                </a>
+                                <a href="{% url 'work_order:work_order_profit_loss_export' work_order.pk %}"
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark"
+                                   style="color:#000">
+                                    <i class="ri-file-excel-2-line text-danger"></i> Export
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <h3 class="mb-4">Work Order Profit/Loss - {{ work_order.order_no }}</h3>
+
+                            {% get_work_order_costs work_order as costs %}
+
+                            <table class="table mb-0" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Date Added</th>
+                                        <th class="text-left">Labour Cost</th>
+                                        <th class="text-left">Accessories Cost</th>
+                                        <th class="text-left">Total Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td class="text-center">{{ work_order.date_added|date:"d-m-Y" }}</td>
+                                        <td class="text-left">
+                                            <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}" style="text-decoration:none;">
+                                                {{ costs.labour_cost }}
+                                            </a>
+                                        </td>
+                                        <td class="text-left">
+                                            <a href="{% url 'work_order:production_cost_wo_used_accessories_detail' work_order.pk %}">
+                                                {{ costs.accessories_total }}
+                                            </a>
+                                        </td>
+                                        <td class="text-left">{{ costs.total_cost }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- end table responsive -->
+                        <!-- Back Button using JavaScript -->
+                        <div class="mt-4" style="text-align: right;">
+                            <button onclick="window.history.back()" class="btn btn-secondary">
+                                <i class="ri-arrow-go-back-line"></i> Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- container -->
+</div>
+<!-- end page content -->
+{% endblock content %}
+
+{% block static %}
+    {% load static %}
+{% endblock static %}
