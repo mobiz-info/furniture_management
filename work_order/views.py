@@ -1286,7 +1286,83 @@ def allocated_glass(request, pk):
     html = render_to_string('admin_panel/pages/glass/allocated_glass.html', context, request=request)
     return JsonResponse({'html': html})
 
+def edit_glass_assignment(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    glass_instances = Glass.objects.filter(work_order=work_order)
 
+    extra = 0 if glass_instances.exists() else 1
+
+    GlassAssignFormSet = inlineformset_factory(
+        WorkOrder,
+        Glass,
+        form=GlassAssignForm,
+        extra=extra,
+        can_delete=True
+    )
+
+    if request.method == "POST":
+        formset = GlassAssignFormSet(
+            request.POST,
+            request.FILES,
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    for form in formset:
+                        if form not in formset.deleted_forms:
+                            obj = form.save(commit=False)
+                            obj.creator = request.user
+                            obj.date_updated = datetime.today()
+                            if not obj.auto_id:
+                                obj.auto_id = get_auto_id(Polish)
+                            obj.updater = request.user
+                            obj.save()
+
+                    for form in formset.deleted_forms:
+                        form.instance.delete()
+
+                return HttpResponse(json.dumps({
+                    "status": "true",
+                    "title": "Successfully Updated",
+                    "message": "Updated successfully.",
+                    "redirect": "true",
+                    "redirect_url": reverse("work_order:glass_list")
+                }), content_type="application/javascript")
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    "status": "false",
+                    "title": "Error",
+                    "message": str(e)
+                }), content_type="application/javascript")
+        else:
+            message = generate_form_errors(formset, formset=True)
+            return HttpResponse(json.dumps({
+                "status": "false",
+                "title": "Form Error",
+                "message": message
+            }), content_type="application/javascript")
+    
+    else:
+        formset = GlassAssignFormSet(
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        context = {
+            'glass_formset': formset,
+            'page_name': 'Edit Glass Assignment',
+            'page_title': 'Edit Glass Assignment',
+            'work_order': work_order,
+            'url': reverse('work_order:edit_glass_assignment', kwargs={'pk': pk}),
+            'is_need_select2': True,
+        }
+
+        return render(request, 'admin_panel/pages/glass/assign_glass.html', context)
 #----------------------------Packing--------------------------------------------------------------------
 def packing_list(request):
     filter_data = {}
@@ -1396,7 +1472,83 @@ def allocated_packing(request, pk):
     return JsonResponse({'html': html})
 
 
+def edit_packing_assignment(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    glass_instances = Packing.objects.filter(work_order=work_order)
 
+    extra = 0 if glass_instances.exists() else 1
+
+    PackingAssignFormSet = inlineformset_factory(
+        WorkOrder,
+        Glass,
+        form=PackingAssignForm,
+        extra=extra,
+        can_delete=True
+    )
+
+    if request.method == "POST":
+        formset = PackingAssignFormSet(
+            request.POST,
+            request.FILES,
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    for form in formset:
+                        if form not in formset.deleted_forms:
+                            obj = form.save(commit=False)
+                            obj.creator = request.user
+                            obj.date_updated = datetime.today()
+                            if not obj.auto_id:
+                                obj.auto_id = get_auto_id(Polish)
+                            obj.updater = request.user
+                            obj.save()
+
+                    for form in formset.deleted_forms:
+                        form.instance.delete()
+
+                return HttpResponse(json.dumps({
+                    "status": "true",
+                    "title": "Successfully Updated",
+                    "message": "Updated successfully.",
+                    "redirect": "true",
+                    "redirect_url": reverse("work_order:glass_list")
+                }), content_type="application/javascript")
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    "status": "false",
+                    "title": "Error",
+                    "message": str(e)
+                }), content_type="application/javascript")
+        else:
+            message = generate_form_errors(formset, formset=True)
+            return HttpResponse(json.dumps({
+                "status": "false",
+                "title": "Form Error",
+                "message": message
+            }), content_type="application/javascript")
+    
+    else:
+        formset = PackingAssignFormSet(
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        context = {
+            'polish_formset': formset,
+            'page_name': 'Edit Packing Assignment',
+            'page_title': 'Edit Packing Assignment',
+            'work_order': work_order,
+            'url': reverse('work_order:edit_polish_assignment', kwargs={'pk': pk}),
+            'is_need_select2': True,
+        }
+
+        return render(request, 'admin_panel/pages/polish/assign_polish.html', context)
 #---------------------------------------- assigning staff in wood section----------------------------#
 def wood_order_staff_assign(request,pk):
 

@@ -39,10 +39,12 @@ urlpatterns = [
     re_path(r'^glass_list/', views.glass_list, name='glass_list'),
     re_path(r'^assign_glass/(?P<pk>.*)/$', views.assign_glass, name='assign_glass'),
     re_path(r'^allocated_glass/(?P<pk>.*)/$', views.allocated_glass, name='allocated_glass'),
+    re_path(r'^edit_glass_assignment/(?P<pk>.*)/$', views.edit_glass_assignment, name='edit_glass_assignment'),
     #-------------Packing-------------------------------------------------------
     re_path(r'^packing_list/', views.packing_list, name='packing_list'),
     re_path(r'^assign_packing/(?P<pk>.*)/$', views.assign_packing, name='assign_packing'),
     re_path(r'^allocated_packing/(?P<pk>.*)/$', views.allocated_packing, name='allocated_packing'),
+    re_path(r'^edit_packing_assignment/(?P<pk>.*)/$', views.edit_packing_assignment, name='edit_packing_assignment'),
     #--------- staff assigning for various work sections---------------------
     re_path(r'^wood_order_staff_assign/(?P<pk>.*)/$',views.wood_order_staff_assign,name='wood-order-staff-assign'),
     re_path(r'^carpentar_order_staff_assign/(?P<pk>.*)/$',views.carpentary_order_staff_assign,name='carpentar_order_staff_assign'),

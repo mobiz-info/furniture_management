@@ -119,7 +119,10 @@
                                                 <td class="text-center">
                                                     <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{order.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
                                                     <a href="{% url 'work_order:work_order_info' pk=order.pk %}"><i class="las la-eye text-success font-18"></i></a>
-                                                    <a href="{% url 'work_order:edit_work_order' pk=order.pk %}"><i class="las la-pen text-info font-18"></i></a>
+                                                    
+                                                    <a href="{% url 'work_order:edit_packing_assignment' order.pk %}" class="btn btn-sm btn-outline-info" title="Edit Packing Assignment">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a><a href="{% url 'work_order:edit_work_order' pk=order.pk %}"><i class="las la-pen text-info font-18"></i></a>
                                                     <a data-id="{{order.pk}}" data-text="{{confirm_delete_message}}" data-title="Are you sure?" href="{% url 'work_order:delete_work_order' pk=order.pk %}"><i class="las la-trash-alt text-danger font-18"></i></a>
                                                 </td>
                                             </td>
