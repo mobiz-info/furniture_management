@@ -49,8 +49,9 @@ def work_order(request,id=None):
         queryset = WorkOrder.objects.filter(is_deleted=False)
         
         if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
-            assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
-            queryset = queryset.filter(pk__in=assigned_work_order_ids)
+            if WorkOrderStaffAssign.objects.filter(work_order__pk__in=queryset.values_list("pk")).exists():
+                assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
+                queryset = queryset.filter(pk__in=assigned_work_order_ids)
 
         if status_value:
             queryset = queryset.filter(status=status_value)
