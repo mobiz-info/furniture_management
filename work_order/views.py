@@ -747,7 +747,7 @@ def allocated_wood(request, pk):
     html = render_to_string('admin_panel/pages/wood/allocated_wood.html', context, request=request)
     return JsonResponse({'html': html})
 
-def edit_wood_assignment(request, pk):
+def  edit_wood_assignment(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
     wood_assign_instances = WoodWorkAssign.objects.filter(work_order=work_order)
     
@@ -934,6 +934,62 @@ def allocated_carpentary(request, pk):
     html = render_to_string('admin_panel/pages/wood/allocated_carpentary.html', context, request=request)
     return JsonResponse({'html': html})
 
+def edit_carpentary_assignment(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    carpentary_instances = Carpentary.objects.filter(work_order=work_order)
+
+    extra = 0 if carpentary_instances.exists() else 1
+
+    CarpentaryAssignFormSet = inlineformset_factory(
+        WorkOrder,
+        Carpentary,
+        form=CarpentaryAssignForm,
+        extra=extra,
+        can_delete=True
+    )
+
+    if request.method == "POST":
+        formset = CarpentaryAssignFormSet(
+            request.POST,
+            request.FILES,
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+        if formset.is_valid():
+            for form in formset:
+                if form not in formset.deleted_forms:
+                    obj = form.save(commit=False)
+                    obj.creator = request.user
+                    obj.date_updated = datetime.today()
+                    if not obj.auto_id:
+                        obj.auto_id = get_auto_id(Carpentary)
+                    obj.updater = request.user
+                    obj.save()
+            for form in formset.deleted_forms:
+                form.instance.delete()
+
+            return HttpResponse(json.dumps({
+                "status": "true",
+                "title": "Successfully Updated",
+                "message": "Updated successfully.",
+                "redirect": "true",
+                "redirect_url": reverse("work_order:carpentary_list")
+            }), content_type="application/javascript")
+    else:
+        formset = CarpentaryAssignFormSet(
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+    context = {
+        'carpentary_formset': formset,
+        'page_title': "Edit Carpentary Assignment",
+        'url': reverse('work_order:edit_carpentary_assignment', kwargs={'pk': pk}),
+    }
+    return render(request, 'admin_panel/pages/wood/assign_carpentary.html', context)
+
 #-----------------------Polish-------------------------------------------------------------------
 
 def polish_list(request):
@@ -1043,7 +1099,83 @@ def allocated_polish(request, pk):
     html = render_to_string('admin_panel/pages/polish/allocated_polish.html', context, request=request)
     return JsonResponse({'html': html})
 
+def edit_polish_assignment(request, pk):
+    work_order = get_object_or_404(WorkOrder, pk=pk)
+    polish_instances = Polish.objects.filter(work_order=work_order)
 
+    extra = 0 if polish_instances.exists() else 1
+
+    PolishAssignFormSet = inlineformset_factory(
+        WorkOrder,
+        Polish,
+        form=PolishAssignForm,
+        extra=extra,
+        can_delete=True
+    )
+
+    if request.method == "POST":
+        formset = PolishAssignFormSet(
+            request.POST,
+            request.FILES,
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    for form in formset:
+                        if form not in formset.deleted_forms:
+                            obj = form.save(commit=False)
+                            obj.creator = request.user
+                            obj.date_updated = datetime.today()
+                            if not obj.auto_id:
+                                obj.auto_id = get_auto_id(Polish)
+                            obj.updater = request.user
+                            obj.save()
+
+                    for form in formset.deleted_forms:
+                        form.instance.delete()
+
+                return HttpResponse(json.dumps({
+                    "status": "true",
+                    "title": "Successfully Updated",
+                    "message": "Updated successfully.",
+                    "redirect": "true",
+                    "redirect_url": reverse("work_order:polish_list")
+                }), content_type="application/javascript")
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    "status": "false",
+                    "title": "Error",
+                    "message": str(e)
+                }), content_type="application/javascript")
+        else:
+            message = generate_form_errors(formset, formset=True)
+            return HttpResponse(json.dumps({
+                "status": "false",
+                "title": "Form Error",
+                "message": message
+            }), content_type="application/javascript")
+    
+    else:
+        formset = PolishAssignFormSet(
+            instance=work_order,
+            prefix='formset',
+            form_kwargs={'empty_permitted': False}
+        )
+
+        context = {
+            'polish_formset': formset,
+            'page_name': 'Edit Polish Assignment',
+            'page_title': 'Edit Polish Assignment',
+            'work_order': work_order,
+            'url': reverse('work_order:edit_polish_assignment', kwargs={'pk': pk}),
+            'is_need_select2': True,
+        }
+
+        return render(request, 'admin_panel/pages/polish/assign_polish.html', context)
 #--------------------------------Glass----------------------------------------------------
 
 

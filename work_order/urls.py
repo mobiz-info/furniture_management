@@ -27,10 +27,14 @@ urlpatterns = [
     re_path(r'^carpentary_list/', views.carpentary_list, name='carpentary_list'),
     re_path(r'^assign_carpentary/(?P<pk>.*)/$', views.assign_carpentary, name='assign_carpentary'),
     re_path(r'^allocated_carpentary/(?P<pk>.*)/$', views.allocated_carpentary, name='allocated_carpentary'),
+    re_path(r'^edit_carpentary_assignment/(?P<pk>.*)/$', views.edit_carpentary_assignment, name='edit_carpentary_assignment'),
+
     #-----------------Polish--------------------------
     re_path(r'^polish_list/', views.polish_list, name='polish_list'),
     re_path(r'^assign_polish/(?P<pk>.*)/$', views.assign_polish, name='assign_polish'),
     re_path(r'^allocated_polish/(?P<pk>.*)/$', views.allocated_polish, name='allocated_polish'),
+    re_path(r'^edit_polish_assignment/(?P<pk>.*)/$', views.edit_polish_assignment, name='edit_polish_assignment'),
+    
     #-------------Glass/Upholstory-------------------------------------------------------
     re_path(r'^glass_list/', views.glass_list, name='glass_list'),
     re_path(r'^assign_glass/(?P<pk>.*)/$', views.assign_glass, name='assign_glass'),
