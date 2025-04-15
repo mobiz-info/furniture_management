@@ -47,17 +47,22 @@ def work_order(request,id=None):
             return Response({"error": "Work order not found."}, status=404)
     else:
         queryset = WorkOrder.objects.filter(is_deleted=False)
-        
-        if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
-            if WorkOrderStaffAssign.objects.filter(work_order__pk__in=queryset.values_list("pk")).exists():
-                assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
-                queryset = queryset.filter(pk__in=assigned_work_order_ids)
 
+        # Filter for assigned staff if not in specific departments
+        if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
+            assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(
+                staff__user=request.user
+            ).values_list("work_order__pk", flat=True)
+
+            queryset = queryset.filter(pk__in=assigned_work_order_ids)
+
+        # Filter by status if provided
         if status_value:
             queryset = queryset.filter(status=status_value)
 
         serializer = WorkOrderSerializer(queryset, many=True)
         return Response(serializer.data)
+
     
 #-------------------------------wood Assign----------------------------------------------
 
