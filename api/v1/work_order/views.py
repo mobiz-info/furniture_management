@@ -35,7 +35,8 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def work_order(request,id=None):
-    status_value = request.query_params.get('status_value')  
+    status_value = request.query_params.get('status_value')
+    auth_staff = Staff.objects.get(user=request.user)
 
     if id:
         try:
@@ -45,8 +46,11 @@ def work_order(request,id=None):
         except WorkOrder.DoesNotExist:
             return Response({"error": "Work order not found."}, status=404)
     else:
-        assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
-        queryset = WorkOrder.objects.filter(pk__in=assigned_work_order_ids)
+        queryset = WorkOrder.objects.filter(is_deleted=False)
+        
+        if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
+            assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
+            queryset = queryset.filter(pk__in=assigned_work_order_ids)
 
         if status_value:
             queryset = queryset.filter(status=status_value)
