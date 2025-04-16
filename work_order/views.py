@@ -1590,119 +1590,209 @@ def wood_order_staff_assign(request, pk):
     
     
 #------------- assigning staff in carpentary section---------------------#
-def carpentary_order_staff_assign(request,pk):
+def carpentary_order_staff_assign(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
 
-    work_order=get_object_or_404(WorkOrder,id=pk)
+    if request.method == "POST":
+        assign_id = request.POST.get("assign_id")
+        staff_id = request.POST.get("staff")
+        time = request.POST.get("time")
+        wage = request.POST.get("wage")
 
-    if request.method=="GET":
-        staff=Staff.objects.filter(department__name="Carpentary")
-        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        if assign_id:  # Update mode
+            assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.time_spent = time
+            assign.wage = wage
+            assign.updater = request.user
+            assign.save()
 
-        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
-    
-    elif request.method=="POST":
-        staff_id=request.POST.get("staff")
-        time=request.POST.get("time")
-        wage=request.POST.get("wage")
-        staff=Staff.objects.get(id=staff_id)
-        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
-                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
-                                            time_spent=time,wage=wage
-                                            )
-        log_activity(
+            log_activity(
+                created_by=request.user,
+                description=f"Updated carpenter assignment '{assign.staff}' for '{assign.work_order}'"
+            )
+            messages.success(request, "Staff assignment updated successfully.")
+        else:  # New assignment
+            staff = Staff.objects.get(id=staff_id)
+            WorkOrderStaffAssign.objects.create(
+                staff=staff,
+                work_order=work_order,
+                creator=request.user,
+                auto_id=get_auto_id(WorkOrderStaffAssign),
+                time_spent=time,
+                wage=wage
+            )
+
+            log_activity(
                 created_by=request.user,
                 description=f"Assigned '{staff}' for '{work_order}'"
             )
+            messages.success(request, "Staff assigned successfully.")
 
-        return redirect('work_order:carpentary_list')
-    
+        return redirect(request.path)
+
+    # GET method
+    staff = Staff.objects.filter(department__name="Carpentary")
+    assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+
+    return render(request, 'admin_panel/pages/work_order/order/staff_assign.html', {
+        "instance": work_order,
+        "staff": staff,
+        "staffs": assigned_staffs
+    })
+
+
 
 #-----------------------assiging staff for polish section--------------------------------#
-def polish_order_staff_assign(request,pk):
+def polish_order_staff_assign(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
 
-    work_order=get_object_or_404(WorkOrder,id=pk)
+    if request.method == "GET":
+        assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        staff = Staff.objects.filter(department__name="Polish")
 
-    if request.method=="GET":
-        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
-        staff=Staff.objects.filter(department__name="Polish")
+        return render(
+            request,
+            'admin_panel/pages/work_order/order/staff_assign.html',
+            {"instance": work_order, "staff": staff, "staffs": assigned_staffs}
+        )
 
-        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
-    
-    elif request.method=="POST":
-        staff_id=request.POST.get("staff")
-        time=request.POST.get("time")
-        wage=request.POST.get("wage")
-        staff=Staff.objects.get(id=staff_id)
-        
-        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
-                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
-                                            time_spent=time,wage=wage
-                                            )
-        log_activity(
+    elif request.method == "POST":
+        assign_id = request.POST.get("assign_id")
+        staff_id = request.POST.get("staff")
+        time = request.POST.get("time")
+        wage = request.POST.get("wage")
+
+        if assign_id:
+            assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.time_spent = time
+            assign.wage = wage
+            assign.updater = request.user
+            assign.save()
+
+            log_activity(
+                created_by=request.user,
+                description=f"Updated polish assignment '{assign.staff}' for '{assign.work_order}'"
+            )
+        else:
+            staff = Staff.objects.get(id=staff_id)
+            WorkOrderStaffAssign.objects.create(
+                staff=staff,
+                work_order=work_order,
+                creator=request.user,
+                auto_id=get_auto_id(WorkOrderStaffAssign),
+                time_spent=time,
+                wage=wage
+            )
+
+            log_activity(
                 created_by=request.user,
                 description=f"Assigned '{staff}' for '{work_order}'"
             )
 
-
-        return redirect('work_order:polish_list')    
+        return redirect(request.path)
+    
 
 #----------------------------------assigning staff for glass/upholstory section-----------#
-def glass_order_staff_assign(request,pk):
+def glass_order_staff_assign(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
 
-    work_order=get_object_or_404(WorkOrder,id=pk)
+    if request.method == "GET":
+        staff = Staff.objects.filter(department__name="Glass/Upholstory")
+        assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
-    if request.method=="GET":
-        staff=Staff.objects.filter(department__name="Glass/Upholstory")
-        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        return render(
+            request,
+            'admin_panel/pages/work_order/order/staff_assign.html',
+            {"instance": work_order, "staff": staff, "staffs": assigned_staffs}
+        )
 
-        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
-    
-    elif request.method=="POST":
-        staff_id=request.POST.get("staff")
-        time=request.POST.get("time")
-        wage=request.POST.get("wage")
-        staff=Staff.objects.get(id=staff_id)
-        
-        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
-                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
-                                            time_spent=time,wage=wage
-                                            )
-        log_activity(
+    elif request.method == "POST":
+        assign_id = request.POST.get("assign_id")
+        staff_id = request.POST.get("staff")
+        time = request.POST.get("time")
+        wage = request.POST.get("wage")
+
+        if assign_id:
+            assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.time_spent = time
+            assign.wage = wage
+            assign.updater = request.user
+            assign.save()
+
+            log_activity(
+                created_by=request.user,
+                description=f"Updated glass assignment '{assign.staff}' for '{assign.work_order}'"
+            )
+        else:
+            staff = Staff.objects.get(id=staff_id)
+            WorkOrderStaffAssign.objects.create(
+                staff=staff,
+                work_order=work_order,
+                creator=request.user,
+                auto_id=get_auto_id(WorkOrderStaffAssign),
+                time_spent=time,
+                wage=wage
+            )
+
+            log_activity(
                 created_by=request.user,
                 description=f"Assigned '{staff}' for '{work_order}'"
             )
 
-        return redirect('work_order:glass_list')       
+        return redirect(request.path)
+       
 
 
 #-------------------------assigning staff for packing section-------------#
-def packing_order_staff_assign(request,pk):
+def packing_order_staff_assign(request, pk):
+    work_order = get_object_or_404(WorkOrder, id=pk)
 
-    work_order=get_object_or_404(WorkOrder,id=pk)
+    if request.method == "GET":
+        staff = Staff.objects.filter(department__name="Packing")
+        assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
-    if request.method=="GET":
-        staff=Staff.objects.filter(department__name="Packing")
-        assigned_staffs=WorkOrderStaffAssign.objects.filter(work_order=work_order)
+        return render(
+            request,
+            'admin_panel/pages/work_order/order/staff_assign.html',
+            {"instance": work_order, "staff": staff, "staffs": assigned_staffs}
+        )
 
-        return render(request,'admin_panel/pages/work_order/order/staff_assign.html',{"instance":work_order,"staff":staff,"staffs":assigned_staffs})
-    
-    elif request.method=="POST":
-        staff_id=request.POST.get("staff")
-        time=request.POST.get("time")
-        wage=request.POST.get("wage")
-        staff=Staff.objects.get(id=staff_id)
-        
-        WorkOrderStaffAssign.objects.create(staff=staff,work_order=work_order,
-                                            creator=request.user,auto_id=get_auto_id(WorkOrderStaffAssign),
-                                            time_spent=time,wage=wage
-                                            )
-        log_activity(
+    elif request.method == "POST":
+        assign_id = request.POST.get("assign_id")
+        staff_id = request.POST.get("staff")
+        time = request.POST.get("time")
+        wage = request.POST.get("wage")
+
+        if assign_id:
+            assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.time_spent = time
+            assign.wage = wage
+            assign.updater = request.user
+            assign.save()
+
+            log_activity(
                 created_by=request.user,
-                description=f"Assigned '{staff}' for '{work_order}'"
+                description=f"Updated packing assignment '{assign.staff}' for '{assign.work_order}'"
             )
-        
+        else:
+            if staff_id:
+                staff = Staff.objects.get(id=staff_id)
+                WorkOrderStaffAssign.objects.create(
+                    staff=staff,
+                    work_order=work_order,
+                    creator=request.user,
+                    auto_id=get_auto_id(WorkOrderStaffAssign),
+                    time_spent=time,
+                    wage=wage
+                )
 
-        return redirect('work_order:packing_list')
+                log_activity(
+                    created_by=request.user,
+                    description=f"Assigned '{staff}' for '{work_order}'"
+                )
+
+        return redirect(request.path)
+
     
 
 @login_required
