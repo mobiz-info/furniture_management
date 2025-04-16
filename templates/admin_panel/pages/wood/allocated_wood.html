@@ -1,11 +1,11 @@
 <h4>Allocated Wood - Work Order: {{ work_order.order_no }}</h4>
-<table class="table">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
             <th>Sl No</th>
             <th>Wood</th>
             <th>Quality</th>
-            <th>Ouantity</th>
+            <th>Quantity</th>
             <th>Rate</th>
         </tr>
     </thead>
@@ -17,6 +17,10 @@
             <td>{{ wood.quality }}</td>
             <td>{{ wood.quantity }}</td>
             <td>{{ wood.rate }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No wood assigned for this work order.</td>
         </tr>
         {% endfor %}
     </tbody>

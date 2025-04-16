@@ -114,6 +114,8 @@
                                                 {% if order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
                                                 {% else %}
+                                                <a href="{% url 'work_order:allocated_glass' order.id %}">Assign Glass</a></td>
+
                                                 {% endif %}
                                                 <td class="text-center"><a href="{% url 'work_order:glass_order_staff_assign' order.id %}">Assign staff</a></td>
                                                 <td class="text-center">
@@ -155,35 +157,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive">
-                        
-                    </div>
-                    <div id="assigned-glass-details">
-                        
-                        <h4>Allocated Glass/Upholstory -  Work Order: {{ order.order_no }}</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Sl No</th>
-                                    <th>Wood</th>
-                                    <th>Quality</th>
-                                    <th>CFL</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for glass in assign_glass %}
-                                <tr>
-                                    {{ glass.id }}
-                                    <td class="text-center">{{forloop.counter}}</td>
-                                    <td>{{ glass.material }}</td>
-                                    <td>{{ glass.quality }}</td>
-                                    <td>{{ glass.cfl }}</td>
-                                    <td>{{ glass.total }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table> 
+                    <div class="table-responsive" id="assigned-glass-details">
+                    <!-- AJAX-loaded content will appear here -->
+
                     </div>
                 </div>
             </div>
@@ -259,7 +235,7 @@
             });
         });
 
-        function fetchGlassDetails(orderId) {
+        function fetchAssignedGlassDetails(orderId) {
             var url = "{% url 'work_order:allocated_glass' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())

@@ -1,22 +1,26 @@
-<h4>Allocated Glass/Upholstory - Work Order: {{ work_order.order_no }}</h4>
-<table class="table">
-    <thead>
+<h4>Allocated Glass/Upholstery - Work Order: {{ work_order.order_no }}</h4>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
             <th>Sl No</th>
             <th>Wood</th>
             <th>Quality</th>
-            <th>CFL</th>
+            <th>Quantity</th>
             <th>Total</th>
         </tr>
     </thead>
     <tbody>
-        {% for wood in assign_glass %}
+        {% for glass in assign_glass %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ wood.material }}</td>
-            <td>{{ wood.quality }}</td>
-            <td>{{ wood.cfl }}</td>
-            <td>{{ wood.total }}</td>
+            <td>{{ glass.material }}</td>
+            <td>{{ glass.quality }}</td>
+            <td>{{ glass.quantity }}</td>
+            <td>{{ glass.rate }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No glass/upholstery assigned for this work order.</td>
         </tr>
         {% endfor %}
     </tbody>

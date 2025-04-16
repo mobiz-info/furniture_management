@@ -803,24 +803,6 @@ def  edit_wood_assignment(request, pk):
             'url': reverse('work_order:edit_wood_assignment', kwargs={'pk': pk}),
         }
         return render(request, 'admin_panel/pages/wood/assign_wood.html', context)
-    # formset = WoodWorksAssignFormSet(instance=work_order, queryset=WoodWorkAssign.objects.filter(work_order=work_order))
-
-    # if request.method == "POST":
-    #     formset = WoodWorksAssignFormSet(request.POST, instance=work_order)
-    #     if formset.is_valid():
-    #         formset.save()
-    #         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-    #             return JsonResponse({'redirect_url': reverse('work_order:wood_work_orders_list')})
-    #         return redirect("work_order:wood_work_orders_list")
-    #     else:
-    #         print("Form errors:", formset.errors)
-
-    # return render(request, "admin_panel/pages/wood/edit_wood_assignments.html", {
-    #     "formset": formset,
-    #     "page_title": f"Edit Wood Assignments for {work_order.order_no}",
-    #     "url": request.path,
-    #     "work_order": work_order,
-    # })
 
 #---------------------Carpentary Section----------------------------------
 def carpentary_list(request):
@@ -909,6 +891,7 @@ def assign_carpentary(request, pk):
     
     else:
         formset = CarpentaryAssignFormSet(instance=work_order, prefix='formset')
+        
         context = {
             'carpentary_formset': formset,
             'page_name': 'Carpentary Assign',
@@ -916,6 +899,7 @@ def assign_carpentary(request, pk):
             'work_order': work_order,
             'url': reverse('work_order:assign_carpentary', args=[pk]),
             'is_need_select2': True,
+            
         }
         
         return render(request, 'admin_panel/pages/wood/assign_carpentary.html', context)
@@ -933,6 +917,7 @@ def allocated_carpentary(request, pk):
 
     html = render_to_string('admin_panel/pages/wood/allocated_carpentary.html', context, request=request)
     return JsonResponse({'html': html})
+
 
 def edit_carpentary_assignment(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
@@ -987,6 +972,9 @@ def edit_carpentary_assignment(request, pk):
         'carpentary_formset': formset,
         'page_title': "Edit Carpentary Assignment",
         'url': reverse('work_order:edit_carpentary_assignment', kwargs={'pk': pk}),
+        'assigned_carpentary': carpentary_instances,
+        'work_order': work_order,
+
     }
     return render(request, 'admin_panel/pages/wood/assign_carpentary.html', context)
 
