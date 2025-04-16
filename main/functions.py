@@ -10,6 +10,8 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator
 from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import ValidationError
 #Third Party
 from random import randint
 from datetime import timezone
@@ -187,3 +189,11 @@ def log_activity(created_by,description,created_date=None,):
         created_by=created_by,
         description=description,
     )
+
+def safe_get_or_400(model, pk, label):
+    if not pk:
+        raise ValidationError({label: f"{label} ID is required."})
+    try:
+        return model.objects.get(pk=pk)
+    except model.DoesNotExist:
+        raise ValidationError({label: f"{label} with id {pk} does not exist."})

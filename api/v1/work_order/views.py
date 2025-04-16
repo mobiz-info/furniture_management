@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.forms import formset_factory
 from django.db import transaction, IntegrityError
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from customer.models import Customer
 from product.models import MaterialTypeCategory, Materials, MaterialsType, ProductCategory, ProductSubCategory
@@ -19,8 +20,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
 
-from main.functions import decrypt_message, encrypt_message
+from main.functions import decrypt_message, encrypt_message, safe_get_or_400
 from api.v1.authentication.functions import generate_serializer_errors, get_user_token
 from work_order.views import WorkOrder, WorkOrderStaffAssign
 from .serializers import *
@@ -33,7 +35,8 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def work_order(request,id=None):
-    status_value = request.query_params.get('status_value')  
+    status_value = request.query_params.get('status_value')
+    auth_staff = Staff.objects.get(user=request.user)
 
     if id:
         try:
@@ -43,14 +46,23 @@ def work_order(request,id=None):
         except WorkOrder.DoesNotExist:
             return Response({"error": "Work order not found."}, status=404)
     else:
-        assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(staff__user=request.user).values_list("work_order__pk")
-        queryset = WorkOrder.objects.filter(pk__in=assigned_work_order_ids)
+        queryset = WorkOrder.objects.filter(is_deleted=False)
 
+        # Filter for assigned staff if not in specific departments
+        if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
+            assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(
+                staff__user=request.user
+            ).values_list("work_order__pk", flat=True)
+
+            queryset = queryset.filter(pk__in=assigned_work_order_ids)
+
+        # Filter by status if provided
         if status_value:
             queryset = queryset.filter(status=status_value)
 
         serializer = WorkOrderSerializer(queryset, many=True)
         return Response(serializer.data)
+
     
 #-------------------------------wood Assign----------------------------------------------
 
@@ -500,7 +512,7 @@ def work_order_create(request):
     """
     if request.method == 'POST':
         data = request.data
-        
+
         # Extract customer data
         customer_data = data.get('customer', {})
         if not customer_data:
@@ -510,7 +522,6 @@ def work_order_create(request):
                 "message": "Customer data is required."
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create or retrieve the customer
         mobile_number = customer_data.get('mobile_number')
         if not mobile_number:
             return Response({
@@ -518,8 +529,9 @@ def work_order_create(request):
                 "title": "Invalid Data",
                 "message": "Customer mobile number is required."
             }, status=status.HTTP_400_BAD_REQUEST)
-            
-        if (user_details:=User.objects.filter(username=mobile_number)).exists():
+
+        # Create or retrieve the user
+        if (user_details := User.objects.filter(username=mobile_number)).exists():
             user_details = user_details.first()
         else:
             user_details = User.objects.create_user(
@@ -528,6 +540,7 @@ def work_order_create(request):
                 is_active=True,
             )
 
+        # Create or retrieve the customer
         customer_instance, created = Customer.objects.get_or_create(
             mobile_number=mobile_number,
             defaults={
@@ -540,11 +553,11 @@ def work_order_create(request):
                 'creator': request.user,
             }
         )
+
         if created:
             group, _ = Group.objects.get_or_create(name="customer")
             customer_instance.user.groups.add(group)
 
-        # Create WorkOrder
         try:
             with transaction.atomic():
                 work_order = WorkOrder.objects.create(
@@ -556,77 +569,102 @@ def work_order_create(request):
                     auto_id=get_auto_id(WorkOrder),
                     creator=request.user,
                 )
-               
-                # Create WorkOrder Items
+
                 work_order_items = data.get('work_order_items', [])
+                if not work_order_items:
+                    return Response({
+                        "status": "false",
+                        "title": "Invalid Data",
+                        "message": "No work order items provided."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
                 for item in work_order_items:
+                    try:
+                        category = safe_get_or_400(ProductCategory, item.get('category'), 'Category')
+                        sub_category = safe_get_or_400(ProductSubCategory, item.get('sub_category'), 'Sub Category')
+                        material = safe_get_or_400(Materials, item.get('material'), 'Material')
+                        sub_material = safe_get_or_400(MaterialsType, item.get('sub_material'), 'Sub Material')
+                        material_type = safe_get_or_400(MaterialTypeCategory, item.get('material_type'), 'Material Type')
+                        size = safe_get_or_400(Size, item.get('size'), 'Size')
+                        color = safe_get_or_400(Color, item.get('color'), 'Color')
+                    except ValidationError as ve:
+                        return Response({
+                            "status": "false",
+                            "title": "Invalid Data",
+                            "message": ve.detail,
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                    model_no = item.get('model_no')
+                    estimate_rate = item.get('estimate_rate')
+                    quantity = item.get('quantity')
+                    remark = item.get('remark')
+
                     work_order_item = WorkOrderItems.objects.create(
                         work_order=work_order,
-                        category=ProductCategory.objects.get(pk=item.get('category')),
-                        sub_category=ProductSubCategory.objects.get(pk=item.get('sub_category')),
-                        model_no=item.get('model_no'),
-                        material=Materials.objects.get(pk=item.get('material')),
-                        sub_material=MaterialsType.objects.get(pk=item.get('sub_material')),
-                        material_type=MaterialTypeCategory.objects.get(pk=item.get('material_type')),
-                        quantity=item.get('quantity'),
-                        estimate_rate=item.get('estimate_rate'),
-                        size=Size.objects.get(pk=item.get('size')),
-                        color=Color.objects.get(pk=item.get('color')),
-                        remark=item.get('remark'),
+                        category=category,
+                        sub_category=sub_category,
+                        model_no=model_no,
+                        material=material,
+                        sub_material=sub_material,
+                        material_type=material_type,
+                        quantity=quantity,
+                        estimate_rate=estimate_rate,
+                        size=size,
+                        color=color,
+                        remark=remark,
                         auto_id=get_auto_id(WorkOrderItems),
                         creator=request.user,
                     )
-                    
-                    if not ModelNumberBasedProducts.objects.filter(model_no=work_order_item.model_no).exists():
-                        model_number_based_product=ModelNumberBasedProducts.objects.create(
+
+                    # ModelNumberBasedProducts management
+                    model_exists = ModelNumberBasedProducts.objects.filter(model_no=model_no).exists()
+                    if not model_exists:
+                        model_number_based_product = ModelNumberBasedProducts.objects.create(
                             auto_id=get_auto_id(ModelNumberBasedProducts),
                             creator=request.user,
-                            model_no=work_order_item.model_no,
-                            category=work_order_item.category,
-                            sub_category=work_order_item.sub_category,
-                            material=work_order_item.material,
-                            sub_material=work_order_item.sub_material,
-                            material_type=work_order_item.material_type,
-                            
+                            model_no=model_no,
+                            category=category,
+                            sub_category=sub_category,
+                            material=material,
+                            sub_material=sub_material,
+                            material_type=material_type,
                         )
-                        model_number_based_product.color.add(work_order_item.color)
-                        model_number_based_product.size.add(work_order_item.size)
-                        model_number_based_product.save()
+                        model_number_based_product.color.add(color)
+                        model_number_based_product.size.add(size)
                     else:
-                        model_number_based_product = ModelNumberBasedProducts.objects.get(model_no=work_order_item.model_no)
-                        model_number_based_product.color.add(work_order_item.color)
-                        model_number_based_product.size.add(work_order_item.size)
-                        model_number_based_product.save()
+                        model_number_based_product = ModelNumberBasedProducts.objects.get(model_no=model_no)
+                        model_number_based_product.color.add(color)
+                        model_number_based_product.size.add(size)
 
+                    model_number_based_product.save()
 
-                    # Create WorkOrder Images
-                    # work_order_images = item.get('work_order_images', [])
-                    # for image in work_order_images:
+                    # (Optional) Handle images if needed in future
+                    # images = item.get('work_order_images', [])
+                    # for image in images:
                     #     WorkOrderImages.objects.create(
                     #         work_order=work_order_item,
                     #         image=image.get('image'),
                     #         auto_id=get_auto_id(WorkOrderImages),
                     #         creator=request.user,
-                    # )
-                    log_activity(
-                        created_by=request.user,
-                        description=f"created work order-- '{work_order}'"
-                        )
-                
-                
+                    #     )
+
+                log_activity(
+                    created_by=request.user,
+                    description=f"created work order-- '{work_order}'"
+                )
 
                 return Response({
                     "status": "true",
                     "title": "Work Order Created",
                     "work_order_id": work_order.id
                 }, status=status.HTTP_201_CREATED)
-                
+
         except Exception as e:
-                return Response({
-                    "status": "false",
-                    "title": "Failed",
-                    "message": "An unexpected error occurred: " + str(e),
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                "status": "false",
+                "title": "Failed",
+                "message": "An unexpected error occurred: " + str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 
