@@ -114,6 +114,8 @@
                                                 {% if order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
                                                 {% else %}
+                                                <a href="{% url 'work_order:allocated_packing' order.id %}">Assign Packing</a></td>
+
                                                 {% endif %}
                                                 <td class="text-center"><a href="{% url 'work_order:packing_order_staff_assign' order.id %}">Assign staff</a></td>
                                                 <td class="text-center">
@@ -154,35 +156,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive">
-                        
-                    </div>
-                    <div id="assigned-packing-details">
-                        
-                        <h4>Allocated Packing -  Work Order: {{ order.order_no }}</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Sl No</th>
-                                    <th>Wood</th>
-                                    <th>Quality</th>
-                                    <th>CFL</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for packing in assign_packing %}
-                                <tr>
-                                    {{ packing.id }}
-                                    <td class="text-center">{{forloop.counter}}</td>
-                                    <td>{{ packing.material }}</td>
-                                    <td>{{ packing.quality }}</td>
-                                    <td>{{ packing.cfl }}</td>
-                                    <td>{{ packing.total }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table> 
+                    <div class="table-responsive" id="assigned-packing-details">
+                    <!-- AJAX-loaded content will appear here -->
                     </div>
                 </div>
             </div>
@@ -258,7 +233,7 @@
             });
         });
 
-        function fetchPackingDetails(orderId) {
+        function fetchAssignedPackingDetails(orderId) {
             var url = "{% url 'work_order:allocated_packing' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())

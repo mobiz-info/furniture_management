@@ -1,22 +1,26 @@
 <h4>Allocated Packing - Work Order: {{ work_order.order_no }}</h4>
-<table class="table">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
             <th>Sl No</th>
             <th>Wood</th>
             <th>Quality</th>
-            <th>CFL</th>
+            <th>Quantity</th>
             <th>Total</th>
         </tr>
     </thead>
     <tbody>
-        {% for wood in assign_packing %}
+        {% for packing in assign_packing %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ wood.material }}</td>
+            <td>{{ packing.material }}</td>
             <td>{{ wood.quality }}</td>
-            <td>{{ wood.cfl }}</td>
-            <td>{{ wood.total }}</td>
+            <td>{{ packing.quantity }}</td>
+            <td>{{ packing.rate }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No packing data available for this work order.</td>
         </tr>
         {% endfor %}
     </tbody>

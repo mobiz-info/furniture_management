@@ -1,22 +1,26 @@
 <h4>Allocated Carpentary - Work Order: {{ work_order.order_no }}</h4>
-<table class="table">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
             <th>Sl No</th>
             <th>Wood</th>
             <th>Quality</th>
-            <th>CFL</th>
+            <th>Quantity</th>
             <th>Total</th>
         </tr>
     </thead>
     <tbody>
-        {% for wood in assign_carpentary %}
+        {% for carpentary in assign_carpentary %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ wood.material }}</td>
-            <td>{{ wood.quality }}</td>
-            <td>{{ wood.cfl }}</td>
-            <td>{{ wood.total }}</td>
+            <td>{{ carpentary.material }}</td>
+            <td>{{ carpentary.quality }}</td>
+            <td>{{ carpentary.quantity }}</td>
+            <td>{{ carpentary.rate }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No carpentry assigned for this work order.</td>
         </tr>
         {% endfor %}
     </tbody>

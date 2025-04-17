@@ -114,6 +114,7 @@
                                                 {% if order.is_assigned %}
                                                 <a href="#" class="view-assignments" data-toggle="modal" data-target="#assignModal" data-order-id="{{ order.id }}">Allocated</a>
                                                 {% else %}
+                                                <a href="{% url 'work_order:allocated_polish' order.id %}">Assign Polish</a></td>
                                                 {% endif %}
                                                 <td class="text-center"><a href="{% url 'work_order:polish_order_staff_assign' order.id %}">Assign staff</a></td>
                                                 <td class="text-center">
@@ -154,35 +155,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive">
-                        
-                    </div>
-                    <div id="assigned-polish-details">
-                        
-                        <h4>Allocated Polish -  Work Order: {{ order.order_no }}</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Sl No</th>
-                                    <th>Wood</th>
-                                    <th>Quality</th>
-                                    <th>CFL</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for polish in assign_polish %}
-                                <tr>
-                                    {{ polish.id }}
-                                    <td class="text-center">{{forloop.counter}}</td>
-                                    <td>{{ polish.material }}</td>
-                                    <td>{{ polish.quality }}</td>
-                                    <td>{{ polish.cfl }}</td>
-                                    <td>{{ polish.total }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table> 
+                    <div class="table-responsive" id="assigned-polish-details">
+                    <!-- AJAX-loaded content will appear here -->
+
                     </div>
                 </div>
             </div>
@@ -258,7 +233,7 @@
             });
         });
 
-        function fetchPolishDetails(orderId) {
+        function fetchAssignedPolishDetails(orderId) {
             var url = "{% url 'work_order:allocated_polish' 0 %}".replace('0', orderId);
             fetch(url)
                 .then(response => response.json())
