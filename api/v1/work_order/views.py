@@ -47,19 +47,22 @@ def work_order(request, id=None):
             return Response({"error": "Work order not found."}, status=404)
     else:
         queryset = WorkOrder.objects.filter(is_deleted=False)
-
-        # Restrict access if not FRONT OFFICE or OWNER
-        if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
-            assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(
-                staff=auth_staff
-            ).values_list("work_order__pk", flat=True)
-
-            queryset = queryset.filter(pk__in=assigned_work_order_ids)
-
+        
         if status_value:
             queryset = queryset.filter(status=status_value)
 
-        serializer = WorkOrderSerializer(queryset, many=True)
+        # # Restrict access if not FRONT OFFICE or OWNER
+        # if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
+        #     assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(
+        #         staff=auth_staff
+        #     ).values_list("work_order__pk", flat=True)
+            
+        #     print("staff")
+        #     if assigned_work_order_ids.exists():
+        #         print("exist")
+        #         queryset = queryset.filter(pk__in=assigned_work_order_ids)
+
+        serializer = WorkOrderSerializer(queryset.order_by("date_added"), many=True)
         return Response(serializer.data)
 
 
