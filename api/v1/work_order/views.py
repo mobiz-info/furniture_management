@@ -34,13 +34,13 @@ from main.functions import generate_form_errors, get_auto_id,log_activity
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
-def work_order(request,id=None):
+def work_order(request, id=None):
     status_value = request.query_params.get('status_value')
     auth_staff = Staff.objects.get(user=request.user)
 
     if id:
         try:
-            queryset = WorkOrder.objects.get(id=id,is_deleted=False)
+            queryset = WorkOrder.objects.get(id=id, is_deleted=False)
             serializer = WorkOrderSerializer(queryset)
             return Response(serializer.data)
         except WorkOrder.DoesNotExist:
@@ -48,20 +48,20 @@ def work_order(request,id=None):
     else:
         queryset = WorkOrder.objects.filter(is_deleted=False)
 
-        # Filter for assigned staff if not in specific departments
+        # Restrict access if not FRONT OFFICE or OWNER
         if auth_staff.department.name not in ["FRONT OFFICE", "OWNER"]:
             assigned_work_order_ids = WorkOrderStaffAssign.objects.filter(
-                staff__user=request.user
+                staff=auth_staff
             ).values_list("work_order__pk", flat=True)
 
             queryset = queryset.filter(pk__in=assigned_work_order_ids)
 
-        # Filter by status if provided
         if status_value:
             queryset = queryset.filter(status=status_value)
 
         serializer = WorkOrderSerializer(queryset, many=True)
         return Response(serializer.data)
+
 
     
 #-------------------------------wood Assign----------------------------------------------
