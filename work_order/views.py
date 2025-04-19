@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill
 import pandas as pd
 
-from work_order.templatetags.work_order_templatetags import get_accessories_by_work_order
+from work_order.templatetags.work_order_templatetags import get_accessories_by_work_order, get_work_order_costs
 
 class ColorAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -3522,27 +3522,14 @@ def work_order_profit_loss_print(request, pk):
     }
     return render(request, 'admin_panel/pages/reports/work_order_profit_loss_print.html', context)
 
-@login_required
-# @role_required(['superadmin'])
 def work_order_profit_loss_export(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
 
-    # Calculations
-    wood_cost = WoodWorkAssign.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    labour_cost = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(total=Sum('wage'))['total'] or 0
-    accessories_carpentary = Carpentary.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_polish = Polish.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_glass = Glass.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_packing = Packing.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-
-    accessories_total = (
-        wood_cost +
-        accessories_carpentary +
-        accessories_polish +
-        accessories_glass +
-        accessories_packing
-    )
-    total_cost = wood_cost + labour_cost + accessories_total
+    # Reuse cost calculation logic from the template tag
+    costs = get_work_order_costs(work_order)
+    labour_cost = costs['labour_cost']
+    accessories_total = costs['accessories_total']
+    total_cost = costs['total_cost']
 
     # Data for table
     data = [{

@@ -121,7 +121,7 @@ class WorkOrder(BaseModel):
     
     def get_profit_or_loss(self):
         actual_cost = self.get_actual_cost()
-        profit_or_loss_value = actual_cost - self.total_estimate
+        profit_or_loss_value = self.total_estimate - actual_cost
 
         if profit_or_loss_value > 0:
             return "Profit"
