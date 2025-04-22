@@ -2904,7 +2904,6 @@ def export_work_report_excel(request):
         'total_hours': 'Total hrs Engaged',
         'project_count': 'No of Projects Involved',
         'total_wage': 'Cost',
-        'work_order__remark': 'Remark',
     }, inplace=True)
 
     # Format date
@@ -2916,7 +2915,7 @@ def export_work_report_excel(request):
         df.drop(columns=['First Name', 'Last Name'], inplace=True)
 
         # Rearrange columns
-        df = df[['Date', 'Staff Name', 'Section', 'Total hrs Engaged', 'No of Projects Involved', 'Cost', 'Remark']]
+        df = df[['Date', 'Staff Name', 'Section', 'Total hrs Engaged', 'No of Projects Involved', 'Cost']]
 
         # Add total row
         total_row = pd.DataFrame({
@@ -2926,7 +2925,6 @@ def export_work_report_excel(request):
             'Total hrs Engaged': [df['Total hrs Engaged'].sum()],
             'No of Projects Involved': [df['No of Projects Involved'].sum()],
             'Cost': [df['Cost'].sum()],
-            'Remark': ['']
         })
         df = pd.concat([df, total_row], ignore_index=True)
 

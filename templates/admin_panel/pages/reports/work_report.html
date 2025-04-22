@@ -76,7 +76,6 @@
                                         <th class="font-weight-bold text-left">Total hrs Engaged</th>
                                         <th class="font-weight-bold text-left">No of Projects Involved</th>
                                         <th class="font-weight-bold text-left">Cost</th>
-                                        <th class="font-weight-bold text-left">Remark</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -90,7 +89,6 @@
                                             <td class="text-right">{{ instance.total_hours }}</td>
                                             <td class="text-right">{{ instance.project_count }}</td>
                                             <td class="text-right">{{ instance.total_wage }}</td>
-                                            <td class="text-left">{{ instance.work_order__remark|default:"--" }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
