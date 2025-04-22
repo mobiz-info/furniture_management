@@ -2677,7 +2677,7 @@ def export_accessories_utilized(request):
     for idx, instance in enumerate(instances, start=1):
         data.append({
             '#': idx,
-            'Date Added': instance.date_added.strftime('%d-%m-%Y') if instance.date_added else '',
+            'Date Added': instance.date_added.strftime('%d/%m/%Y') if instance.date_added else '',
             'Item Name': instance.material.name if instance.material else '',
             'Quantity Used': float(instance.quantity),
             'Cost': float(instance.rate),
