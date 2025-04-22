@@ -590,8 +590,17 @@ def staff_list(request):
     
     if query:
         instances = instances.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(phone__icontains=query) |
+            Q(address__icontains=query) |
+            Q(email__icontains=query) |
+            Q(employee_id__icontains=query) |
+            Q(date_of_birth__icontains=query) |
+            Q(user__username__icontains=query) |
+            Q(user__email__icontains=query) |
             Q(department__name__icontains=query) |
-            Q(designation__name__icontains=query) 
+            Q(designation__name__icontains=query)
         )
         title = "Staff list - %s" % query
         filter_data['q'] = query
