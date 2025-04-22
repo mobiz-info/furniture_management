@@ -3239,7 +3239,7 @@ def export_work_order_used_accessories_report(request):
     for i, instance in enumerate(results, start=1):
         row = {
             '#': i,
-            'Order Added Date': instance['date_added'].strftime('%d-%m-%Y'),
+            'Order Added Date': instance['date_added'].strftime('%d/%m/%Y'),
             'Project Name': instance['work_order'].order_no,
             'Accessories Used': instance['material'].name,
             'Quantity': instance['quantity'],
