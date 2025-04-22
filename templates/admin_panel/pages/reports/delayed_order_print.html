@@ -41,7 +41,7 @@
                         {{ item.category }}<br>
                     {% endfor %}
                 </td>
-                <td>{{ instance.delivery_date|date:"d-M-Y" }}</td>
+                <td>{{ instance.delivery_date|date:"d/m/Y" }}</td>
                 <td>{{ instance.delayed_days }}</td>
             </tr>
             {% endfor %}

@@ -3448,7 +3448,7 @@ def production_cost_wo_export(request):
     for i, instance in enumerate(instances, 1):
         data.append({
             "#": i,
-            "Date Added": instance.date_added.strftime("%d-%m-%Y"),
+            "Date Added": instance.date_added.strftime("%d/%m/%Y"),
             "Order No": instance.order_no,
             "Customer Name": instance.customer.name,
             "No Of Items": instance.number_of_items(),
@@ -3534,7 +3534,7 @@ def work_order_profit_loss_export(request, pk):
     data = [{
         "#": 1,
         "Order No": work_order.order_no,
-        "Order Added Date": work_order.date_added.strftime('%Y-%m-%d'),
+        "Order Added Date": work_order.date_added.strftime("%d/%m/%Y"),
         "Labour Cost": float(labour_cost),
         "Accessories Cost": float(accessories_total),
         "Total Cost": float(total_cost),
@@ -3615,7 +3615,7 @@ def work_order_labour_detail_export(request, pk):
     for index, assignment in enumerate(staff_assignments, 1):
         data.append({
             '#': index,
-            'Date Added': assignment.date_added.strftime('%d-%m-%Y') ,
+            'Date Added': assignment.date_added.strftime("%d/%m/%Y"),
             'Staff Name': assignment.staff.get_fullname(),
             'Hours Engaged': assignment.time_spent,
             'Wage': assignment.wage,
@@ -3686,7 +3686,7 @@ def production_cost_wo_used_accessories_excel(request, pk):
         cost = item.get('total_cost') or 0
 
         table_data.append({
-            'Date Added': item.get('date_added').strftime('%Y-%m-%d') if item.get('date_added') else '',
+            'Date Added': item.get('date_added').strftime("%d/%m/%Y") if item.get('date_added') else '',
             'Section': item.get('section', ''),
             'Accessories': item.get('material', ''),
             'Rate': rate,

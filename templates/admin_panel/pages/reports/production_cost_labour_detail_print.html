@@ -67,7 +67,7 @@
             {% for item in staff_assignments %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ item.date_added|date:'d-m-Y' }}</td>
+                    <td>{{ item.date_added|date:'d/m/Y' }}</td>
                     <td>{{ item.staff.get_fullname }}</td>
                     <td>{{ item.time_spent }}</td>
                     <td>{{ item.wage }}</td>
