@@ -1580,8 +1580,8 @@ def wood_order_staff_assign(request, pk):
 
     # GET method
     assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
-    staff = Staff.objects.filter(department__name="Wood Section")
-
+    staff = Staff.objects.filter(department__name__in=[
+    "Wood Section", "Wooden Furniture", "Wood & Joinery", "wood section"], is_deleted=False)
     return render(request, 'admin_panel/pages/work_order/order/staff_assign.html', {
         "instance": work_order,
         "staff": staff,
@@ -1631,7 +1631,7 @@ def carpentary_order_staff_assign(request, pk):
         return redirect(request.path)
 
     # GET method
-    staff = Staff.objects.filter(department__name="Carpentary")
+    staff = Staff.objects.filter(department__name__in=["Carpentry","carpentry"], is_deleted=False)
     assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
     return render(request, 'admin_panel/pages/work_order/order/staff_assign.html', {
@@ -1648,7 +1648,7 @@ def polish_order_staff_assign(request, pk):
 
     if request.method == "GET":
         assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
-        staff = Staff.objects.filter(department__name="Polish")
+        staff = Staff.objects.filter(department__name="Polishing",is_deleted=False)
 
         return render(
             request,
@@ -1697,7 +1697,8 @@ def glass_order_staff_assign(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
 
     if request.method == "GET":
-        staff = Staff.objects.filter(department__name="Glass/Upholstory")
+        # staff = Staff.objects.filter(department__name="Glass/Upholstory")
+        staff = Staff.objects.filter(department__name="Glass",is_deleted=False)
         assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
         return render(
@@ -1748,7 +1749,7 @@ def packing_order_staff_assign(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
 
     if request.method == "GET":
-        staff = Staff.objects.filter(department__name="Packing")
+        staff = Staff.objects.filter(department__name="Packing", is_deleted=False)
         assigned_staffs = WorkOrderStaffAssign.objects.filter(work_order=work_order)
 
         return render(
