@@ -2501,7 +2501,7 @@ def export_work_orders_summary_excel(request):
             instance.customer.name,
             instance.customer.mobile_number,
             instance.number_of_items(),
-            instance.delivery_date,
+            instance.delivery_date.strftime("%d/%m/%Y"),
             instance.get_status_display(),
             instance.total_estimate
         ])
