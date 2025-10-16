@@ -122,7 +122,7 @@ class WorkOrderStaffAssignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkOrderStaffAssign
-        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order', 'work_order_status']
+        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order_status']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
