@@ -23,6 +23,8 @@ class WorkOrderAssignSerializer(serializers.ModelSerializer):
     class Meta:
         model=WorkOrderStatus
         fields=['to_section','description']
+        
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:

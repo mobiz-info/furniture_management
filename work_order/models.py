@@ -195,7 +195,7 @@ class WorkOrderStatus(BaseModel):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     from_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
     to_section = models.CharField(max_length=3, choices=WORK_ORDER_CHOICES, default="010")
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     
     class Meta:
         db_table = 'WorkOrderStatus'
