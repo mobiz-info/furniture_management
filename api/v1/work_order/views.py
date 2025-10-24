@@ -587,8 +587,13 @@ def work_order_create(request):
                         category = safe_get_or_400(ProductCategory, item.get('category'), 'Category')
                         sub_category = safe_get_or_400(ProductSubCategory, item.get('sub_category'), 'Sub Category')
                         material = safe_get_or_400(Materials, item.get('material'), 'Material')
-                        sub_material = safe_get_or_400(MaterialsType, item.get('sub_material'), 'Sub Material')
-                        material_type = safe_get_or_400(MaterialTypeCategory, item.get('material_type'), 'Material Type')
+                        # sub_material = safe_get_or_400(MaterialsType, item.get('sub_material'), 'Sub Material')
+                        # material_type = safe_get_or_400(MaterialTypeCategory, item.get('material_type'), 'Material Type')
+                        sub_material_id = item.get('sub_material')
+                        material_type_id = item.get('material_type')
+                        sub_material = MaterialsType.objects.filter(id=sub_material_id).first() if sub_material_id else None
+                        material_type = MaterialTypeCategory.objects.filter(id=material_type_id).first() if material_type_id else None
+
                         size = safe_get_or_400(Size, item.get('size'), 'Size')
                         color = safe_get_or_400(Color, item.get('color'), 'Color')
                     except ValidationError as ve:
