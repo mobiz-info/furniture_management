@@ -671,13 +671,13 @@ def assign_wood(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
 
     if request.method == 'POST':
-        formset = WoodWorksAssignFormSet(request.POST, request.FILES, prefix='formset', form_kwargs={'empty_permitted': False})
+        wood_assign_formset = WoodWorksAssignFormSet(request.POST, request.FILES, prefix='wood_assign_formset', form_kwargs={'empty_permitted': False})
         message = ''
-        if formset.is_valid():
+        if wood_assign_formset.is_valid():
             try:
                 with transaction.atomic():
                     # Save each form in the formset
-                    for form in formset:
+                    for form in wood_assign_formset:
                         wood_assign = form.save(commit=False)
                         wood_assign.work_order = work_order
                         wood_assign.auto_id = get_auto_id(WoodWorkAssign)
@@ -713,7 +713,7 @@ def assign_wood(request, pk):
                     "message": str(e),
                 }
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(wood_assign_formset, formset=True)
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -723,9 +723,9 @@ def assign_wood(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = WoodWorksAssignFormSet(prefix='formset')
+        wood_assign_formset = WoodWorksAssignFormSet(prefix='wood_assign_formset')
         context = {
-            'formset': formset,
+            'wood_assign_formset': wood_assign_formset,
             'page_name': 'Wood Assign',
             'page_title': 'Wood Assign',
             'work_order': work_order,
@@ -763,15 +763,15 @@ def  edit_wood_assignment(request, pk):
         form=WoodWorksAssignForm,
     )
     if request.method == 'POST':
-        formset = WoodWorkAssignFormset(request.POST,request.FILES,
+        wood_assign_formset = WoodWorkAssignFormset(request.POST,request.FILES,
                                         instance=work_order,
-                                        prefix='formset',
+                                        prefix='wood_assign_formset',
                                         form_kwargs={'empty_permitted': False})  
         
-        if formset.is_valid():
+        if wood_assign_formset.is_valid():
             
-            for form in formset:
-                if form not in formset.deleted_forms:
+            for form in wood_assign_formset:
+                if form not in wood_assign_formset.deleted_forms:
                     data = form.save(commit=False)
                     data.creator = request.user
                     data.date_updated = datetime.today()
@@ -780,7 +780,7 @@ def  edit_wood_assignment(request, pk):
                         data.updater = request.user
                     data.save()
                     
-            for s in formset.deleted_forms:
+            for s in wood_assign_formset.deleted_forms:
                 s.instance.delete()
         
         response_data = {
@@ -793,11 +793,12 @@ def  edit_wood_assignment(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = WoodWorkAssignFormset(instance=work_order,prefix='formset', form_kwargs={'empty_permitted': False})
+        wood_assign_formset = WoodWorkAssignFormset(instance=work_order,prefix='wood_assign_formset', form_kwargs={'empty_permitted': False})
         
         context = {
-            'formset': formset,
+            'wood_assign_formset': wood_assign_formset,
             
+            'is_need_select2': True,
             'page_name': 'Edit Wood Assigned',
             'page_title': 'Edit Wood Assigned',
             'url': reverse('work_order:edit_wood_assignment', kwargs={'pk': pk}),
@@ -841,13 +842,13 @@ def assign_carpentary(request, pk):
     )
     
     if request.method == 'POST':
-        formset = CarpentaryAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        carpentary_formset = CarpentaryAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='carpentary_formset')
         message = ''
 
-        if formset.is_valid():
+        if carpentary_formset.is_valid():
             try:
                 with transaction.atomic():
-                    instances = formset.save(commit=False)
+                    instances = carpentary_formset.save(commit=False)
                     for instance in instances:
                         instance.auto_id = get_auto_id(Carpentary)
                         instance.creator = request.user
@@ -880,7 +881,7 @@ def assign_carpentary(request, pk):
                     "message": str(e),
                 }
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(carpentary_formset, formset=True)
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -890,10 +891,10 @@ def assign_carpentary(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = CarpentaryAssignFormSet(instance=work_order, prefix='formset')
+        carpentary_formset = CarpentaryAssignFormSet(instance=work_order, prefix='carpentary_formset')
         
         context = {
-            'carpentary_formset': formset,
+            'carpentary_formset': carpentary_formset,
             'page_name': 'Carpentary Assign',
             'page_title': 'Carpentary Assign',
             'work_order': work_order,
@@ -934,16 +935,16 @@ def edit_carpentary_assignment(request, pk):
     )
 
     if request.method == "POST":
-        formset = CarpentaryAssignFormSet(
+        carpentary_formset = CarpentaryAssignFormSet(
             request.POST,
             request.FILES,
             instance=work_order,
-            prefix='formset',
+            prefix='carpentary_formset',
             form_kwargs={'empty_permitted': False}
         )
-        if formset.is_valid():
-            for form in formset:
-                if form not in formset.deleted_forms:
+        if carpentary_formset.is_valid():
+            for form in carpentary_formset:
+                if form not in carpentary_formset.deleted_forms:
                     obj = form.save(commit=False)
                     obj.creator = request.user
                     obj.date_updated = datetime.today()
@@ -951,7 +952,7 @@ def edit_carpentary_assignment(request, pk):
                         obj.auto_id = get_auto_id(Carpentary)
                     obj.updater = request.user
                     obj.save()
-            for form in formset.deleted_forms:
+            for form in carpentary_formset.deleted_forms:
                 form.instance.delete()
 
             return HttpResponse(json.dumps({
@@ -962,14 +963,14 @@ def edit_carpentary_assignment(request, pk):
                 "redirect_url": reverse("work_order:carpentary_list")
             }), content_type="application/javascript")
     else:
-        formset = CarpentaryAssignFormSet(
+        carpentary_formset = CarpentaryAssignFormSet(
             instance=work_order,
-            prefix='formset',
+            prefix='carpentary_formset',
             form_kwargs={'empty_permitted': False}
         )
 
     context = {
-        'carpentary_formset': formset,
+        'carpentary_formset': carpentary_formset,
         'page_title': "Edit Carpentary Assignment",
         'url': reverse('work_order:edit_carpentary_assignment', kwargs={'pk': pk}),
         'assigned_carpentary': carpentary_instances,
@@ -1012,13 +1013,13 @@ def assign_polish(request, pk):
     )
     
     if request.method == 'POST':
-        formset = PolishAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        polish_formset = PolishAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='polish_formset')
         message = ''
 
-        if formset.is_valid():
+        if polish_formset.is_valid():
             try:
                 with transaction.atomic():
-                    instances = formset.save(commit=False)
+                    instances = polish_formset.save(commit=False)
                     for instance in instances:
                         instance.auto_id = get_auto_id(Polish)
                         instance.creator = request.user
@@ -1051,7 +1052,7 @@ def assign_polish(request, pk):
                     "message": str(e),
                 }
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(polish_formset, formset=True)
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -1061,9 +1062,9 @@ def assign_polish(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = PolishAssignFormSet(instance=work_order, prefix='formset')
+        polish_formset = PolishAssignFormSet(instance=work_order, prefix='polish_formset')
         context = {
-            'polish_formset': formset,
+            'polish_formset': polish_formset,
             'page_name': 'Polish Assign',
             'page_title': 'Polish Assign',
             'work_order': work_order,
@@ -1102,19 +1103,19 @@ def edit_polish_assignment(request, pk):
     )
 
     if request.method == "POST":
-        formset = PolishAssignFormSet(
+        polish_formset = PolishAssignFormSet(
             request.POST,
             request.FILES,
             instance=work_order,
-            prefix='formset',
+            prefix='polish_formset',
             form_kwargs={'empty_permitted': False}
         )
 
-        if formset.is_valid():
+        if polish_formset.is_valid():
             try:
                 with transaction.atomic():
-                    for form in formset:
-                        if form not in formset.deleted_forms:
+                    for form in polish_formset:
+                        if form not in polish_formset.deleted_forms:
                             obj = form.save(commit=False)
                             obj.creator = request.user
                             obj.date_updated = datetime.today()
@@ -1123,7 +1124,7 @@ def edit_polish_assignment(request, pk):
                             obj.updater = request.user
                             obj.save()
 
-                    for form in formset.deleted_forms:
+                    for form in polish_formset.deleted_forms:
                         form.instance.delete()
 
                 return HttpResponse(json.dumps({
@@ -1140,7 +1141,7 @@ def edit_polish_assignment(request, pk):
                     "message": str(e)
                 }), content_type="application/javascript")
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(polish_formset, formset=True)
             return HttpResponse(json.dumps({
                 "status": "false",
                 "title": "Form Error",
@@ -1148,14 +1149,14 @@ def edit_polish_assignment(request, pk):
             }), content_type="application/javascript")
     
     else:
-        formset = PolishAssignFormSet(
+        polish_formset = PolishAssignFormSet(
             instance=work_order,
-            prefix='formset',
+            prefix='polish_formset',
             form_kwargs={'empty_permitted': False}
         )
 
         context = {
-            'polish_formset': formset,
+            'polish_formset': polish_formset,
             'page_name': 'Edit Polish Assignment',
             'page_title': 'Edit Polish Assignment',
             'work_order': work_order,
@@ -1199,13 +1200,13 @@ def assign_glass(request, pk):
     )
     
     if request.method == 'POST':
-        formset = GlassAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        glass_formset = GlassAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='glass_formset')
         message = ''
 
-        if formset.is_valid():
+        if glass_formset.is_valid():
             try:
                 with transaction.atomic():
-                    instances = formset.save(commit=False)
+                    instances = glass_formset.save(commit=False)
                     for instance in instances:
                         instance.auto_id = get_auto_id(Glass)
                         instance.creator = request.user
@@ -1238,7 +1239,7 @@ def assign_glass(request, pk):
                     "message": str(e),
                 }
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(glass_formset, formset=True)
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -1248,9 +1249,9 @@ def assign_glass(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = GlassAssignFormSet(instance=work_order, prefix='formset')
+        glass_formset = GlassAssignFormSet(instance=work_order, prefix='glass_formset')
         context = {
-            'glass_formset': formset,
+            'glass_formset': glass_formset,
             'page_name': 'Glass Assign',
             'page_title': 'Glass Assign',
             'work_order': work_order,
@@ -1289,19 +1290,19 @@ def edit_glass_assignment(request, pk):
     )
 
     if request.method == "POST":
-        formset = GlassAssignFormSet(
+        glass_formset = GlassAssignFormSet(
             request.POST,
             request.FILES,
             instance=work_order,
-            prefix='formset',
+            prefix='glass_formset',
             form_kwargs={'empty_permitted': False}
         )
 
-        if formset.is_valid():
+        if glass_formset.is_valid():
             try:
                 with transaction.atomic():
-                    for form in formset:
-                        if form not in formset.deleted_forms:
+                    for form in glass_formset:
+                        if form not in glass_formset.deleted_forms:
                             obj = form.save(commit=False)
                             obj.creator = request.user
                             obj.date_updated = datetime.today()
@@ -1310,7 +1311,7 @@ def edit_glass_assignment(request, pk):
                             obj.updater = request.user
                             obj.save()
 
-                    for form in formset.deleted_forms:
+                    for form in glass_formset.deleted_forms:
                         form.instance.delete()
 
                 return HttpResponse(json.dumps({
@@ -1327,7 +1328,7 @@ def edit_glass_assignment(request, pk):
                     "message": str(e)
                 }), content_type="application/javascript")
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(glass_formset, formset=True)
             return HttpResponse(json.dumps({
                 "status": "false",
                 "title": "Form Error",
@@ -1335,14 +1336,14 @@ def edit_glass_assignment(request, pk):
             }), content_type="application/javascript")
     
     else:
-        formset = GlassAssignFormSet(
+        glass_formset = GlassAssignFormSet(
             instance=work_order,
-            prefix='formset',
+            prefix='glass_formset',
             form_kwargs={'empty_permitted': False}
         )
 
         context = {
-            'glass_formset': formset,
+            'glass_formset': glass_formset,
             'page_name': 'Edit Glass Assignment',
             'page_title': 'Edit Glass Assignment',
             'work_order': work_order,
@@ -1384,13 +1385,13 @@ def assign_packing(request, pk):
     )
     
     if request.method == 'POST':
-        formset = PackingAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='formset')
+        packing_formset = PackingAssignFormSet(request.POST, request.FILES, instance=work_order, prefix='packing_formset')
         message = ''
 
-        if formset.is_valid():
+        if packing_formset.is_valid():
             try:
                 with transaction.atomic():
-                    instances = formset.save(commit=False)
+                    instances = packing_formset.save(commit=False)
                     for instance in instances:
                         instance.auto_id = get_auto_id(Packing)
                         instance.creator = request.user
@@ -1398,6 +1399,7 @@ def assign_packing(request, pk):
                     work_order.status = "022"
                     work_order.is_assigned = True
                     work_order.save()
+                    
                     log_activity(
                        created_by=request.user,
                        description=f"Assigned packing for '{work_order}'"
@@ -1423,7 +1425,7 @@ def assign_packing(request, pk):
                     "message": str(e),
                 }
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(packing_formset, formset=True)
             response_data = {
                 "status": "false",
                 "title": "Failed",
@@ -1433,9 +1435,9 @@ def assign_packing(request, pk):
         return HttpResponse(json.dumps(response_data), content_type='application/javascript')
     
     else:
-        formset = PackingAssignFormSet(instance=work_order, prefix='formset')
+        packing_formset = PackingAssignFormSet(instance=work_order, prefix='packing_formset')
         context = {
-            'packing_formset': formset,
+            'packing_formset': packing_formset,
             'page_name': 'Packing Assign',
             'page_title': 'Packing Assign',
             'work_order': work_order,
@@ -1468,26 +1470,26 @@ def edit_packing_assignment(request, pk):
 
     PackingAssignFormSet = inlineformset_factory(
         WorkOrder,
-        Glass,
+        Packing,
         form=PackingAssignForm,
         extra=extra,
         can_delete=True
     )
 
     if request.method == "POST":
-        formset = PackingAssignFormSet(
+        packing_formset = PackingAssignFormSet(
             request.POST,
             request.FILES,
             instance=work_order,
-            prefix='formset',
+            prefix='packing_formset',
             form_kwargs={'empty_permitted': False}
         )
 
-        if formset.is_valid():
+        if packing_formset.is_valid():
             try:
                 with transaction.atomic():
-                    for form in formset:
-                        if form not in formset.deleted_forms:
+                    for form in packing_formset:
+                        if form not in packing_formset.deleted_forms:
                             obj = form.save(commit=False)
                             obj.creator = request.user
                             obj.date_updated = datetime.today()
@@ -1496,7 +1498,7 @@ def edit_packing_assignment(request, pk):
                             obj.updater = request.user
                             obj.save()
 
-                    for form in formset.deleted_forms:
+                    for form in packing_formset.deleted_forms:
                         form.instance.delete()
 
                 return HttpResponse(json.dumps({
@@ -1513,7 +1515,7 @@ def edit_packing_assignment(request, pk):
                     "message": str(e)
                 }), content_type="application/javascript")
         else:
-            message = generate_form_errors(formset, formset=True)
+            message = generate_form_errors(packing_formset, formset=True)
             return HttpResponse(json.dumps({
                 "status": "false",
                 "title": "Form Error",
@@ -1521,14 +1523,14 @@ def edit_packing_assignment(request, pk):
             }), content_type="application/javascript")
     
     else:
-        formset = PackingAssignFormSet(
+        packing_formset = PackingAssignFormSet(
             instance=work_order,
-            prefix='formset',
+            prefix='packing_formset',
             form_kwargs={'empty_permitted': False}
         )
 
         context = {
-            'polish_formset': formset,
+            'packing_formset': packing_formset,
             'page_name': 'Edit Packing Assignment',
             'page_title': 'Edit Packing Assignment',
             'work_order': work_order,
@@ -1536,7 +1538,7 @@ def edit_packing_assignment(request, pk):
             'is_need_select2': True,
         }
 
-        return render(request, 'admin_panel/pages/polish/assign_polish.html', context)
+        return render(request, 'admin_panel/pages/packing/assign_packing.html', context)
 #---------------------------------------- assigning staff in wood section----------------------------#
 def wood_order_staff_assign(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)

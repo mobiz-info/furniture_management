@@ -50,7 +50,7 @@ class WorkOrderStatusForm(forms.ModelForm):
         fields = ['to_section', 'description']
         
         widgets = {
-            'to_section': Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Status'}),
+            'to_section': Select(attrs={'class': 'form-control custom-select','placeholder': 'Select Status'}),
             'description': Textarea(attrs={'class': 'form-control','rows':'2'}),
         }
         
@@ -60,17 +60,17 @@ class WorkOrderItemsForm(forms.ModelForm):
         fields = ['category', 'sub_category', 'model_no', 'material', 'sub_material', 'material_type', 'quantity', 'remark','estimate_rate','size','color']
         
         widgets = {
-                'category': Select(attrs={'class': 'select2 form-control custom-select category'}),
-                'sub_category': Select(attrs={'class': 'select2 form-control custom-select sub_category'}),
+                'category': Select(attrs={'class': 'form-control custom-select category'}),
+                'sub_category': Select(attrs={'class': 'form-control custom-select sub_category'}),
                 'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model No'}),
-                'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-                'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-                'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+                'material': Select(attrs={'class': 'form-control custom-select material'}),
+                'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+                'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
                 'quantity': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quantity'}),
                 'remark': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Remark'}),
                 'estimate_rate': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Estimate Rate'}),
-                'size': Select(attrs={'class': 'select2 form-control custom-select'}),
-                'color':Select(attrs={'class': 'select2 form-control custom-select'})
+                'size': Select(attrs={'class': 'form-control custom-select'}),
+                'color':Select(attrs={'class': 'form-control custom-select'})
             }
         
         
@@ -126,11 +126,11 @@ class WoodWorksAssignForm(forms.ModelForm):
         fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
-            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
        
@@ -144,11 +144,11 @@ class CarpentaryAssignForm(forms.ModelForm):
         fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
-            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
        
@@ -161,11 +161,11 @@ class PolishAssignForm(forms.ModelForm):
         
         fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         widgets = {
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
-            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 PolishAssignFormSet = inlineformset_factory(WorkOrder, Polish, form=PolishAssignForm, extra=1)
@@ -177,11 +177,11 @@ class GlassAssignForm(forms.ModelForm):
         fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
-            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 GlassAssignFormSet = inlineformset_factory(WorkOrder, Glass, form=GlassAssignForm, extra=1)
@@ -193,11 +193,11 @@ class PackingAssignForm(forms.ModelForm):
         fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
-            'quantity': NumberInput(attrs={'class': 'form-control'}),
+            'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 PackingAssignFormSet = inlineformset_factory(WorkOrder, Packing, form=PackingAssignForm, extra=1)
@@ -229,13 +229,13 @@ class ModelNumberBasedProductsForm(forms.ModelForm):
         ]
         widgets = {
             'model_no': TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Model Number'}),
-            'category': Select(attrs={'class': 'select2 form-control custom-select category'}),
-            'sub_category': Select(attrs={'class': 'select2 form-control custom-select sub_category'}),
-            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
-            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
-            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
-            'color': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
-            'size': SelectMultiple(attrs={'class': 'select2-multiple form-control custom-select'}),
+            'category': Select(attrs={'class': 'form-control custom-select category'}),
+            'sub_category': Select(attrs={'class': 'form-control custom-select sub_category'}),
+            'material': Select(attrs={'class': 'form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
+            'color': SelectMultiple(attrs={'class': 'multiple form-control custom-select'}),
+            'size': SelectMultiple(attrs={'class': 'multiple form-control custom-select'}),
         }
 
 

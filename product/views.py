@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory, inlineformset_factory
 # rest framework
+from dal import autocomplete
 from rest_framework import status
 #local
 from main.decorators import role_required
@@ -22,9 +23,7 @@ from product.forms import MaterialsForm, MaterialsTypeForm, ProductCategoryForm,
 # Create your views here.
 def get_sub_category(request):
     category = request.GET.get('category')
-    print(category)
     instances = ProductSubCategory.objects.filter(product_category__pk=category,is_deleted=False)
-    print(instances)
     data = {
         'instances': list(instances.values('id', 'name')),
         }
