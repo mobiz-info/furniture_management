@@ -2,6 +2,7 @@ import datetime
 
 from django import template
 from django.db.models import Q, Sum
+from django.db.models import F, FloatField, Sum, ExpressionWrapper
 
 from work_order.forms import WorkOrderStatusForm
 from work_order.models import *
@@ -14,29 +15,32 @@ def work_order_status_assign_form():
 
 @register.simple_tag
 def get_work_order_costs(work_order):
-    wood_cost = WoodWorkAssign.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    labour_cost = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(total=Sum('wage'))['total'] or 0
+    # Labour cost
+    labour_cost = WorkOrderStaffAssign.objects.filter(work_order=work_order).aggregate(
+        total=Sum('wage')
+    )['total'] or 0
 
-    accessories_carpentary = Carpentary.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_polish = Polish.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_glass = Glass.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
-    accessories_packing = Packing.objects.filter(work_order=work_order).aggregate(total=Sum('rate'))['total'] or 0
+    # Helper to calculate rate * quantity
+    def calculate_total_cost(model):
+        return model.objects.filter(work_order=work_order).annotate(
+            qty_float=ExpressionWrapper(F('quantity'), output_field=FloatField()),
+            total_cost=ExpressionWrapper(F('rate') * F('qty_float'), output_field=FloatField())
+        ).aggregate(total=Sum('total_cost'))['total'] or 0
 
-    accessories_total = (
-        wood_cost +
-        accessories_carpentary +
-        accessories_polish +
-        accessories_glass +
-        accessories_packing
-    )
-        
-    total_cost = wood_cost + labour_cost + accessories_total
+    # Calculate accessories cost using rate * quantity
+    wood_cost = calculate_total_cost(WoodWorkAssign)
+    carpentary_cost = calculate_total_cost(Carpentary)
+    polish_cost = calculate_total_cost(Polish)
+    glass_cost = calculate_total_cost(Glass)
+    packing_cost = calculate_total_cost(Packing)
 
+    accessories_total = wood_cost + carpentary_cost + polish_cost + glass_cost + packing_cost
+    total_cost = labour_cost + accessories_total
 
     return {
-        'labour_cost': labour_cost,
-        'accessories_total': accessories_total,
-        'total_cost': total_cost,
+        'labour_cost': round(labour_cost, 2),
+        'accessories_total': round(accessories_total, 2),
+        'total_cost': round(total_cost, 2),
     }
     
 @register.simple_tag

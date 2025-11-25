@@ -23,6 +23,8 @@ class WorkOrderAssignSerializer(serializers.ModelSerializer):
     class Meta:
         model=WorkOrderStatus
         fields=['to_section','description']
+        
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:
@@ -115,25 +117,144 @@ class ModelOrderNumbersSerializer(serializers.ModelSerializer):
         
 class WorkOrderStaffAssignSerializer(serializers.ModelSerializer):
     staff_id = serializers.PrimaryKeyRelatedField(queryset=Staff.objects.all(), source='staff')
+    staff_name = serializers.SerializerMethodField()
+    work_order_status = serializers.SerializerMethodField()
     time_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     wage = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = WorkOrderStaffAssign
-        fields = ['staff_id', 'time_spent', 'wage']
+        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order_status']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        work_order = None
+
+        # Check if 'initial_data' exists (only during deserialization)
+        if hasattr(self, 'initial_data') and self.initial_data.get('work_order'):
+            try:
+                work_order = WorkOrder.objects.get(pk=self.initial_data['work_order'])
+            except WorkOrder.DoesNotExist:
+                pass
+
+        # When using instance (e.g., during GET)
+        elif self.instance:
+            if isinstance(self.instance, list) and self.instance:  # many=True case
+                work_order = self.instance[0].work_order
+            elif hasattr(self.instance, 'work_order'):
+                work_order = self.instance.work_order
+
+        if work_order:
+            status = work_order.status
+            staff_queryset = Staff.objects.none()
+
+            if status == '012':
+                staff_queryset = Staff.objects.filter(
+                    department__name__in=["Wood Section", "Wooden Furniture", "Wood & Joinery", "wood section"],
+                    is_deleted=False
+                )
+            elif status == '015':
+                staff_queryset = Staff.objects.filter(
+                    department__name__in=["Carpentry", "carpentry"],
+                    is_deleted=False
+                )
+            elif status == '018':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Polishing",
+                    is_deleted=False
+                )
+            elif status == '020':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Glass",
+                    is_deleted=False
+                )
+            elif status == '022':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Packing",
+                    is_deleted=False
+                )
+
+            self.fields['staff_id'].queryset = staff_queryset
+
+    def get_staff_name(self, obj):
+        return obj.staff.get_fullname()
+    
+    def get_work_order_status(self, obj):
+        return obj.work_order.get_status_display()
+    
     def create(self, validated_data):
         return WorkOrderStaffAssign.objects.create(**validated_data)
     
 class StaffAssignListSerializer(serializers.ModelSerializer):
     staff_id = serializers.PrimaryKeyRelatedField(queryset=Staff.objects.all(), source='staff')
+    staff_name = serializers.SerializerMethodField()
+    work_order_status = serializers.SerializerMethodField()
+
     time_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     wage = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = WorkOrderStaffAssign
-        fields = ['staff_id', 'time_spent', 'wage', 'work_order']
+        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order', 'work_order_status']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        work_order = None
+
+        # Check if 'initial_data' exists (only during deserialization)
+        if hasattr(self, 'initial_data') and self.initial_data.get('work_order'):
+            try:
+                work_order = WorkOrder.objects.get(pk=self.initial_data['work_order'])
+            except WorkOrder.DoesNotExist:
+                pass
+
+        # When using instance (e.g., during GET)
+        elif self.instance:
+            if isinstance(self.instance, list) and self.instance:  # many=True case
+                work_order = self.instance[0].work_order
+            elif hasattr(self.instance, 'work_order'):
+                work_order = self.instance.work_order
+
+        if work_order:
+            status = work_order.status
+            staff_queryset = Staff.objects.none()
+
+            if status == '012':
+                staff_queryset = Staff.objects.filter(
+                    department__name__in=["Wood Section", "Wooden Furniture", "Wood & Joinery", "wood section"],
+                    is_deleted=False
+                )
+            elif status == '015':
+                staff_queryset = Staff.objects.filter(
+                    department__name__in=["Carpentry", "carpentry"],
+                    is_deleted=False
+                )
+            elif status == '018':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Polishing",
+                    is_deleted=False
+                )
+            elif status == '020':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Glass",
+                    is_deleted=False
+                )
+            elif status == '022':
+                staff_queryset = Staff.objects.filter(
+                    department__name="Packing",
+                    is_deleted=False
+                )
+
+            self.fields['staff_id'].queryset = staff_queryset
+
+    def get_staff_name(self, obj):
+        return obj.staff.get_fullname()
+    
+    def get_work_order_status(self, obj):
+        return obj.work_order.get_status_display()
+    
     def create(self, validated_data):
         return WorkOrderStaffAssign.objects.create(**validated_data)
     

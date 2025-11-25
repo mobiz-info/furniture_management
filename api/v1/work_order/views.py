@@ -1,5 +1,6 @@
 import requests
 import datetime
+import json
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import get_user_model
@@ -586,8 +587,13 @@ def work_order_create(request):
                         category = safe_get_or_400(ProductCategory, item.get('category'), 'Category')
                         sub_category = safe_get_or_400(ProductSubCategory, item.get('sub_category'), 'Sub Category')
                         material = safe_get_or_400(Materials, item.get('material'), 'Material')
-                        sub_material = safe_get_or_400(MaterialsType, item.get('sub_material'), 'Sub Material')
-                        material_type = safe_get_or_400(MaterialTypeCategory, item.get('material_type'), 'Material Type')
+                        # sub_material = safe_get_or_400(MaterialsType, item.get('sub_material'), 'Sub Material')
+                        # material_type = safe_get_or_400(MaterialTypeCategory, item.get('material_type'), 'Material Type')
+                        sub_material_id = item.get('sub_material')
+                        material_type_id = item.get('material_type')
+                        sub_material = MaterialsType.objects.filter(id=sub_material_id).first() if sub_material_id else None
+                        material_type = MaterialTypeCategory.objects.filter(id=material_type_id).first() if material_type_id else None
+
                         size = safe_get_or_400(Size, item.get('size'), 'Size')
                         color = safe_get_or_400(Color, item.get('color'), 'Color')
                     except ValidationError as ve:
@@ -1137,17 +1143,49 @@ def modelnumberbasedproducts_detail(request, pk):
 @permission_classes((IsAuthenticated,))
 @renderer_classes((JSONRenderer,))
 def create_work_order_image(request, pk):
-    work_order=WorkOrder.objects.get(id=pk,is_deleted=False)
-    serializer = WorkOrderImagesSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(
-            work_order=work_order,
-            auto_id=get_auto_id(WorkOrderImages),
-            creator=request.user
-            )
+    """
+    Upload multiple images with individual remarks for a work order.
+    """
+    try:
+        work_order = WorkOrder.objects.get(id=pk, is_deleted=False)
+    except WorkOrder.DoesNotExist:
+        return Response({"detail": "WorkOrder not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        data_list = json.loads(request.data.get('data_list', '[]'))
+    except json.JSONDecodeError:
+        return Response({"detail": "Invalid JSON for data_list."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not data_list:
+        return Response({"detail": "No image data provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+    created_images = []
+    with transaction.atomic():
+        for data in data_list:
+            image_key = data.get('image')
+            remark = data.get('remark')
+
+            if image_key not in request.FILES:
+                return Response(
+                    {"detail": f"File '{image_key}' not found in uploaded files."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            file_obj = request.FILES[image_key]
+            serializer = WorkOrderImagesSerializer(data={'image': file_obj, 'remark': remark})
+            if serializer.is_valid():
+                serializer.save(
+                    work_order=work_order,
+                    auto_id=get_auto_id(WorkOrderImages),
+                    creator=request.user
+                )
+                created_images.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         log_activity(
-                created_by=request.user,
-                description=f"Created work order image for --'{work_order}'"
-            )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            created_by=request.user,
+            description=f"Uploaded {len(created_images)} image(s) with remarks for work order '{work_order}'"
+        )
+
+    return Response(created_images, status=status.HTTP_201_CREATED)

@@ -76,7 +76,7 @@
                                             <td class="text-left">
                                                 {% for item in instance.workorderitems_set.all %}{{ item.category }}<br>{% endfor %}
                                             </td>
-                                            <td class="text-left">{{instance.delivery_date|date:"d-M-Y"}}</td>
+                                            <td class="text-left">{{instance.delivery_date|date:"d/m/Y"}}</td>
                                             <td class="text-left">{{instance.get_status_display}}</td>
                                             <td class="text-left">{{instance.delayed_days}}</td>
                                         </tr>

@@ -98,7 +98,7 @@
                                         {% for instance in instances %}
                                             <tr>
                                                 <td class="text-center">{{ forloop.counter }}</td>
-                                                <td class="text-left">{{ instance.date_added|date:"d-m-Y" }}</td>
+                                                <td class="text-left">{{ instance.date_added|date:"d/m/Y" }}</td>
                                                 <td class="text-left">{{ instance.work_order.order_no }}</td>
                                                 <td class="text-left">{{ instance.material.name }}</td>
                                                 <td class="text-left">{{ instance.quantity }}</td>
