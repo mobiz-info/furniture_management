@@ -37,7 +37,6 @@
         <meta name="theme-color" content="#ffffff">
 
         <!-- App css -->
-        <link rel="stylesheet" href="{% static 'admin_panel/assets/autocomplete_light/vendor/select2/dist/css/select2.css' %}" type="text/css" media="screen" rel="stylesheet" />  
         <link href="{% static 'admin_panel/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
         <link href="{% static 'admin_panel/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
         <link href="{% static 'admin_panel/assets/css/metisMenu.min.css' %}" rel="stylesheet" type="text/css" />
@@ -47,6 +46,9 @@
         <link href="{% static 'admin_panel/assets/sweet/sweetalert2.css' %}" rel="stylesheet" type="text/css" />        
         <link href="{% static 'admin_panel/assets/js/lightbox/magnific-popup.css' %}" rel="stylesheet" type="text/css" /> 
         <link rel="stylesheet" href="{% static 'admin_panel/assets/remix_icons/remixicon.css' %}">   
+
+        <link rel="stylesheet" href="{% static 'admin_panel/assets/autocomplete_light/select2.css' %}" type="text/css" media="screen" rel="stylesheet" />  
+        <link rel="stylesheet" href="{% static 'admin_panel/assets/autocomplete_light/vendor/select2/dist/css/select2.css' %}" type="text/css" media="screen" rel="stylesheet" />
         {% comment %} <link rel="stylesheet" href="{% static 'date/jquery.datepicker.css' %}"> {% endcomment %}
         <style>
             /* Custom CSS for the overlay */
@@ -64,6 +66,23 @@
             }
         </style>
         <style>
+            .select2-container .select2-selection--single {
+                height: 38px
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: unset;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 38px;
+            }
+            .select2-container .select2-selection--single .select2-selection__clear{
+                margin-top: 0;
+            }
+            table tr.form_set_row .select2-container .select2-selection--single .select2-selection__clear{
+                margin-right: 0;
+                margin-top: 5px;
+            }
             .corner-wishes {
                 position: fixed;
                 z-index: 9999;

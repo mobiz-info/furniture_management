@@ -346,7 +346,7 @@
                 $.each(data, function (index, id) {
                     options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
                 });
-                $("#id_work_order_items_formset-" + digitValue + "-sub_category").html(options);
+                $("#id_formset-" + digitValue + "-sub_category").html(options);
             },
 
             error: function (data) {
@@ -359,8 +359,11 @@
 
     $(".material").change(function () {
         var itemValue = $(this).val();
-        var digitValue = $(this).attr("id");
-        var digitValue = digitValue.match(/\d+/);
+        var itemId = $(this).attr("id");
+        var digitValue = itemId.match(/\d+/);
+
+        console.log(itemId);
+        console.log(digitValue);
 
         if (digitValue !== null) {
             var digitValue = digitValue[0];
@@ -381,7 +384,7 @@
                 $.each(data, function (index, id) {
                     options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
                 });
-                $("#id_work_order_items_formset-" + digitValue + "-sub_material").html(options);
+                $("#id_formset-" + digitValue + "-sub_material").html(options);
             },
 
             error: function (data) {
@@ -417,7 +420,7 @@
                 $.each(data, function (index, id) {
                     options += '<option value="' + data[index]['id'] + '">' + data[index]['name'] + '</option>';
                 });
-                $("#id_work_order_items_formset-" + digitValue + "-material_type").html(options);
+                $("#id_formset-" + digitValue + "-material_type").html(options);
             },
 
             error: function (data) {

@@ -123,9 +123,12 @@ class WoodWorksAssignForm(forms.ModelForm):
     
     class Meta:
         model = WoodWorkAssign
-        fields = ['material', 'quality', 'quantity', 'rate']
+        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        
         widgets = {
-            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -138,9 +141,12 @@ class CarpentaryAssignForm(forms.ModelForm):
     
     class Meta:
         model = Carpentary
-        fields = ['material', 'quality', 'quantity', 'rate']
+        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        
         widgets = {
-            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -152,9 +158,12 @@ class PolishAssignForm(forms.ModelForm):
     
     class Meta:
         model = Polish
-        fields = ['material', 'quality', 'quantity', 'rate']
+        
+        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         widgets = {
-            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -165,9 +174,12 @@ class GlassAssignForm(forms.ModelForm):
     
     class Meta:
         model = Glass
-        fields = ['material', 'quality', 'quantity', 'rate']
+        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        
         widgets = {
-            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -178,9 +190,12 @@ class PackingAssignForm(forms.ModelForm):
     
     class Meta:
         model = Packing
-        fields = ['material', 'quality', 'quantity', 'rate']
+        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        
         widgets = {
-            'material':Select(attrs={'class': 'select2 form-control custom-select','placeholder': 'Select Wood'}),
+            'material': Select(attrs={'class': 'select2 form-control custom-select material'}),
+            'sub_material': Select(attrs={'class': 'select2 form-control custom-select sub_material'}),
+            'material_type': Select(attrs={'class': 'select2 form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
