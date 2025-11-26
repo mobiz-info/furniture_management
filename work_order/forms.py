@@ -123,9 +123,10 @@ class WoodWorksAssignForm(forms.ModelForm):
     
     class Meta:
         model = WoodWorkAssign
-        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
+            'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
             'material': Select(attrs={'class': 'form-control custom-select material'}),
             'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
@@ -133,6 +134,23 @@ class WoodWorksAssignForm(forms.ModelForm):
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "Wood" in str(self.initial.get('material', "")) or \
+           (self.instance and self.instance.material and self.instance.material.name == "Wood"):
+
+            self.fields['sub_material'].queryset = MaterialsType.objects.filter(
+                material__name="Wood"
+            )
+
+            self.fields['material_type'].queryset = MaterialTypeCategory.objects.filter(
+                material__name="Wood"
+            )
+        else:
+            self.fields['sub_material'].queryset = MaterialsType.objects.none()
+            self.fields['material_type'].queryset = MaterialTypeCategory.objects.none()
        
 WoodWorksAssignFormSet = inlineformset_factory(WorkOrder, WoodWorkAssign, form=WoodWorksAssignForm, extra=1)
 
@@ -141,9 +159,10 @@ class CarpentaryAssignForm(forms.ModelForm):
     
     class Meta:
         model = Carpentary
-        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
+            'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
             'material': Select(attrs={'class': 'form-control custom-select material'}),
             'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
@@ -158,9 +177,10 @@ class PolishAssignForm(forms.ModelForm):
     
     class Meta:
         model = Polish
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
-        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         widgets = {
+            'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
             'material': Select(attrs={'class': 'form-control custom-select material'}),
             'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
@@ -174,9 +194,10 @@ class GlassAssignForm(forms.ModelForm):
     
     class Meta:
         model = Glass
-        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
+            'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
             'material': Select(attrs={'class': 'form-control custom-select material'}),
             'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
@@ -190,9 +211,10 @@ class PackingAssignForm(forms.ModelForm):
     
     class Meta:
         model = Packing
-        fields = ['material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
         
         widgets = {
+            'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
             'material': Select(attrs={'class': 'form-control custom-select material'}),
             'sub_material': Select(attrs={'class': 'form-control custom-select sub_material'}),
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),

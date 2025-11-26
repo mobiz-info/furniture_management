@@ -177,6 +177,7 @@ class ModelNumberBasedProductImages(BaseModel):
 
 
 class WoodWorkAssign(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
@@ -204,6 +205,7 @@ class WorkOrderStatus(BaseModel):
         return f'Work Order {self.work_order.order_no}'
 
 class Carpentary(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
@@ -221,6 +223,7 @@ class Carpentary(BaseModel):
 
 
 class Polish(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
@@ -236,6 +239,7 @@ class Polish(BaseModel):
         return f'Polish {self.work_order}'
     
 class Glass(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
@@ -251,6 +255,7 @@ class Glass(BaseModel):
         return f'Glass {self.work_order}'
     
 class Packing(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     material = models.ForeignKey(Materials, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     sub_material = models.ForeignKey(MaterialsType, null=True, blank=True, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})

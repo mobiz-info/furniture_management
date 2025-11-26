@@ -835,7 +835,8 @@ def assign_carpentary(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
     
     CarpentaryAssignFormSet = inlineformset_factory(
-        WorkOrder, Carpentary, 
+        WorkOrder,
+        Carpentary, 
         form=CarpentaryAssignForm, 
         extra=1, 
         can_delete=True
@@ -1006,7 +1007,8 @@ def assign_polish(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
     
     PolishAssignFormSet = inlineformset_factory(
-        WorkOrder, Polish, 
+        WorkOrder, 
+        Polish, 
         form=PolishAssignForm, 
         extra=1, 
         can_delete=True
@@ -1193,7 +1195,8 @@ def assign_glass(request, pk):
     work_order = get_object_or_404(WorkOrder, id=pk)
     
     GlassAssignFormSet = inlineformset_factory(
-        WorkOrder, Glass, 
+        WorkOrder,
+        Glass, 
         form=GlassAssignForm, 
         extra=1, 
         can_delete=True
@@ -1307,7 +1310,7 @@ def edit_glass_assignment(request, pk):
                             obj.creator = request.user
                             obj.date_updated = datetime.today()
                             if not obj.auto_id:
-                                obj.auto_id = get_auto_id(Polish)
+                                obj.auto_id = get_auto_id(Glass)
                             obj.updater = request.user
                             obj.save()
 
@@ -1494,7 +1497,7 @@ def edit_packing_assignment(request, pk):
                             obj.creator = request.user
                             obj.date_updated = datetime.today()
                             if not obj.auto_id:
-                                obj.auto_id = get_auto_id(Polish)
+                                obj.auto_id = get_auto_id(Packing)
                             obj.updater = request.user
                             obj.save()
 

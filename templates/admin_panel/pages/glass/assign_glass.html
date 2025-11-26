@@ -28,6 +28,7 @@
                             <table id="data-table-basic" class="table table-striped table-vmiddle">
                                 <thead>
                                     <tr>
+                                        <th>Date</th>
                                         <th>Material</th>
                                         <th>Sub Material</th>
                                         <th>Material Type</th>
@@ -41,6 +42,7 @@
                                     {% for item in glass_formset.forms %}
                                     <tr class="form_set_row glass_formset">
                                         {{ item.id }}
+                                        <td><span class="date">{{ item.date }}</span></td>
                                         <td><span class="material">{{ item.material }}</span></td>
                                         <td><span class="sub_material">{{ item.sub_material }}</span></td>
                                         <td><span class="material_type">{{ item.material_type }}</span></td>
