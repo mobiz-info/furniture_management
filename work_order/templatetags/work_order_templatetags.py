@@ -35,7 +35,7 @@ def get_work_order_costs(work_order):
     packing_cost = calculate_total_cost(Packing)
 
     accessories_total = wood_cost + carpentary_cost + polish_cost + glass_cost + packing_cost
-    total_cost = labour_cost + accessories_total
+    total_cost = float(labour_cost) + float(accessories_total)
 
     return {
         'labour_cost': round(labour_cost, 2),

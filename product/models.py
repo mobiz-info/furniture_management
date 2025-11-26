@@ -8,8 +8,8 @@ from main.models import BaseModel
 
 # Create your models here.
 PRODUCT_SOURCE_CHOICES = (
-    ('010', 'On Product'),
-    ('015', 'Other Source'),
+    ('010', 'Own Product'),
+    ('015', 'Trading'),
 )
 
 class Materials(BaseModel):
