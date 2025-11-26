@@ -134,23 +134,6 @@ class WoodWorksAssignForm(forms.ModelForm):
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if "Wood" in str(self.initial.get('material', "")) or \
-           (self.instance and self.instance.material and self.instance.material.name == "Wood"):
-
-            self.fields['sub_material'].queryset = MaterialsType.objects.filter(
-                material__name="Wood"
-            )
-
-            self.fields['material_type'].queryset = MaterialTypeCategory.objects.filter(
-                material__name="Wood"
-            )
-        else:
-            self.fields['sub_material'].queryset = MaterialsType.objects.none()
-            self.fields['material_type'].queryset = MaterialTypeCategory.objects.none()
        
 WoodWorksAssignFormSet = inlineformset_factory(WorkOrder, WoodWorkAssign, form=WoodWorksAssignForm, extra=1)
 
