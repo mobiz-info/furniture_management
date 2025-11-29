@@ -29,8 +29,16 @@ from api.v1.authentication.functions import generate_serializer_errors, get_user
 @renderer_classes((JSONRenderer,))
 def materials(request):
     if request.method == 'GET':
+        section = request.GET.get("section")
         
         instances = Materials.objects.filter(is_deleted=False)
+        
+        if section:
+            if section.lower() == "wood":
+                instances = instances.filter(name__in=["Wood","wood"])
+            else:
+                instances = instances.filter(name__in=["Accessories","accessories"])
+        
         serializer = MaterialsSerializer(instances,many=True)
         
         status_code = status.HTTP_200_OK
