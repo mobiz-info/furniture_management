@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal, ROUND_HALF_UP
 
 from django import template
 from django.db.models import Q, Sum
@@ -8,6 +9,10 @@ from work_order.forms import WorkOrderStatusForm
 from work_order.models import *
 
 register = template.Library()
+
+
+def to_decimal(val):
+    return Decimal(str(val)).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
 
 @register.simple_tag
 def work_order_status_assign_form():
@@ -45,22 +50,33 @@ def get_work_order_costs(work_order):
     
 @register.simple_tag
 def get_accessories_by_work_order(work_order):
+    from decimal import Decimal, ROUND_HALF_UP
+
+    def to_decimal(val):
+        return Decimal(str(val)).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+
     def get_data(section_name, queryset):
         data = []
         for item in queryset:
+
+            # convert to decimal safely
             try:
-                quantity = float(item.quantity)
+                quantity = to_decimal(item.quantity)
             except:
-                quantity = 0.0
-            rate = float(item.rate)
-            total_cost = quantity * rate
+                quantity = Decimal("0.00")
+
+            rate = to_decimal(item.rate)
+            total_cost = to_decimal(quantity * rate)
+
             data.append({
                 'date_added': item.date_added,
                 'section': section_name,
                 'material': item.material.name,
-                'rate': rate,
-                'quantity': quantity,
-                'total_cost': total_cost,
+                'sub_material': item.sub_material.name,
+                'material_type': item.material_type.name,
+                'rate': rate,               # --> always two decimals
+                'quantity': quantity,       # --> always two decimals
+                'total_cost': total_cost,   # --> always two decimals
             })
         return data
 
@@ -77,7 +93,7 @@ def get_accessories_by_work_order(work_order):
 
     return {
         'items': accessories,
-        'total_rate': total_rate,
-        'total_quantity': total_quantity,
-        'total_cost': total_cost,
+        'total_rate': total_rate.quantize(Decimal("0.00")),
+        'total_quantity': total_quantity.quantize(Decimal("0.00")),
+        'total_cost': total_cost.quantize(Decimal("0.00")),
     }

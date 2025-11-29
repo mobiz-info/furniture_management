@@ -52,12 +52,14 @@
                                 <thead>
                                     <tr>
                                         <th class="text-center">#</th>
-                                        <th class="text-center">Date Added</th>
-                                        <th class="text-center">Section</th>
-                                        <th class="text-left">Accessories</th>
-                                        <th class="text-left">Accessories Rate</th>
-                                        <th class="text-left">Quantity</th>
-                                        <th class="text-left">Total Cost</th>
+                                        <th class="text-left">Date Added</th>
+                                        <th class="text-left">Section</th>
+                                        <th class="text-left">Material</th>
+                                        <th class="text-left">Sub Material</th>
+                                        <th class="text-left">Item</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Quantity</th>
+                                        <th class="text-right">Total Cost</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -67,18 +69,20 @@
                                         <td class="text-center">{{ item.date_added|date:"d/m/Y" }}</td>
                                         <td class="text-left">{{ item.section }}</td>
                                         <td class="text-left">{{ item.material }}</td>
-                                        <td class="text-left">{{ item.rate }}</td>
-                                        <td class="text-left">{{ item.quantity }}</td>
-                                        <td class="text-left">{{ item.total_cost }}</td>
+                                        <td class="text-left">{{ item.sub_material }}</td>
+                                        <td class="text-left">{{ item.material_type }}</td>
+                                        <td class="text-right">{{ item.rate }}</td>
+                                        <td class="text-right">{{ item.quantity }}</td>
+                                        <td class="text-right">{{ item.total_cost }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="4" class="text-right">Total</th>
-                                        <th class="text-left">{{ total_rate }}</th>
-                                        <th class="text-left">{{ total_quantity }}</th>
-                                        <th class="text-left">{{ total_cost }}</th>
+                                        <th colspan="6" class="text-right">Total</th>
+                                        <th class="text-right">{{ total_rate }}</th>
+                                        <th class="text-right">{{ total_quantity }}</th>
+                                        <th class="text-right">{{ total_cost }}</th>
                                     </tr>
                                 </tfoot>
                             </table>

@@ -1551,9 +1551,11 @@ def wood_order_staff_assign(request, pk):
         staff_id = request.POST.get("staff")
         time = request.POST.get("time")
         wage = request.POST.get("wage")
+        date = request.POST.get("date")
 
         if assign_id:  # Update existing
             assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.date = date
             assign.time_spent = time
             assign.wage = wage
             assign.updater = request.user
@@ -2555,6 +2557,7 @@ def export_work_orders_summary_excel(request):
 @login_required
 # @role_required(['superadmin'])
 def accessories_utilized(request):
+    filter_data = {}
     today = datetime.today().date()
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -2568,6 +2571,9 @@ def accessories_utilized(request):
             start_date_obj = end_date_obj = today
     else:
         start_date_obj = end_date_obj = today
+        
+    filter_data["start_date"] = start_date_obj
+    filter_data["end_date"] = end_date_obj
 
     filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
@@ -2576,8 +2582,9 @@ def accessories_utilized(request):
             Q(material__name__icontains=query) |
             Q(material_type__name__icontains=query)
         )
+        filter_data['q'] = query
 
-    instances = WoodWorkAssign.objects.select_related(
+    instances = WoodWorkAssign.objects.filter(material__name__in=["accessories","Accessories"]).select_related(
         'work_order', 'material', 'material_type'
     ).filter(filters).order_by('-date_added')
 
@@ -2591,12 +2598,66 @@ def accessories_utilized(request):
         'total_cost': total_cost,
         'page_name': 'Accessories Utilized Report',
         'page_title': 'Accessories Utilized Report',
-        'filter_data': {'q': query} if query else {},
+        'filter_data' :filter_data,
         'start_date': start_date_obj.strftime('%Y-%m-%d'),
         'end_date': end_date_obj.strftime('%Y-%m-%d'),
     }
 
     return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
+
+
+@login_required
+# @role_required(['superadmin'])
+def wood_conseption_report(request):
+    filter_data = {}
+    today = datetime.today().date()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    query = request.GET.get("q")
+
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+        
+    filter_data["start_date"] = start_date_obj
+    filter_data["end_date"] = end_date_obj
+
+    filters = Q(is_deleted=False) & Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
+
+    if query:
+        filters &= (
+            Q(material__name__icontains=query) |
+            Q(material_type__name__icontains=query)
+        )
+        filter_data['q'] = query
+
+    instances = WoodWorkAssign.objects.filter(material__name__in=["Wood","wood"]).select_related(
+        'work_order', 'material', 'material_type'
+    ).filter(filters).order_by('-date_added')
+
+    # Directly sum if fields are numeric
+    total_quantity = instances.aggregate(total=Sum('quantity'))['total'] or 0
+    total_cost = instances.aggregate(total=Sum('rate'))['total'] or 0
+
+    context = {
+        'instances': instances,
+        'total_quantity': total_quantity,
+        'total_cost': total_cost,
+        'page_name': 'Wood Conseption Report',
+        'page_title': 'Wood Conseption Report',
+        'filter_data' :filter_data,
+        'start_date': start_date_obj.strftime('%Y-%m-%d'),
+        'end_date': end_date_obj.strftime('%Y-%m-%d'),
+    }
+
+    return render(request, 'admin_panel/pages/reports/accessories_utilized.html', context)
+
+
 @login_required
 # @role_required(['superadmin'])
 def print_accessories_utilized(request):
@@ -2726,6 +2787,7 @@ def export_accessories_utilized(request):
 @login_required
 # @role_required(['superadmin'])
 def work_report(request):
+    filter_data = {}
     today = datetime.today().date()
 
     start_date = request.GET.get('start_date')
@@ -2741,6 +2803,9 @@ def work_report(request):
             start_date_obj = end_date_obj = today
     else:
         start_date_obj = end_date_obj = today
+        
+    filter_data["start_date"] = start_date_obj
+    filter_data["end_date"] = end_date_obj
 
     filters = Q(work_order__is_deleted=False) & Q(date_added__date__range=(start_date_obj, end_date_obj))
 
@@ -2750,24 +2815,26 @@ def work_report(request):
             Q(staff__last_name__icontains=query) |
             Q(staff__department__name__icontains=query)
         )
+        filter_data["q"] = query
 
     instances = (
         WorkOrderStaffAssign.objects
-        .select_related('work_order', 'staff', 'staff__department', 'staff__designation')
+        .select_related('staff', 'staff__department')
         .filter(filters)
         .values(
+            'staff__id',
             'staff__first_name',
             'staff__last_name',
             'staff__department__name',
-            'work_order__remark',
-            'date_added',
         )
         .annotate(
             total_hours=Sum('time_spent'),
             total_wage=Sum('wage'),
-            project_count=Count('work_order', distinct=True)
+            project_count=Count('work_order', distinct=True),
+            first_date=Min('date_added'),
+            last_date=Max('date_added')
         )
-        .order_by('-date_added')
+        .order_by('staff__department__name', 'staff__first_name')
     )
 
     total_hours = instances.aggregate(total=Sum('total_hours'))['total'] or 0
@@ -2778,7 +2845,7 @@ def work_report(request):
         'instances': instances,
         'page_name': 'Work Report',
         'page_title': 'Work Report',
-        'filter_data': {'q': query} if query else {},
+        'filter_data': filter_data,
         'start_date': start_date_obj.strftime('%Y-%m-%d'),
         'end_date': end_date_obj.strftime('%Y-%m-%d'),
         'total_hours': total_hours,
@@ -2787,6 +2854,37 @@ def work_report(request):
     }
 
     return render(request, 'admin_panel/pages/reports/work_report.html', context)
+
+@login_required
+def staff_work_detail(request, staff_id):
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+    
+    start_date = datetime.strptime(start, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end, '%Y-%m-%d').date()
+
+    staff = Staff.objects.get(pk=staff_id)
+
+    records = (
+        WorkOrderStaffAssign.objects
+        .select_related('work_order')
+        .filter(
+            staff_id=staff_id,
+            date_added__date__range=(start_date, end_date),
+            work_order__is_deleted=False
+        )
+        .order_by('-date_added')
+    )
+
+    context = {
+        "staff": staff,
+        "records": records,
+        "start_date": start_date,
+        "end_date": end_date,
+    }
+
+    return render(request, "admin_panel/pages/reports/work_report_detail.html", context)
+
 
 @login_required
 # @role_required(['superadmin'])
@@ -2958,16 +3056,26 @@ def export_work_report_excel(request):
 @login_required
 # @role_required(['superadmin'])
 def work_order_used_accessories_report(request):
-    start_date_str = request.GET.get('start_date')
-    end_date_str = request.GET.get('end_date')
+    filter_data = {}
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     selected_project = request.GET.get('project_name')
     search_query = request.GET.get('q', '').strip()
 
     today = datetime.today().date()
     yesterday = today - timedelta(days=1)
 
-    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else yesterday
-    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
+    if start_date and end_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+        
+    filter_data["start_date"] = start_date_obj
+    filter_data["end_date"] = end_date_obj
 
     work_orders = WorkOrder.objects.filter(
         Q(id__in=WoodWorkAssign.objects.values('work_order')) |
@@ -2982,9 +3090,9 @@ def work_order_used_accessories_report(request):
         work_orders = work_orders.filter(order_no=selected_project)
 
     results = []
-    total_quantity = 0
-    total_cost = 0
-    total_rate = 0  # This will hold the sum of all rates
+    total_quantity = Decimal("0.00")
+    total_cost = Decimal("0.00")
+    total_rate = Decimal("0.00")
 
     for order in work_orders:
         combined_items = []
@@ -2993,7 +3101,7 @@ def work_order_used_accessories_report(request):
             entries = model.objects.filter(
                 work_order=order,
                 is_deleted=False,
-                date_added__date__range=(start_date, end_date)
+                date_added__date__range=(start_date_obj, end_date_obj)
             ).order_by('-date_added')
 
             for entry in entries:
@@ -3027,17 +3135,18 @@ def work_order_used_accessories_report(request):
     # Totals after filtering
     for item in results:
         try:
-            quantity = float(item['quantity'])
-        except (ValueError, TypeError):
-            quantity = 0
+            quantity = Decimal(str(item['quantity']))
+        except:
+            quantity = Decimal("0.00")
+
         try:
-            rate = float(item['rate'])
-        except (ValueError, TypeError):
-            rate = 0
+            rate = Decimal(str(item['rate']))
+        except:
+            rate = Decimal("0.00")
 
         total_quantity += quantity
-        total_cost += item['total']
         total_rate += rate
+        total_cost += Decimal(str(item['total']))
 
     results.sort(key=lambda x: x['date_added'], reverse=True)
 
@@ -3053,14 +3162,15 @@ def work_order_used_accessories_report(request):
 
     context = {
         'instances': results,
-        'total_quantity': round(total_quantity, 2),
-        'total_rate': round(total_rate, 2),
-        'total_cost': round(total_cost, 2),
+        'total_quantity': total_quantity.quantize(Decimal("0.00")),
+        'total_rate': total_rate.quantize(Decimal("0.00")),
+        'total_cost': total_cost.quantize(Decimal("0.00")),
         'start_date': start_date,
         'end_date': end_date,
         'project_names': project_names,
         'selected_project': selected_project,
         'search_query': search_query,
+        'filter_data': filter_data,
     }
 
     return render(request, 'admin_panel/pages/reports/work_order_used_accessories_report.html', context)
@@ -3092,9 +3202,9 @@ def print_work_order_used_accessories_report(request):
         work_orders = work_orders.filter(order_no=selected_project)
 
     results = []
-    total_quantity = 0
-    total_cost = 0
-    total_rate = 0  # This will hold the sum of all rates
+    total_quantity = Decimal("0.00")
+    total_cost = Decimal("0.00")
+    total_rate = Decimal("0.00")
 
     for order in work_orders:
         combined_items = []
@@ -3137,17 +3247,18 @@ def print_work_order_used_accessories_report(request):
     # Totals after filtering
     for item in results:
         try:
-            quantity = float(item['quantity'])
-        except (ValueError, TypeError):
-            quantity = 0
+            quantity = Decimal(str(item['quantity']))
+        except:
+            quantity = Decimal("0.00")
+
         try:
-            rate = float(item['rate'])
-        except (ValueError, TypeError):
-            rate = 0
+            rate = Decimal(str(item['rate']))
+        except:
+            rate = Decimal("0.00")
 
         total_quantity += quantity
-        total_cost += item['total']
         total_rate += rate
+        total_cost += Decimal(str(item['total']))
 
     results.sort(key=lambda x: x['date_added'], reverse=True)
 
@@ -3163,9 +3274,9 @@ def print_work_order_used_accessories_report(request):
 
     context = {
         'instances': results,
-        'total_quantity': round(total_quantity, 2),
-        'total_rate': round(total_rate, 2),
-        'total_cost': round(total_cost, 2),
+        'total_quantity': total_quantity.quantize(Decimal("0.00")),
+        'total_rate': total_rate.quantize(Decimal("0.00")),
+        'total_cost': total_cost.quantize(Decimal("0.00")),
         'start_date': start_date,
         'end_date': end_date,
         'project_names': project_names,
@@ -3302,25 +3413,23 @@ def production_cost_wo_list(request):
     query = request.GET.get("q")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
+    today = datetime.today().date()
 
     # Default: Yesterday & Today
-    if not start_date and not end_date:
-        today = timezone.now().date()
-        yesterday = today - timedelta(days=1)
-        start_date = yesterday.strftime('%Y-%m-%d')
-        end_date = today.strftime('%Y-%m-%d')
-
-    # Base queryset
-    instances = WorkOrder.objects.filter(is_deleted=False)
-
-    # Date filter
     if start_date and end_date:
         try:
-            start = datetime.strptime(start_date, "%Y-%m-%d").date()
-            end = datetime.strptime(end_date, "%Y-%m-%d").date()
-            instances = instances.filter(date_added__date__range=(start, end))
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
         except ValueError:
-            pass  # Invalid date format, ignore
+            start_date_obj = end_date_obj = today
+    else:
+        start_date_obj = end_date_obj = today
+        
+    filter_data["start_date"] = start_date_obj
+    filter_data["end_date"] = end_date_obj
+
+    # Base queryset
+    instances = WorkOrder.objects.filter(date_added__date__range=(start_date_obj, end_date_obj), is_deleted=False)
 
     # Search filter
     if query:
@@ -3342,8 +3451,6 @@ def production_cost_wo_list(request):
         'page_name': 'Production Cost Report List',
         'page_title': 'Production Cost Report List',
         'filter_data': filter_data,
-        'start_date': start_date,
-        'end_date': end_date,
         'total_items': total_items,
         'total_estimate': total_estimate,
         'total_actual_cost': total_actual_cost,

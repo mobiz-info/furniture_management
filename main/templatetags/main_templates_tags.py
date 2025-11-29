@@ -1,5 +1,7 @@
 import datetime
 
+from decimal import Decimal, ROUND_HALF_UP
+
 from django import template
 from django.db.models import Q, Sum
 from django.contrib.auth.models import User, Group
@@ -58,3 +60,13 @@ def accessible_tabs(context):
     if permission_set:
         return ', '.join(permission_set.tabs.split(','))
     return ''
+
+
+@register.filter
+def multiply_round(val1, val2):
+    try:
+        v1 = Decimal(str(val1))
+        v2 = Decimal(str(val2))
+        return (v1 * v2).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+    except:
+        return "0.00"

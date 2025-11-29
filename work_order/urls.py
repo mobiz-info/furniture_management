@@ -87,10 +87,12 @@ urlpatterns = [
     path('export-work-orders-summary/', views.export_work_orders_summary_excel, name='export_work_orders_summary_excel'),
     
     path('accessories-utilized/', views.accessories_utilized, name='accessories_utilized'),
+    path('wood-conseption-report/', views.wood_conseption_report, name='wood_conseption_report'),
     path('print-accessories-utilized/', views.print_accessories_utilized, name='print_accessories_utilized'),
     path('export-accessories-utilized/', views.export_accessories_utilized, name='export_accessories_utilized'),
 
     path('work-report/', views.work_report, name='work_report'),
+    path("staff-work-order-details/<uuid:staff_id>/", views.staff_work_detail, name="staff_work_detail"),
     path('print-work-report/', views.print_work_report, name='print_work_report'),
     path('export-work-report/', views.export_work_report_excel, name='export_work_report_excel'),
     

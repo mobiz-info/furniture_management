@@ -284,6 +284,7 @@ class Dispatch(BaseModel):
         return f'Dispatch for {self.work_order.order_no}'    
     
 class WorkOrderStaffAssign(BaseModel):
+    date = models.DateField()
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False}, related_name="staff_assign")
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE, limit_choices_to={'is_deleted': False})
     time_spent = models.DecimalField(max_digits=5, decimal_places=2, help_text="Time spent in hours or days")

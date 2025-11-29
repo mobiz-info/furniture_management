@@ -23,16 +23,14 @@
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
                             <h4 class="card-title mb-3 mr-3">List view</h4>
-                            <form method="get" action="{% url 'work_order:accessories_utilized' %}" class="form-inline flex-wrap">
+                            <form method="get" action="." class="form-inline flex-wrap">
                                 <div class="form-group mb-2 mr-2">
                                     <label for="start_date" class="mr-2">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date"
-                                           value="{{ request.GET.start_date }}">
+                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ filter_data.start_date|date:'Y-m-d' }}">
                                 </div>
                                 <div class="form-group mb-2 mr-2">
                                     <label for="end_date" class="mr-2">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date"
-                                           value="{{ request.GET.end_date }}">
+                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ filter_data.end_date|date:'Y-m-d' }}">
                                 </div>
                                 <div class="form-group mb-2 mr-2">
                                     <label for="q" class="mr-2">Search</label>
@@ -47,7 +45,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <div class="mb-2 ml-2">
+                            {% comment %} <div class="mb-2 ml-2">
                             <a href="{% url 'work_order:print_accessories_utilized' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark mr-2"
@@ -60,7 +58,7 @@
                                    style="color:#000">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                     </div>
 

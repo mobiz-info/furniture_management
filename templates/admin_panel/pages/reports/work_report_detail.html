@@ -23,7 +23,7 @@
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
                             <h4 class="card-title mb-3 mr-3">List view</h4>
-                            <form method="get" action="{% url 'work_order:work_report' %}" class="form-inline flex-wrap">
+                            {% comment %} <form method="get" action="{% url 'work_order:work_report' %}" class="form-inline flex-wrap">
                                 <div class="form-group mb-2 mr-2">
                                     <label for="start_date" class="mr-2">Start Date</label>
                                     <input type="date" class="form-control" name="start_date" id="start_date" value="{{ filter_data.start_date|date:'Y-m-d' }}">
@@ -58,53 +58,38 @@
                                    style="color:#000">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                     </div>
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table mb-0" style="width:100%;">
+                            <h4>{{ staff.first_name }} {{ staff.last_name }}</h4>
+                            <p>Section: {{ staff.department.name }}</p>
+                            <p>Date Range: {{ start_date }} → {{ end_date }}</p>
+
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th class="font-weight-bold text-center">#</th>
-                                        <th class="font-weight-bold text-left">Date</th>
-                                        <th class="font-weight-bold text-left">Staff Name</th>
-                                        <th class="font-weight-bold text-left">Section</th>
-                                        <th class="font-weight-bold text-right">Total hrs Engaged</th>
-                                        <th class="font-weight-bold text-right">No of Projects Involved</th>
-                                        <th class="font-weight-bold text-right">Cost</th>
-                                        <th class="font-weight-bold text-right">Action</th>
+                                        <th>Date</th>
+                                        <th>Project</th>
+                                        <th>Hours</th>
+                                        <th>Wage</th>
+                                        <th>Remark</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% paginate 50 instances %}
-                                    {% for instance in instances %}
-                                        <tr>
-                                            <td class="text-center">{{ forloop.counter }}</td>
-                                            <td class="text-left">{{ instance.date_added|date:"d/m/Y" }}</td>
-                                            <td class="text-left">{{ instance.staff__first_name }} {{ instance.staff__last_name }}</td>
-                                            <td class="text-left">{{ instance.staff__department__name }}</td>
-                                            <td class="text-right">{{ instance.total_hours }}</td>
-                                            <td class="text-right">{{ instance.project_count }}</td>
-                                            <td class="text-right">{{ instance.total_wage }}</td>
-                                            <td class="text-right">
-                                                <a href="{% url 'work_order:staff_work_detail' instance.staff__id %}?start={{ start_date }}&end={{ end_date }}" class="btn btn-sm btn-primary"> View </a>
-                                            </td>
-
-
-                                        </tr>
+                                    {% paginate 50 records %}
+                                    {% for row in records %}
+                                    <tr>
+                                        <td>{{ row.date_added|date:"d/m/Y" }}</td>
+                                        <td>{{ row.work_order.order_no }}</td>
+                                        <td>{{ row.time_spent }}</td>
+                                        <td>{{ row.wage }}</td>
+                                        <td>{{ row.work_order.remark }}</td>
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="4" class="text-right"><strong>Total</strong></td>
-                                        <td class="text-right"><strong>{{ total_hours }}</strong></td>
-                                        <td class="text-right"><strong>{{ total_project_count }}</strong></td>
-                                        <td class="text-right"><strong>{{ total_wage }}</strong></td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
                             </table>
                         </div>
 
