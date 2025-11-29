@@ -29,7 +29,7 @@ class WorkOrderAssignSerializer(serializers.ModelSerializer):
 class WoodWorkAssignSerializer(serializers.ModelSerializer):
     class Meta:
         model=WoodWorkAssign
-        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
         extra_kwargs = {
             'work_order': {'required': False} 
         }
@@ -37,22 +37,22 @@ class WoodWorkAssignSerializer(serializers.ModelSerializer):
 class CarpentarySerializer(serializers.ModelSerializer):
     class Meta:
         model=Carpentary
-        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
 
 class PolishSerializer(serializers.ModelSerializer):
     class Meta:
         model=Polish
-        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
 
 class GlassSerializer(serializers.ModelSerializer):
     class Meta:
         model=Glass
-        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
 
 class PackingSerializer(serializers.ModelSerializer):
     class Meta:
         model=Packing
-        fields=['work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
         
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -124,7 +124,7 @@ class WorkOrderStaffAssignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkOrderStaffAssign
-        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order_status']
+        fields = ['date','staff_id', 'staff_name', 'time_spent', 'wage', 'work_order_status']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -196,7 +196,7 @@ class StaffAssignListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkOrderStaffAssign
-        fields = ['staff_id', 'staff_name', 'time_spent', 'wage', 'work_order', 'work_order_status']
+        fields = ['date','staff_id', 'staff_name', 'time_spent', 'wage', 'work_order', 'work_order_status']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -261,7 +261,7 @@ class StaffAssignListSerializer(serializers.ModelSerializer):
 class DispatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dispatch
-        fields = ['work_order', 'mode', 'remark', 'reference_no', 'amount']
+        fields = ['date','work_order', 'mode', 'remark', 'reference_no', 'amount']
         extra_kwargs = {
             'work_order': {'required': False} 
         }
