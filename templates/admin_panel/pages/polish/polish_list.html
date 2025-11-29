@@ -110,8 +110,8 @@
                                             <td class="text-center">{{ order.customer.name }}</td>
                                             <td class="text-center"><a href="{% url 'work_order:work_order_info' pk=order.pk %}">view</a></td>
                                             <td class="text-center">{{ order.delivery_date }}</td>
-                                            <td class="text-center"><a href="{% url 'work_order:assign_polish' order.id %}">Assign Polish</a></td>
-                                            <td class="text-center"><a href="{% url 'work_order:polish_order_staff_assign' order.id %}">Assign staff</a></td>
+                                            <td class="text-center"><a href="{% url 'work_order:assign_polish' order.id %}">Add Accessories</a></td>
+                                            <td class="text-center"><a href="{% url 'work_order:polish_order_staff_assign' order.id %}">Add Labour Cost</a></td>
                                             <td class="text-center">
                                                 <a href="javascript: void(0);" data-bs-toggle="modal" data-bs-target="#WorkAssignModal" data-unique_id="{{order.pk}}" onclick="handleButtonClick(this)"><i class="las la-people-carry text-warning font-18"></i></a>
                                                 <a href="{% url 'work_order:work_order_info' pk=order.pk %}"><i class="las la-eye text-success font-18"></i></a>

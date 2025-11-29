@@ -1569,6 +1569,7 @@ def wood_order_staff_assign(request, pk):
         else:  # New assignment
             staff = Staff.objects.get(id=staff_id)
             WorkOrderStaffAssign.objects.create(
+                date = date,
                 staff=staff,
                 work_order=work_order,
                 creator=request.user,
@@ -1605,9 +1606,11 @@ def carpentary_order_staff_assign(request, pk):
         staff_id = request.POST.get("staff")
         time = request.POST.get("time")
         wage = request.POST.get("wage")
+        date = request.POST.get("date")
 
         if assign_id:  # Update mode
             assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.date = date
             assign.time_spent = time
             assign.wage = wage
             assign.updater = request.user
@@ -1621,6 +1624,7 @@ def carpentary_order_staff_assign(request, pk):
         else:  # New assignment
             staff = Staff.objects.get(id=staff_id)
             WorkOrderStaffAssign.objects.create(
+                date=date,
                 staff=staff,
                 work_order=work_order,
                 creator=request.user,
@@ -1668,9 +1672,11 @@ def polish_order_staff_assign(request, pk):
         staff_id = request.POST.get("staff")
         time = request.POST.get("time")
         wage = request.POST.get("wage")
+        date = request.POST.get("date")
 
         if assign_id:
             assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.date = date
             assign.time_spent = time
             assign.wage = wage
             assign.updater = request.user
@@ -1683,6 +1689,7 @@ def polish_order_staff_assign(request, pk):
         else:
             staff = Staff.objects.get(id=staff_id)
             WorkOrderStaffAssign.objects.create(
+                date = date,
                 staff=staff,
                 work_order=work_order,
                 creator=request.user,
@@ -1719,9 +1726,11 @@ def glass_order_staff_assign(request, pk):
         staff_id = request.POST.get("staff")
         time = request.POST.get("time")
         wage = request.POST.get("wage")
+        date = request.POST.get("date")
 
         if assign_id:
             assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.date = date
             assign.time_spent = time
             assign.wage = wage
             assign.updater = request.user
@@ -1734,6 +1743,7 @@ def glass_order_staff_assign(request, pk):
         else:
             staff = Staff.objects.get(id=staff_id)
             WorkOrderStaffAssign.objects.create(
+                date = date,
                 staff=staff,
                 work_order=work_order,
                 creator=request.user,
@@ -1770,9 +1780,11 @@ def packing_order_staff_assign(request, pk):
         staff_id = request.POST.get("staff")
         time = request.POST.get("time")
         wage = request.POST.get("wage")
+        date = request.POST.get("date")
 
         if assign_id:
             assign = WorkOrderStaffAssign.objects.get(id=assign_id)
+            assign.date = date
             assign.time_spent = time
             assign.wage = wage
             assign.updater = request.user
@@ -1786,6 +1798,7 @@ def packing_order_staff_assign(request, pk):
             if staff_id:
                 staff = Staff.objects.get(id=staff_id)
                 WorkOrderStaffAssign.objects.create(
+                    date=date,
                     staff=staff,
                     work_order=work_order,
                     creator=request.user,

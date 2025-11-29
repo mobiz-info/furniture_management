@@ -3,7 +3,9 @@
     <thead class="thead-dark">
         <tr>
             <th>Sl No</th>
-            <th>Wood</th>
+            <th>Material</th>
+            <th>Sub Material</th>
+            <th>Item</th>
             <th>Quality</th>
             <th>Quantity</th>
             <th>Rate</th>
@@ -13,7 +15,9 @@
         {% for wood in wood_assign %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ wood.material }}</td>
+            <td>{{ wood.material.name }}</td>
+            <td>{{ wood.sub_material.name }}</td>
+            <td>{{ wood.material_type.name }}</td>
             <td>{{ wood.quality }}</td>
             <td>{{ wood.quantity }}</td>
             <td>{{ wood.rate }}</td>
