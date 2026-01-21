@@ -39,10 +39,11 @@ class UserTokenObtainPairView(TokenObtainPairView):
 @permission_classes((AllowAny,))
 @renderer_classes((JSONRenderer,))
 def login(request):
+    print("work")
     serialized = LogInSerializer(data=request.data)
-
+    print("serialized",serialized)
     if serialized.is_valid():
-
+        print("serialized valid")
         username = serialized.data['username']
         password = serialized.data['password']
 
@@ -94,6 +95,7 @@ def login(request):
                 "message": "Invalid username or password",
             }, status=status.HTTP_401_UNAUTHORIZED)
     else:
+        print("error:",serialized._errors)
         return Response({
             "status": status.HTTP_400_BAD_REQUEST,
             "StatusCode": 6001,

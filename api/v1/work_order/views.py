@@ -162,6 +162,7 @@ def assign_wood_api(request, pk=None):
                 return Response(response_data, status=status.HTTP_200_OK)
 
             except Exception as e:
+                print(e)
                 return Response({
                     "status": "false",
                     "title": "Failed",

@@ -27,9 +27,24 @@ class WorkOrderAssignSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 class WoodWorkAssignSerializer(serializers.ModelSerializer):
+    material = serializers.PrimaryKeyRelatedField(
+        queryset=Materials.objects.filter(is_deleted=False)
+    )
+
+    sub_material = serializers.PrimaryKeyRelatedField(
+        queryset=MaterialsType.objects.filter(is_deleted=False),
+        required=False,
+        allow_null=True
+    )
+
+    material_type = serializers.PrimaryKeyRelatedField(
+        queryset=MaterialTypeCategory.objects.filter(is_deleted=False),
+        required=False,
+        allow_null=True
+    )
     class Meta:
         model=WoodWorkAssign
-        fields=['date','work_order','material','sub_material','material_type','quality','quantity','rate']
+        fields = '__all__'
         extra_kwargs = {
             'work_order': {'required': False} 
         }
