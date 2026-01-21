@@ -1,0 +1,63 @@
+{% extends 'admin_panel/base.html' %}
+{% block content %}
+
+<div class="page-content">
+    <div class="container-fluid">
+
+        <div class="page-title-box">
+            <h4 class="page-title">{{ page_title }}</h4>
+            <p>
+                Order No: <strong>{{ work_order.order_no }}</strong> |
+                Customer: <strong>{{ work_order.customer.name }}</strong>
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-body table-responsive">
+
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Material</th>
+                            <th>Sub Material</th>
+                            <th>Type</th>
+                            <th>Model</th>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Qty</th>
+                            <th>Estimate Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in instances %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ item.category }}</td>
+                            <td>{{ item.material }}</td>
+                            <td>{{ item.sub_material|default:"-" }}</td>
+                            <td>{{ item.material_type|default:"-" }}</td>
+                            <td>{{ item.model_no|default:"-" }}</td>
+                            <td>{{ item.size|default:"-" }}</td>
+                            <td>{{ item.color|default:"-" }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td class="text-right">{{ item.estimate_rate }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">
+                                No items found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

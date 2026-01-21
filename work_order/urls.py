@@ -113,5 +113,11 @@ urlpatterns = [
     path('work-order/<uuid:pk>/accessories-print/', views.production_cost_wo_used_accessories_print, name='production_cost_wo_used_accessories_print'),
     path('work-order/<uuid:pk>/accessories-excel/', views.production_cost_wo_used_accessories_excel, name='production_cost_wo_used_accessories_excel'),
 
+     path(
+        'items/<uuid:pk>/',
+        views.work_order_items,
+        name='work_order_items'
+    ),
+
 
 ]

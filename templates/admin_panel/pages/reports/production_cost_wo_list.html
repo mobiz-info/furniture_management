@@ -87,7 +87,11 @@
                                             <td class="text-center">{{instance.date_added|date:"d/m/Y"}}</td>
                                             <td class="text-left">{{instance.order_no}}</td>
                                             <td class="text-left">{{instance.customer.name}}</td>
-                                            <td class="text-left">{{instance.number_of_items}}</td>
+                                            <td class="text-left">
+                                                <a href="{% url 'work_order:work_order_items' instance.pk %}">
+                                                    {{ instance.number_of_items }}
+                                                </a>
+                                            </td>
                                             <td class="text-right">{{instance.total_estimate}}</td>
                                             <td class="text-center">{{instance.get_status_display}}</td>
                                             <td class="text-center">{{instance.get_actual_cost}}</td>

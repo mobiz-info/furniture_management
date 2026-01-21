@@ -42,6 +42,7 @@ class WoodWorkAssignSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    auto_id = serializers.IntegerField(read_only=True)
     class Meta:
         model=WoodWorkAssign
         fields = '__all__'

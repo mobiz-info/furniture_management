@@ -3416,6 +3416,39 @@ def export_work_order_used_accessories_report(request):
 
     return response
 
+
+def work_order_items(request, pk):
+    work_order = get_object_or_404(
+        WorkOrder,
+        pk=pk,
+        is_deleted=False
+    )
+
+    items = WorkOrderItems.objects.filter(
+        work_order=work_order,
+        is_deleted=False
+    ).select_related(
+        'category',
+        'sub_category',
+        'material',
+        'sub_material',
+        'material_type',
+        'size',
+        'color'
+    )
+
+    context = {
+        'page_title': f'Items – {work_order.order_no}',
+        'work_order': work_order,
+        'instances': items,
+    }
+
+    return render(
+        request,
+        'admin_panel/pages/reports/production_cost_items.html',
+        context
+    )
+
 @login_required
 # @role_required(['superadmin'])
 def production_cost_wo_list(request):
