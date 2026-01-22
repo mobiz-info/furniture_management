@@ -34,6 +34,7 @@
                                         <th>Material Type</th>
                                         <th>Quality</th>
                                         <th>Quantity</th>
+                                        <th>Unit</th>
                                         <th>Rate</th>
                                         <th>Actions</th>
                                     </tr>
@@ -48,6 +49,9 @@
                                         <td><span class="material_type">{{ item.material_type }}</span></td>
                                         <td><span class="quality">{{ item.quality }}</span></td>
                                         <td><span class="quantity">{{ item.quantity }}</span></td>
+                                        <td>
+                                            <span class="unit">{{ item.unit }}</span>   <!-- ✅ -->
+                                        </td>
                                         <td><span class="rate">{{ item.rate }}</span></td>
                                         <td></td>
                                     </tr>

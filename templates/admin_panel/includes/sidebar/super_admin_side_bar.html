@@ -2,17 +2,15 @@
 {% load main_templates_tags %}
 
 <div class="left-sidenav">
-    <!-- LOGO -->
     <div class="brand">
         <a href="{% url 'app' %}" class="logo">
             <span>
-                <img src="{% static 'admin_panel/assets/images/logo_1.png' %}" alt="logo-small" class="logo-sm" style="height: 45px;">
+                <img src="{% static 'admin_panel/assets/images/sree-logo.png' %}" alt="logo-small" class="logo-sm" style="height: 38px;">
             </span>
         </a>
     </div>
-    <!--end logo-->
     <div class="menu-content h-100" data-simplebar>
-        {%if request.user.is_superuser == True%}
+        {% if request.user.is_superuser %}
         <ul class="metismenu left-sidenav-menu">
             <li class="menu-label mt-0">Main</li>
             <li>
@@ -33,7 +31,14 @@
                         <a class="nav-link" href="{% url 'work_order:model-display' %}"><i class="ti-control-record"></i>Model</a>
                         <a class="nav-link" href="{% url 'work_order:model-create' %}"><i class="ti-plus"></i></a>
                     </li>
-                    
+                    <li class="nav-item d-flex justify-content-between">
+                        <a class="nav-link" href="{% url 'work_order:unit_list' %}">
+                            <i class="ti-control-record"></i>Unit
+                        </a>
+                        <a class="nav-link" href="{% url 'work_order:unit_create' %}">
+                            <i class="ti-plus"></i>
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li>
@@ -57,7 +62,6 @@
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'staff:attendence_list' %}"><i class="ti-control-record"></i>Attendence</a>
-                        <!-- <a class="nav-link" href="{% url 'staff:staff_create' %}"><i class="ti-plus"></i></a> -->
                     </li>
                 </ul>
             </li>
@@ -105,7 +109,6 @@
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:work_order_list' %}"><i class="ti-control-record"></i> Work Order</a>
                         <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a>
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -115,8 +118,6 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:wood_work_orders_list' %}"><i class="ti-control-record"></i> Wood Assign</a>
-                        {% comment %} <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a> {% endcomment %}
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -126,7 +127,6 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:carpentary_list' %}"><i class="ti-control-record"></i> Carpentary Assign</a>
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -136,7 +136,6 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:polish_list' %}"><i class="ti-control-record"></i> Polish Assign</a>
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -146,7 +145,6 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:glass_list' %}"><i class="ti-control-record"></i> Glass/Upholstory</a>
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -156,7 +154,6 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:packing_list' %}"><i class="ti-control-record"></i> Packing</a>
-                        </li>   
                     </li>
                 </ul>
             </li>
@@ -184,97 +181,91 @@
                 <ul class="nav-second-level" aria-expanded="false">
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:delayed_work_order_report' %}"><i class="ti-control-record"></i> Delayed Work Orders</a>
-                        </li>   
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:work_summary' %}"><i class="ti-control-record"></i> Work Orders Summary</a>
-                        </li>   
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:accessories_utilized' %}"><i class="ti-control-record"></i> Accessories Utilized</a>
-                        </li>   
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:wood_conseption_report' %}"><i class="ti-control-record"></i> Wood Conspetion Report</a>
-                        </li>   
                     </li>
                     <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:work_report' %}"><i class="ti-control-record"></i> Work Report</a>
-                        </li>   
+                        <a class="nav-link" href="{% url 'work_order:work_report' %}"><i class="ti-control-record"></i> Labour Report</a>
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:work_order_used_accessories_report' %}"><i class="ti-control-record"></i> Work Order Used Accessories</a>
-                        </li>
                     </li>
                     <li class="nav-item d-flex justify-content-between">
                         <a class="nav-link" href="{% url 'work_order:production_cost_wo_list' %}"><i class="ti-control-record"></i> Production Cost</a>
-                        </li>
                     </li>
                 </ul>
             </li>
 
         </ul>
-        {%else%}
-        {% accessible_tabs as tabs %}
-        <ul class="metismenu left-sidenav-menu">
-            <li class="menu-label mt-0">Main</li>
-            {%if 'WOOD_SECTION' in tabs %}
-            <li>
-                <a href="javascript: void(0);"> <i class="las la-tree align-self-center menu-icon"></i><span>Wood Section</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:wood_work_orders_list' %}"><i class="ti-control-record"></i> Wood Assign</a>
-                        {% comment %} <a class="nav-link" href="{% url 'work_order:create_work_order' %}"><i class="ti-plus"></i> </a> {% endcomment %}
-                        </li>   
+        {% else %}
+            {% if request.user.is_authenticated %}
+                {% accessible_tabs as tabs %}
+                <ul class="metismenu left-sidenav-menu">
+                    <li class="menu-label mt-0">Main</li>
+                    {% if 'WOOD_SECTION' in tabs %}
+                    <li>
+                        <a href="javascript: void(0);"> <i class="las la-tree align-self-center menu-icon"></i><span>Wood Section</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li class="nav-item d-flex justify-content-between">
+                                <a class="nav-link" href="{% url 'work_order:wood_work_orders_list' %}"><i class="ti-control-record"></i> Wood Assign</a>
+                            </li>   
+                        </ul>
                     </li>
-                </ul>
-            </li>
-            {%endif%}
-            {%if 'CARPENTARY' in tabs %}
-            <li>
-                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Carpentary</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:carpentary_list' %}"><i class="ti-control-record"></i> Carpentary Assign</a>
-                        </li>   
+                    {% endif %}
+                    {% if 'CARPENTARY' in tabs %}
+                    <li>
+                        <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Carpentary</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li class="nav-item d-flex justify-content-between">
+                                <a class="nav-link" href="{% url 'work_order:carpentary_list' %}"><i class="ti-control-record"></i> Carpentary Assign</a>
+                            </li>   
+                        </ul>
                     </li>
-                </ul>
-            </li>
-            {%endif%}
-            {%if 'POLISH' in tabs %}
-            <li>
-                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Polish</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:polish_list' %}"><i class="ti-control-record"></i> Polish Assign</a>
-                        </li>   
+                    {% endif %}
+                    {% if 'POLISH' in tabs %}
+                    <li>
+                        <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Polish</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li class="nav-item d-flex justify-content-between">
+                                <a class="nav-link" href="{% url 'work_order:polish_list' %}"><i class="ti-control-record"></i> Polish Assign</a>
+                            </li>   
+                        </ul>
                     </li>
-                </ul>
-            </li>
-            {%endif%}
-            {%if 'GLASS/UPHOLSTORY' in tabs %}
-            <li>
-                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Glass/Upholstory</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:glass_list' %}"><i class="ti-control-record"></i> Glass/Upholstory</a>
-                        </li>   
+                    {% endif %}
+                    {% if 'GLASS/UPHOLSTORY' in tabs %}
+                    <li>
+                        <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Glass/Upholstory</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li class="nav-item d-flex justify-content-between">
+                                <a class="nav-link" href="{% url 'work_order:glass_list' %}"><i class="ti-control-record"></i> Glass/Upholstory</a>
+                            </li>   
+                        </ul>
                     </li>
-                </ul>
-            </li>
-            {%endif%}
-            {%if 'PACKING' in tabs %}
-            <li>
-                <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Packing</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                <ul class="nav-second-level" aria-expanded="false">
-                    <li class="nav-item d-flex justify-content-between">
-                        <a class="nav-link" href="{% url 'work_order:packing_list' %}"><i class="ti-control-record"></i> Packing</a>
-                        </li>   
+                    {% endif %}
+                    {% if 'PACKING' in tabs %}
+                    <li>
+                        <a href="javascript: void(0);"> <i class="las la-hammer align-self-center menu-icon"></i><span>Packing</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li class="nav-item d-flex justify-content-between">
+                                <a class="nav-link" href="{% url 'work_order:packing_list' %}"><i class="ti-control-record"></i> Packing</a>
+                            </li>   
+                        </ul>
                     </li>
+                    {% endif %}
                 </ul>
-            </li>
-            {%endif%}
-        </ul>
-        {%endif%}
+            {% else %}
+                <ul class="metismenu left-sidenav-menu">
+                    <li class="menu-label mt-0">Session Expired</li>
+                    <li><a href="{% url 'registration_login' %}"><span>Please Login</span></a></li>
+                </ul>
+            {% endif %}
+        {% endif %}
     </div>
 </div>

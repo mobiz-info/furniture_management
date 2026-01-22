@@ -1814,6 +1814,35 @@ def packing_order_staff_assign(request, pk):
 
         return redirect(request.path)
 
+
+@login_required
+def unit_list(request):
+    units = Unit.objects.all().order_by('name')
+    context = {
+        'instances': units,
+        'page_title': 'Unit List',
+    }
+    return render(request, 'admin_panel/pages/work_order/unit_list.html', context)
+
+
+# CREATE
+@login_required
+def unit_create(request):
+    form = UnitForm()
+
+    if request.method == 'POST':
+        form = UnitForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('work_order:unit_list')
+
+    context = {
+        'form': form,
+        'page_title': 'Create Unit',
+        'url': request.path
+    }
+    return render(request, 'admin_panel/pages/work_order/create_unit.html', context)
+
     
 
 @login_required
@@ -1946,7 +1975,7 @@ def size_delete(request, pk):
     return JsonResponse(response_data)
 
 
-# @login_required
+@login_required
 # # @role_required(['superadmin'])
 # def modelnumberbasedproducts_list(request):
     
@@ -2045,7 +2074,7 @@ def modelnumberbasedproducts_create(request):
     return render(request, 'admin_panel/pages/work_order/model_create.html', {'form': form, 'work_order_image_formset': work_order_image_formset,'title':title})
 
 
-# @login_required
+@login_required
 # # @role_required(['superadmin'])
 # def modelnumberbasedproducts_update(request,pk):
 #     product = get_object_or_404(ModelNumberBasedProducts,pk=pk)
@@ -2856,8 +2885,8 @@ def work_report(request):
 
     context = {
         'instances': instances,
-        'page_name': 'Work Report',
-        'page_title': 'Work Report',
+        'page_name': 'Labour Report',
+        'page_title': 'Labour Report',
         'filter_data': filter_data,
         'start_date': start_date_obj.strftime('%Y-%m-%d'),
         'end_date': end_date_obj.strftime('%Y-%m-%d'),

@@ -1,0 +1,41 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h4 class="page-title">Unit List</h4>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>SL No</th>
+                            <th>Unit Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in instances %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ u.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center">No units found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

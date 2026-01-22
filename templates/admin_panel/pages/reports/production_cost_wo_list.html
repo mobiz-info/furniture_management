@@ -4,9 +4,9 @@
 {% load el_pagination_tags %}
 
 {% block content %}
-<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
+
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -20,23 +20,34 @@
 
                 <!-- Card -->
                 <div class="card">
+
+                    <!-- Header -->
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <h4 class="card-title mb-3 mr-3">Production Cost - Work Orders</h4>
+
+                            <!-- Filters -->
                             <form method="get" action="." class="form-inline flex-wrap">
                                 <div class="form-group mb-2 mr-2">
-                                    <label for="start_date" class="mr-2">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ filter_data.start_date|date:'Y-m-d' }}">
+                                    <label class="mr-2">Start Date</label>
+                                    <input type="date" class="form-control form-control-sm"
+                                           name="start_date"
+                                           value="{{ filter_data.start_date|date:'Y-m-d' }}">
                                 </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="end_date" class="mr-2">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ filter_data.end_date|date:'Y-m-d' }}">
-                                </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="q" class="mr-2">Search</label>
-                                    <div class="input-group">
-                                        <input name="q" type="text" value="{{ request.GET.q|default:'' }}">
 
+                                <div class="form-group mb-2 mr-2">
+                                    <label class="mr-2">End Date</label>
+                                    <input type="date" class="form-control form-control-sm"
+                                           name="end_date"
+                                           value="{{ filter_data.end_date|date:'Y-m-d' }}">
+                                </div>
+
+                                <div class="form-group mb-2 mr-2">
+                                    <label class="mr-2">Search</label>
+                                    <div class="input-group">
+                                        <input name="q" class="form-control form-control-sm"
+                                               type="text"
+                                               value="{{ request.GET.q|default:'' }}">
                                         <div class="input-group-append">
                                             <button type="submit" class="btn btn-soft-primary btn-sm">
                                                 <i class="fas fa-search"></i>
@@ -45,75 +56,127 @@
                                     </div>
                                 </div>
                             </form>
+
+                            <!-- Export Buttons -->
                             <div class="mb-2 ml-2">
-                            <a href="{% url 'work_order:production_cost_wo_print' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                                <a href="{% url 'work_order:production_cost_wo_print' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
-                            <a href="{% url 'work_order:production_cost_wo_export' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+
+                                <a href="{% url 'work_order:production_cost_wo_export' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table mb-0" style="width:100%;">
-                                <thead>
+
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                            <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-center">Date Added</th>
-                                            <th class="font-weight-bold text-left">Order No</th>
-                                            <th class="font-weight-bold text-left">Customer Name</th>
-                                            <th class="font-weight-bold text-left">No Of Items</th>
-                                            <th class="font-weight-bold text-right">Estimated Rate</th>
-                                            <th class="font-weight-bold text-center">Status</th>
-                                            <th class="font-weight-bold text-center">Actual Cost</th>
-                                            <th class="font-weight-bold text-center">Profit/Loss</th>
-                                        </tr>
+                                        <th class="text-center" style="width:60px;">#</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-left">Order No</th>
+                                        <th class="text-left">Customer</th>
+                                        <th class="text-center">Items</th>
+                                        <th class="text-right">Estimated</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-right">Actual Cost</th>
+                                        <th class="text-right">Profit / Loss</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
                                 </thead>
+
                                 <tbody>
-                                    {% load el_pagination_tags %}
                                     {% paginate 10 instances %}
                                     {% for instance in instances %}
-                                        <tr>
-                                            <td class="text-center">{{forloop.counter}}</td>
-                                            <td class="text-center">{{instance.date_added|date:"d/m/Y"}}</td>
-                                            <td class="text-left">{{instance.order_no}}</td>
-                                            <td class="text-left">{{instance.customer.name}}</td>
-                                            <td class="text-left">
-                                                <a href="{% url 'work_order:work_order_items' instance.pk %}">
-                                                    {{ instance.number_of_items }}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td class="text-center">{{ instance.date_added|date:"d/m/Y" }}</td>
+                                        <td class="text-left font-weight-bold">{{ instance.order_no }}</td>
+                                        <td class="text-left">{{ instance.customer.name }}</td>
+
+                                        <td class="text-center">
+                                            <a href="{% url 'work_order:work_order_items' instance.pk %}"
+                                               class="text-primary font-weight-bold">
+                                                {{ instance.number_of_items }}
+                                            </a>
+                                        </td>
+
+                                        <td class="text-right">{{ instance.total_estimate }}</td>
+
+                                        <td class="text-center">
+                                            <span class="badge badge-info">
+                                                {{ instance.get_status_display }}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ instance.get_actual_cost }}
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+
+                                            {% if instance.status == '010' %}
+                                            <span class="text-muted">N/A</span>
+                                        {% else %}
+                                    
+                                            {% if instance.profit_or_loss_value >= 0 %}
+                                                <span class="text-success">
+                                                    +{{ instance.profit_or_loss_value|floatformat:2 }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-danger">
+                                                    {{ instance.profit_or_loss_value|floatformat:2 }}
+                                                </span>
+                                            {% endif %}
+                                    
+                                        {% endif %}
+                                        
+                                        </td>
+                                        
+                                        {# VIEW BUTTON #}
+                                        <td class="text-center">
+                                        
+                                            {% if instance.status == '010' %}
+                                                <button class="btn btn-sm btn-secondary" disabled
+                                                        title="Not available for New orders">
+                                                    <i class="ri-eye-off-line"></i> View
+                                                </button>
+                                            {% else %}
+                                                <a href="{% url 'work_order:work_order_profit_loss' instance.pk %}"
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="ri-eye-line"></i> View
                                                 </a>
-                                            </td>
-                                            <td class="text-right">{{instance.total_estimate}}</td>
-                                            <td class="text-center">{{instance.get_status_display}}</td>
-                                            <td class="text-center">{{instance.get_actual_cost}}</td>
-                                            <td class="text-center">
-                                                <a href="{% url 'work_order:work_order_profit_loss' instance.pk %}">
-                                                    {{ instance.get_profit_or_loss }}
-                                                </a>
-                                            </td>
-                                        </tr>
+                                            {% endif %}
+                                        
+                                        </td>
+                                    </tr>
                                     {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center">No data available</td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan="10" class="text-center text-muted">
+                                            No data available
+                                        </td>
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
+
+                                <!-- Footer Totals -->
                                 <tfoot>
-                                    <tr>
-                                        <th colspan="4" class="text-right"><strong>Grand Total</strong></th>
-                                        <th class="text-left"><strong>{{ total_items }}</strong></th>
-                                        <th class="text-right"><strong>{{ total_estimate }}</strong></th>
+                                    <tr class="font-weight-bold bg-light">
+                                        <th colspan="4" class="text-right">Grand Total</th>
+                                        <th class="text-center">{{ total_items }}</th>
+                                        <th class="text-right">{{ total_estimate }}</th>
                                         <th></th>
-                                        <th class="text-center"><strong>{{ total_actual_cost }}</strong></th>
+                                        <th class="text-right">{{ total_actual_cost }}</th>
+                                        <th></th>
                                         <th></th>
                                     </tr>
                                 </tfoot>
@@ -122,43 +185,65 @@
                             <!-- Pagination -->
                             {% get_pages %}
                             <div class="clearfix"></div>
+
                             <div class="row pagi my-3">
-                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
-                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                <div class="col-sm-6 text-left">
+                                    {% show_pages %}
+                                </div>
+                                <div class="col-sm-6 text-right align-items-center">
                                     <div class="m-t-10">
-                                        Showing {{ title }}
+                                        Showing
                                         <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span>
+                                        of
                                         <span class="total_count">{{ pages.total_count }}</span>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
-                        <!-- end table responsive -->
                     </div>
+
                 </div>
             </div>
         </div>
 
-    </div><!-- container -->
+    </div>
 </div>
-<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
-    {% load static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tfoot th{
+        border-top: 2px solid #dee2e6;
+        font-size: 15px;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .badge{
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+</style>
 {% endblock static %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-

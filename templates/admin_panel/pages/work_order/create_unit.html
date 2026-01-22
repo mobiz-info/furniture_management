@@ -1,0 +1,43 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <h4 class="page-title">{{ page_title }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ url }}" method="POST" class="ajax redirect">
+            <div class="row">
+                <div class="col-12">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Unit Name :</label>
+                                        {{ form.name }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-soft-primary btn-sm">Submit</button>
+                    <button type="button" onclick="window.history.back()" class="btn btn-soft-danger btn-sm">Cancel</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

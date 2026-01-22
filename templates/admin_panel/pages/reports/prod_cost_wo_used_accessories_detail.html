@@ -23,7 +23,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <h4 class="card-title mb-3 mr-3">Used Accessories</h4>
                             <div class="mb-2 ml-2">
                                 <a href="{% url 'work_order:production_cost_wo_used_accessories_print' work_order.pk %}"
                                    target="_blank"
@@ -31,6 +31,7 @@
                                    style="color:#000">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
+
                                 <a href="{% url 'work_order:production_cost_wo_used_accessories_excel' work_order.pk %}"
                                    target="_blank"
                                    class="btn btn-light border-0 ripple-surface-dark"
@@ -43,16 +44,19 @@
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <h3 class="mb-4">Used Accessories Detail - Work Order: {{ work_order.order_no }}</h3>
+                            <h3 class="mb-4">
+                                Used Accessories Detail - Work Order : 
+                                <span class="text-primary">{{ work_order.order_no }}</span>
+                            </h3>
 
                             {% get_accessories_by_work_order work_order as data %}
                             {% with accessories=data.items total_rate=data.total_rate total_quantity=data.total_quantity total_cost=data.total_cost %}
 
-                            <table class="table mb-0" style="width:100%;">
-                                <thead>
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-left">Date Added</th>
+                                        <th class="text-center" style="width:50px;">#</th>
+                                        <th class="text-center">Date Added</th>
                                         <th class="text-left">Section</th>
                                         <th class="text-left">Material</th>
                                         <th class="text-left">Sub Material</th>
@@ -62,6 +66,7 @@
                                         <th class="text-right">Total Cost</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {% for item in accessories %}
                                     <tr>
@@ -73,29 +78,44 @@
                                         <td class="text-left">{{ item.material_type }}</td>
                                         <td class="text-right">{{ item.rate }}</td>
                                         <td class="text-right">{{ item.quantity }}</td>
-                                        <td class="text-right">{{ item.total_cost }}</td>
+                                        <td class="text-right font-weight-bold">{{ item.total_cost }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">
+                                            No accessories data found
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
+
                                 <tfoot>
-                                    <tr>
-                                        <th colspan="6" class="text-right">Total</th>
-                                        <th class="text-right">{{ total_rate }}</th>
+                                    <tr class="font-weight-bold bg-light">
+                                        <!-- Text columns -->
+                                        <th colspan="6" class="text-right">Grand Total</th>
+
+                                        <!-- Rate column -->
+                                        <th class="text-right">—</th>
+
+                                        <!-- Quantity -->
                                         <th class="text-right">{{ total_quantity }}</th>
-                                        <th class="text-right">{{ total_cost }}</th>
+
+                                        <!-- Cost -->
+                                        <th class="text-right text-success">{{ total_cost }}</th>
                                     </tr>
                                 </tfoot>
                             </table>
 
                             {% endwith %}
                         </div>
-                        <!-- end table responsive -->
-                        <!-- Back Button using JavaScript -->
-                        <div class="mt-4" style="text-align: right;">
+
+                        <!-- Back Button -->
+                        <div class="mt-4 text-right">
                             <button onclick="window.history.back()" class="btn btn-secondary">
                                 <i class="ri-arrow-go-back-line"></i> Back
                             </button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -106,5 +126,27 @@
 {% endblock content %}
 
 {% block static %}
-    {% load static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tfoot th{
+        border-top: 2px solid #dee2e6;
+        font-size: 15px;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+</style>
 {% endblock static %}

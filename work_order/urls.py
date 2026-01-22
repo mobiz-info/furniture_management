@@ -119,5 +119,8 @@ urlpatterns = [
         name='work_order_items'
     ),
 
+    path('units/', views.unit_list, name='unit_list'),
+    path('units/create/', views.unit_create, name='unit_create'),
+
 
 ]

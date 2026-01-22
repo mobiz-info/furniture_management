@@ -48,6 +48,45 @@
                             {% get_work_order_costs work_order as costs %}
 
                             <table class="table mb-0" style="width:100%;">
+                                <!-- Top Info Box -->
+                                <div class="card mb-4" style="border:1px solid #ddd;border-radius:15px;">
+                                    <div class="card-body">
+                                        <div class="row">
+
+                                            <!-- Left -->
+                                            <div class="col-md-4">
+                                                <p><strong>Customer name:</strong> {{ work_order.customer.name }}</p>
+                                                <p><strong>Address:</strong> {{ work_order.customer.address }}</p>
+                                                <p><strong>Mobile No:</strong> {{work_order.customer.mobile }}</p>
+                                            </div>
+
+                                            <!-- Middle -->
+                                            <div class="col-md-4">
+                                                <p><strong>No of Items:</strong> {{ work_order.number_of_items }}</p>
+                                                <p><strong>Created date:</strong> {{ work_order.date_added|date:"d/m/Y" }}</p>
+                                                <p><strong>Estimated Delivery date:</strong> {{ work_order.estimated_delivery_date|date:"d/m/Y" }}</p>
+                                                <p><strong>Estimated cost:</strong> {{ work_order.total_estimate }}</p>
+                                            </div>
+
+                                            <!-- Right -->
+                                            <div class="col-md-4">
+                                                <p><strong>Actual Delivery Date:</strong> {{ work_order.actual_delivery_date|date:"d/m/Y" }}</p>
+                                                <p><strong>Actual Cost:</strong> {{ costs.total_cost }}</p>
+
+                                                {% if work_order.actual_delivery_date and work_order.estimated_delivery_date %}
+                                                    {% with delay=work_order.actual_delivery_date|timesince:work_order.estimated_delivery_date %}
+                                                        <p><strong>Delay of any:</strong> {{ delay }}</p>
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <p><strong>Delay of any:</strong> 0 days</p>
+                                                {% endif %}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Top Info Box -->
+
                                 <thead>
                                     <tr>
                                         <th class="text-center">#</th>
@@ -55,23 +94,37 @@
                                         <th class="text-left">Labour Cost</th>
                                         <th class="text-left">Accessories Cost</th>
                                         <th class="text-left">Total Cost</th>
+                                        <th class="text-center">Actions</th>   <!-- NEW -->
                                     </tr>
                                 </thead>
+                                
                                 <tbody>
                                     <tr>
-                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td class="text-center">1</td>
                                         <td class="text-center">{{ work_order.date_added|date:"d/m/Y" }}</td>
+                                
                                         <td class="text-left">
-                                            <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}" style="text-decoration:none;">
-                                                {{ costs.labour_cost }}
-                                            </a>
+                                            {{ costs.labour_cost }}
                                         </td>
+                                
                                         <td class="text-left">
-                                            <a href="{% url 'work_order:production_cost_wo_used_accessories_detail' work_order.pk %}">
-                                                {{ costs.accessories_total }}
-                                            </a>
+                                            {{ costs.accessories_total }}
                                         </td>
+                                
                                         <td class="text-left">{{ costs.total_cost }}</td>
+                                
+                                        <!-- ACTION BUTTONS -->
+                                        <td class="text-center">
+                                            <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}"
+                                               class="btn btn-sm btn-outline-primary mr-1" title="View Labour Cost">
+                                                <i class="ri-hammer-line"></i>
+                                            </a>
+                                        
+                                            <a href="{% url 'work_order:production_cost_wo_used_accessories_detail' work_order.pk %}"
+                                               class="btn btn-sm btn-outline-success" title="View Accessories Cost">
+                                                <i class="ri-tools-line"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>

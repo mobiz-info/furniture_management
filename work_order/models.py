@@ -12,6 +12,8 @@ from product.models import *
 from staff.models import Staff,Department
 from django.utils import timezone
 import random
+from django import forms
+# from .models import Unit
 
 WORK_ORDER_CHOICES = (
     ('010', 'New'),
@@ -24,6 +26,24 @@ WORK_ORDER_CHOICES = (
     ('028', 'Other Works'),
     ('030', 'Sold'),
 )
+
+class Unit(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class UnitForm(forms.ModelForm):
+    class Meta:
+        model = Unit
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter unit (kg, gm, ltr, pack, no)'
+            })
+        }
 
 class Color(models.Model):
     name = models.CharField(max_length=100)
@@ -76,6 +96,12 @@ class WorkOrder(BaseModel):
         if not self.order_no:
             self.order_no = self.generate_order_no()
         super().save(*args, **kwargs)
+
+    @property
+    def profit_or_loss_value(self):
+        if self.status == '010':  # New
+            return None
+        return (self.total_estimate or 0) - (self.get_actual_cost() or 0)
 
     @staticmethod
     def generate_order_no():
@@ -185,6 +211,8 @@ class WoodWorkAssign(BaseModel):
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.PROTECT, null=True, blank=True)
+
 
     class Meta:
         db_table = 'WoodWorkAssign'
@@ -213,6 +241,8 @@ class Carpentary(BaseModel):
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.PROTECT, null=True, blank=True)
+
     
     class Meta:
         db_table = 'Carpentary'
@@ -231,6 +261,8 @@ class Polish(BaseModel):
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.PROTECT, null=True, blank=True)
+
     
     class Meta:
         db_table = 'Polish'
@@ -247,6 +279,8 @@ class Glass(BaseModel):
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.PROTECT, null=True, blank=True)
+
     
     class Meta:
         db_table = 'Glass'
@@ -263,6 +297,8 @@ class Packing(BaseModel):
     quality = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.PROTECT, null=True, blank=True)
+
     
     class Meta:
         db_table = 'Packing'

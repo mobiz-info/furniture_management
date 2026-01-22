@@ -123,7 +123,7 @@ class WoodWorksAssignForm(forms.ModelForm):
     
     class Meta:
         model = WoodWorkAssign
-        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity','unit','rate']
         
         widgets = {
             'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
@@ -132,6 +132,7 @@ class WoodWorksAssignForm(forms.ModelForm):
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
+            'unit': forms.Select(attrs={'class': 'form-control select2'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
        
@@ -142,7 +143,7 @@ class CarpentaryAssignForm(forms.ModelForm):
     
     class Meta:
         model = Carpentary
-        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity','unit','rate']
         
         widgets = {
             'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
@@ -151,6 +152,7 @@ class CarpentaryAssignForm(forms.ModelForm):
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
+            'unit': forms.Select(attrs={'class': 'form-control select2'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
        
@@ -160,7 +162,7 @@ class PolishAssignForm(forms.ModelForm):
     
     class Meta:
         model = Polish
-        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity','unit','rate']
         
         widgets = {
             'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
@@ -169,7 +171,9 @@ class PolishAssignForm(forms.ModelForm):
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
+            'unit': forms.Select(attrs={'class': 'form-control select2'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            
         }
 PolishAssignFormSet = inlineformset_factory(WorkOrder, Polish, form=PolishAssignForm, extra=1)
 
@@ -177,7 +181,7 @@ class GlassAssignForm(forms.ModelForm):
     
     class Meta:
         model = Glass
-        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity','unit','rate']
         
         widgets = {
             'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
@@ -186,6 +190,7 @@ class GlassAssignForm(forms.ModelForm):
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
+            'unit': forms.Select(attrs={'class': 'form-control select2'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 GlassAssignFormSet = inlineformset_factory(WorkOrder, Glass, form=GlassAssignForm, extra=1)
@@ -194,7 +199,7 @@ class PackingAssignForm(forms.ModelForm):
     
     class Meta:
         model = Packing
-        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity', 'rate']
+        fields = ['date','material', 'sub_material', 'material_type', 'quality', 'quantity','unit','rate']
         
         widgets = {
             'date': TextInput(attrs={'type':'date', 'class': 'form-control'}),
@@ -203,6 +208,7 @@ class PackingAssignForm(forms.ModelForm):
             'material_type': Select(attrs={'class': 'form-control custom-select material_type'}),
             'quality': TextInput(attrs={'class': 'form-control'}),
             'quantity': NumberInput(attrs={'class': 'form-control','step': '0.01'}),
+            'unit': forms.Select(attrs={'class': 'form-control select2'}),
             'rate': NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 PackingAssignFormSet = inlineformset_factory(WorkOrder, Packing, form=PackingAssignForm, extra=1)
