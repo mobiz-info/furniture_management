@@ -5,9 +5,9 @@
 {% load accessory_tags %}
 
 {% block content %}
-<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
+
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -21,33 +21,54 @@
 
                 <!-- Card -->
                 <div class="card">
+
+                    <!-- Header -->
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
-                            <form method="get" action="{% url 'work_order:work_order_used_accessories_report' %}" class="form-inline flex-wrap">
+                            <h4 class="card-title mb-3 mr-3">
+                                Accessories Usage Report
+                            </h4>
+
+                            <!-- Filters -->
+                            <form method="get"
+                                  action="{% url 'work_order:work_order_used_accessories_report' %}"
+                                  class="form-inline flex-wrap">
+
                                 <div class="form-group mb-2 mr-2">
-                                    <label for="start_date" class="mr-2">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ filter_data.start_date|date:'Y-m-d' }}">
-                                </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="end_date" class="mr-2">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ filter_data.end_date|date:'Y-m-d' }}">
+                                    <label class="mr-2">Start Date</label>
+                                    <input type="date"
+                                           class="form-control form-control-sm"
+                                           name="start_date"
+                                           value="{{ filter_data.start_date|date:'Y-m-d' }}">
                                 </div>
 
                                 <div class="form-group mb-2 mr-2">
-                                    <label for="project_name" class="mr-2">Project Name</label>
-                                    <select name="project_name" class="form-control">
+                                    <label class="mr-2">End Date</label>
+                                    <input type="date"
+                                           class="form-control form-control-sm"
+                                           name="end_date"
+                                           value="{{ filter_data.end_date|date:'Y-m-d' }}">
+                                </div>
+
+                                <div class="form-group mb-2 mr-2">
+                                    <label class="mr-2">Project</label>
+                                    <select name="project_name" class="form-control form-control-sm">
                                         <option value="">All</option>
                                         {% for name in project_names %}
-                                            <option value="{{ name }}" {% if name == selected_project %}selected{% endif %}>{{ name }}</option>
+                                            <option value="{{ name }}" {% if name == selected_project %}selected{% endif %}>
+                                                {{ name }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="q" class="mr-2">Search</label>
-                                    <div class="input-group">
-                                        <input name="q" type="text" value="{{ request.GET.q|default:'' }}">
 
+                                <div class="form-group mb-2 mr-2">
+                                    <label class="mr-2">Search</label>
+                                    <div class="input-group">
+                                        <input name="q"
+                                               class="form-control form-control-sm"
+                                               type="text"
+                                               value="{{ request.GET.q|default:'' }}">
                                         <div class="input-group-append">
                                             <button type="submit" class="btn btn-soft-primary btn-sm">
                                                 <i class="fas fa-search"></i>
@@ -57,97 +78,160 @@
                                 </div>
                             </form>
 
+                            <!-- Export Buttons -->
                             <div class="mb-2 ml-2">
                                 <a href="{% url 'work_order:print_work_order_used_accessories_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.project_name %}&project_name={{ request.GET.project_name }}{% endif %}"
-                                target="_blank"
-                                class="btn btn-light border-0 ripple-surface-dark mr-2"
-                                style="color:#000">
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
+
                                 <a href="{% url 'work_order:export_work_order_used_accessories_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.project_name %}&project_name={{ request.GET.project_name }}{% endif %}"
-                                target="_blank"
-                                class="btn btn-light border-0 ripple-surface-dark"
-                                style="color:#000">
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
-
                             </div>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table mb-0" style="width:100%;">
-                                    <thead>
-                                        <tr>
-                                            <th class="font-weight-bold text-center">#</th>
-                                            <th class="font-weight-bold text-left">Order Added Date</th>
-                                            <th class="font-weight-bold text-left">Project Name</th>
-                                            <th class="font-weight-bold text-left">Accessories Used</th>
-                                            <th class="font-weight-bold text-left">Quantity</th>
-                                            <th class="font-weight-bold text-left">Rate</th>
-                                            <th class="font-weight-bold text-left">Total</th>
-                                            <th class="font-weight-bold text-left">Section Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% load el_pagination_tags %}
-                                        {% paginate 10 instances %}
-                                        {% for instance in instances %}
-                                            <tr>
-                                                <td class="text-center">{{ forloop.counter }}</td>
-                                                <td class="text-left">{{ instance.date_added|date:"d/m/Y" }}</td>
-                                                <td class="text-left">{{ instance.work_order.order_no }}</td>
-                                                <td class="text-left">{{ instance.material.name }}</td>
-                                                <td class="text-left">{{ instance.quantity }}</td>
-                                                <td class="text-left">{{ instance.rate }}</td>
-                                                <td class="text-left">{{ instance.quantity|multiply_round:instance.rate }}</td>
-                                                <td class="text-left">{{ instance.section }}</td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="8" class="text-center">No accessories used data found.</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                     <tfoot>
+
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <td colspan="4" class="font-weight-bold text-right">Total:</td>
-                                        <td class="font-weight-bold text-left">{{ total_quantity }}</td>
-                                        <td class="font-weight-bold text-left">{{ total_rate }}</td>
-                                        <td class="font-weight-bold text-left">{{ total_cost }}</td>
-                                        <td></td>
+                                        <th class="text-center" style="width:60px;">#</th>
+                                        <th class="text-center">Order Date</th>
+                                        <th class="text-left">Project</th>
+                                        <th class="text-left">Accessory</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Total</th>
+                                        <th class="text-center">Section</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% paginate 10 instances %}
+                                    {% for instance in instances %}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+
+                                        <td class="text-center">
+                                            {{ instance.date_added|date:"d/m/Y" }}
+                                        </td>
+
+                                        <td class="text-left font-weight-bold">
+                                            {{ instance.work_order.order_no }}
+                                        </td>
+
+                                        <td class="text-left">
+                                            {{ instance.material.name }}
+                                        </td>
+
+                                        <td class="text-center font-weight-bold">
+                                            {{ instance.quantity }}
+                                        </td>
+
+                                        <td class="text-right">
+                                            {{ instance.rate }}
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ instance.quantity|multiply_round:instance.rate }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span class="badge badge-info">
+                                                {{ instance.section }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">
+                                            No accessories used data found.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                                <!-- Totals -->
+                                <tfoot>
+                                    <tr class="font-weight-bold bg-light">
+                                        <th colspan="4" class="text-right">Total</th>
+                                        <th class="text-center">{{ total_quantity }}</th>
+                                        <th class="text-right">{{ total_rate }}</th>
+                                        <th class="text-right">{{ total_cost }}</th>
+                                        <th></th>
                                     </tr>
                                 </tfoot>
-                                </table>
-
+                            </table>
 
                             <!-- Pagination -->
                             {% get_pages %}
                             <div class="clearfix"></div>
+
                             <div class="row pagi my-3">
-                                <div class="col-sm-6 col-xs-6 text-left my-pagina">{% show_pages %}</div>
-                                <div class="col-sm-6 col-xs-6 text-right tot my-pagination align-items-center">
+                                <div class="col-sm-6 text-left">
+                                    {% show_pages %}
+                                </div>
+                                <div class="col-sm-6 text-right align-items-center">
                                     <div class="m-t-10">
-                                        Showing {{ title }}
+                                        Showing
                                         <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                        <span class="current_end_status">{{ pages.current_end_index }}</span> of
+                                        <span class="current_end_status">{{ pages.current_end_index }}</span>
+                                        of
                                         <span class="total_count">{{ pages.total_count }}</span>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
-                        <!-- end table responsive -->
                     </div>
+
                 </div>
             </div>
         </div>
 
-    </div><!-- container -->
+    </div>
 </div>
-<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
-    {% load static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tfoot th{
+        border-top: 2px solid #dee2e6;
+        font-size: 15px;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .badge{
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+</style>
 {% endblock static %}

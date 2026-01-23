@@ -4,7 +4,6 @@
 {% load el_pagination_tags %}
 
 {% block content %}
-<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
 
@@ -21,75 +20,137 @@
 
                 <!-- Card -->
                 <div class="card">
+
+                    <!-- Header -->
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <h4 class="card-title mb-3 mr-3">
+                                Labour Cost Details
+                            </h4>
+
+                            <!-- Export Buttons -->
                             <div class="mb-2 ml-2">
                                 <a href="{% url 'work_order:work_order_labour_detail_print' work_order.pk %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
+
                                 <a href="{% url 'work_order:work_order_labour_detail_export' work_order.pk %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="card-body">
+
                         <div class="table-responsive">
-                            <h4>Work Order Details - {{ work_order.order_no }}</h4>
-                            <table class="table mb-0" style="width:100%;">
-                                <thead>
+
+                            <!-- Title -->
+                            <h4 class="mb-4 text-center">
+                                Work Order Labour Details — {{ work_order.order_no }}
+                            </h4>
+
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th>#</th>
-                                        <th>Date Added</th>
-                                        <th>Staff Name</th>
-                                        <th>Hours Engaged</th>
-                                        <th>Wage</th>
+                                        <th class="text-center" style="width:60px;">#</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-left">Staff Name</th>
+                                        <th class="text-right">Hours Engaged</th>
+                                        <th class="text-right">Wage</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {% for item in staff_assignments %}
-                                        <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td>{{ item.date_added|date:'d/m/Y' }}</td>
-                                            <td>{{ item.staff.get_fullname }}</td>
-                                            <td>{{ item.time_spent }}</td>
-                                            <td>{{ item.wage }}</td>
-                                        </tr>
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+
+                                        <td class="text-center">
+                                            {{ item.date_added|date:'d/m/Y' }}
+                                        </td>
+
+                                        <td class="text-left font-weight-bold">
+                                            {{ item.staff.get_fullname }}
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ item.time_spent }}
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ item.wage }}
+                                        </td>
+                                    </tr>
                                     {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center">No labour assigned.</td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            No labour assigned.
+                                        </td>
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr class="total-row bg-light font-weight-bold">
+                                        <th class="text-right" colspan="3">TOTAL</th>
+                                
+                                        <th class="text-right">
+                                            {{ total_hours }}
+                                        </th>
+                                
+                                        <th class="text-right">
+                                            {{ total_wage }}
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                                
                             </table>
+
                         </div>
-                        <!-- end table responsive -->
-                        <!-- Back Button using JavaScript -->
-                        <div class="mt-4" style="text-align: right;">
+
+                        <!-- Back Button -->
+                        <div class="mt-4 text-right">
                             <button onclick="window.history.back()" class="btn btn-secondary">
                                 <i class="ri-arrow-go-back-line"></i> Back
                             </button>
                         </div>
-                    </div>
-                </div>
-                <!-- end card -->
+
+                    </div><!-- end card-body -->
+                </div><!-- end card -->
             </div>
         </div>
-        <!-- end row -->
+
     </div>
-    <!-- end container-fluid -->
 </div>
-<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
-    {% load static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+</style>
 {% endblock static %}

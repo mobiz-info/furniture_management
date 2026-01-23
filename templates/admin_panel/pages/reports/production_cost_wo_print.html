@@ -4,95 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }}</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 25px;
+            color: #000;
+            font-size: 12.5px;
         }
-        h2 {
+
+        /* Header */
+        .print-header {
             text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
         }
+
+        .print-header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .print-subtitle {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #444;
+        }
+
+        /* Meta */
+        .meta-box {
+            margin: 10px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #999;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
+
         th, td {
-            border: 1px solid black;
-            padding: 8px;
+            border: 1px solid #000;
+            padding: 6px 7px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11.5px;
         }
+
+        tbody td {
+            font-size: 12px;
+        }
+
+        tfoot th {
+            font-size: 12.5px;
+            font-weight: bold;
+            background: #f5f5f5;
+        }
+
+        .total-row th {
+            border-top: 2px solid #000;
+        }
+
+        /* Print button */
         .print-button {
             display: block;
             width: 150px;
-            margin: 20px auto;
-            padding: 10px;
-            background-color: #3f51b5;
-            color: white;
+            margin: 15px auto;
+            padding: 8px;
+            background-color: #000;
+            color: #fff;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 13px;
+            border-radius: 4px;
             text-align: center;
         }
+
         .print-button:hover {
-            background-color: #303f9f;
+            background-color: #333;
         }
+
+        /* Footer */
+        .print-footer {
+            margin-top: 25px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px dashed #999;
+            padding-top: 8px;
+        }
+
+        /* Print rules */
         @media print {
             .print-button { display: none; }
+            body { margin: 10mm; }
+            th {
+                background-color: #eaeaea !important;
+                -webkit-print-color-adjust: exact;
+            }
         }
     </style>
 </head>
+
 <body>
-    <h2>Print-Production Cost Report</h2>
+
+    <!-- HEADER -->
+    <div class="print-header">
+        <h2>Production Cost Report</h2>
+        <div class="print-subtitle">
+            Work Orders – Costing & Profit/Loss
+        </div>
+    </div>
+
+    <!-- META -->
+    <div class="meta-box">
+        <div><strong>Report:</strong> Production Cost - Work Orders</div>
+        <div><strong>Print Date:</strong> {% now "d/m/Y H:i" %}</div>
+    </div>
+
+    <!-- PRINT BUTTON -->
     <button class="print-button" onclick="window.print()">Print</button>
 
+    <!-- TABLE (SAME DATA AS LIST VIEW) -->
     <table>
         <thead>
             <tr>
-                <th class="font-weight-bold text-center">#</th>
-                <th class="font-weight-bold text-center">Date Added</th>
-                <th class="font-weight-bold text-left">Order No</th>
-                <th class="font-weight-bold text-left">Customer Name</th>
-                <th class="font-weight-bold text-left">No Of Items</th>
-                <th class="font-weight-bold text-right">Estimated Rate</th>
-                <th class="font-weight-bold text-center">Status</th>
-                <th class="font-weight-bold text-center">Actual Cost</th>
-                <th class="font-weight-bold text-center">Profit/Loss</th>
+                <th style="width:35px;">SL</th>
+                <th style="width:80px;">Date</th>
+                <th>Order No</th>
+                <th>Customer</th>
+                <th style="width:60px;">Items</th>
+                <th style="width:95px;">Estimated</th>
+                <th style="width:95px;">Status</th>
+                <th style="width:100px;">Actual Cost</th>
+                <th style="width:100px;">Profit / Loss</th>
             </tr>
         </thead>
+
         <tbody>
             {% for instance in instances %}
-                <tr>
-                    <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="text-center">{{ instance.date_added|date:"d/m/Y" }}</td>
-                    <td class="text-left">{{ instance.order_no }}</td>
-                    <td class="text-left">{{ instance.customer.name }}</td>
-                    <td class="text-left">{{ instance.number_of_items }}</td>
-                    <td class="text-right">{{ instance.total_estimate }}</td>
-                    <td class="text-center">{{ instance.get_status_display }}</td>
-                    <td class="text-center">{{ instance.get_actual_cost }}</td>
-                    <td class="text-center">{{ instance.get_profit_or_loss }}</td>
-                </tr>
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ instance.date_added|date:"d/m/Y" }}</td>
+                <td>{{ instance.order_no }}</td>
+                <td>{{ instance.customer.name }}</td>
+                <td>{{ instance.number_of_items }}</td>
+                <td>{{ instance.total_estimate }}</td>
+                <td>{{ instance.get_status_display }}</td>
+                <td>{{ instance.get_actual_cost }}</td>
+                <td>
+                    {% if instance.status == '010' %}
+                        N/A
+                    {% else %}
+                        {% if instance.profit_or_loss_value >= 0 %}
+                            +{{ instance.profit_or_loss_value|floatformat:2 }}
+                        {% else %}
+                            {{ instance.profit_or_loss_value|floatformat:2 }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
             {% empty %}
-                <tr>
-                    <td colspan="10" class="text-center">No data available</td>
-                </tr>
+            <tr>
+                <td colspan="9" style="text-align:center;">No data available</td>
+            </tr>
             {% endfor %}
         </tbody>
+
+        <!-- TOTALS (SAME AS LIST VIEW TOTALS) -->
         <tfoot>
-            <tr>
-                <th colspan="4" class="text-right"><strong>Grand Total</strong></th>
-                <th class="text-left"><strong>{{ total_items }}</strong></th>
-                <th class="text-right"><strong>{{ total_estimate }}</strong></th>
+            <tr class="total-row">
+                <th colspan="4" style="text-align:right;">GRAND TOTAL</th>
+                <th>{{ total_items }}</th>
+                <th>{{ total_estimate }}</th>
                 <th></th>
-                <th class="text-center"><strong>{{ total_actual_cost }}</strong></th>
+                <th>{{ total_actual_cost }}</th>
                 <th></th>
             </tr>
         </tfoot>
     </table>
+
+    <!-- FOOTER -->
+    <div class="print-footer">
+        <div>Generated by Production Cost System</div>
+        <div>Authorized Signature: _______________________</div>
+    </div>
+
 </body>
 </html>

@@ -2873,8 +2873,8 @@ def work_report(request):
             total_hours=Sum('time_spent'),
             total_wage=Sum('wage'),
             project_count=Count('work_order', distinct=True),
-            first_date=Min('date_added'),
-            last_date=Max('date_added')
+            first_date=Min('date'),
+            last_date=Max('date')
         )
         .order_by('staff__department__name', 'staff__first_name')
     )
@@ -2918,11 +2918,17 @@ def staff_work_detail(request, staff_id):
         .order_by('-date_added')
     )
 
+    total_hours = records.aggregate(total=Sum('time_spent'))['total'] or 0
+    total_wage = records.aggregate(total=Sum('wage'))['total'] or 0
+
+
     context = {
         "staff": staff,
         "records": records,
         "start_date": start_date,
         "end_date": end_date,
+        'total_hours': total_hours,
+        'total_wage': total_wage,
     }
 
     return render(request, "admin_panel/pages/reports/work_report_detail.html", context)
@@ -3773,11 +3779,15 @@ def work_order_profit_loss_export(request, pk):
 def work_order_labour_detail_view(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
     staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    total_hours = staff_assignments.aggregate(total=Sum('time_spent'))['total'] or 0
+    total_wage = staff_assignments.aggregate(total=Sum('wage'))['total'] or 0
     return render(request, 'admin_panel/pages/reports/production_cost_labour_detail.html', {
         'work_order': work_order,
         'staff_assignments': staff_assignments,
         'page_title': 'Production Cost Work Order Labour Details',
-        'page_name': 'Production Cost Work Order Labour Details'
+        'page_name': 'Production Cost Work Order Labour Details',
+        'total_hours': total_hours,
+        'total_wage': total_wage,
     
 
     })
@@ -3786,11 +3796,16 @@ def work_order_labour_detail_view(request, pk):
 def work_order_labour_detail_print(request, pk):
     work_order = get_object_or_404(WorkOrder, pk=pk)
     staff_assignments = WorkOrderStaffAssign.objects.filter(work_order=work_order)
+    total_hours = staff_assignments.aggregate(total=Sum('time_spent'))['total'] or 0
+    total_wage = staff_assignments.aggregate(total=Sum('wage'))['total'] or 0
     return render(request, 'admin_panel/pages/reports/production_cost_labour_detail_print.html', {
         'work_order': work_order,
         'staff_assignments': staff_assignments,
         'page_title': 'Print-Production Cost Work Order Labour Details',
-        'page_name': 'Print-Production Cost Work Order Labour Details'
+        'page_name': 'Print-Production Cost Work Order Labour Details',
+        'total_hours': total_hours,
+        'total_wage': total_wage,
+        
     })
 @login_required
 # @role_required(['superadmin'])

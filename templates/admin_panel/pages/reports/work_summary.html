@@ -6,129 +6,207 @@
 {% block content %}
 <div class="page-content">
     <div class="container-fluid">
-        <!-- Page-Title -->
+
+        <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-title-box">
                     <div class="row">
                         <div class="col-lg-8">
                             <h4 class="page-title">{{ page_title }}</h4>
-                        </div><!--end col-->
-                        <div class="col-lg-4 col-sm-2 float-right ml-auto">
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-lg-4 col-sm-2 ml-auto">
                             <form method="get" action="{% url 'work_order:work_summary' %}">
-                                <li class="list-inline-item w-100">
-                                    <div class="input-group">
-                                        <input name="q" type="text" id="search_box" placeholder="search" value="{{ filter_data.q }}"
-                                            class="form-control" />
-                                        <span class="input-group-append">
-                                            <button type="submit" class="btn btn-soft-primary btn-sm">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </span>
+                                <div class="input-group">
+                                    <input name="q"
+                                           type="text"
+                                           id="search_box"
+                                           placeholder="Search"
+                                           value="{{ filter_data.q }}"
+                                           class="form-control form-control-sm" />
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-soft-primary btn-sm">
+                                            <i class="fas fa-search"></i>
+                                        </button>
                                     </div>
-                                </li>
+                                </div>
                             </form>
                         </div>
-                    </div><!--end row-->
-                </div><!-- end page-title-box -->
-            </div><!--end col-->
-        </div><!--end row-->
 
-        <!-- Work Order List -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header d-flex">
-                        <div class="col-lg-4">
-                            <h4 class="card-title">List view</h4>
-                        </div>
-                        <div class="col-md-8 text-right">
-                            <a href="{% url 'work_order:print_work_summary_report' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
-                                target="_blank"
-                                class="btn btn-light text-capitalize border-0 ripple-surface-dark"
-                                style="color:#000">
-                                <i class="ri-printer-line text-primary" style="color:#3f51b5;"></i> Print
-                            </a>
-                            <a href="{% url 'work_order:export_work_orders_summary_excel' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
-                                target="_blank"
-                                class="btn btn-light text-capitalize border-0 ripple-surface-dark"
-                                style="color:#000">
-                                <i class="ri-file-excel-2-line text-danger"></i> Export
-                            </a>
-                        </div>
-                    </div><!--end card-header-->
 
+                    <!-- Header -->
+                    <div class="card-header">
+                        <div class="d-flex align-items-end justify-content-between flex-wrap">
+                            <h4 class="card-title mb-3 mr-3">
+                                Work Summary Report
+                            </h4>
+
+                            <!-- Export Buttons -->
+                            <div class="mb-2 ml-2">
+                                <a href="{% url 'work_order:print_work_summary_report' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2">
+                                    <i class="ri-printer-line text-primary"></i> Print
+                                </a>
+
+                                <a href="{% url 'work_order:export_work_orders_summary_excel' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
+                                   target="_blank"
+                                   class="btn btn-light border-0 ripple-surface-dark">
+                                    <i class="ri-file-excel-2-line text-danger"></i> Export
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table mb-0" style="width:100%;">
-                                <thead>
+
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th class="font-weight-bold text-center">#</th>
-                                        <th class="font-weight-bold text-left">WO No</th>
-                                        <th class="font-weight-bold text-left">Client Name</th>
-                                        <th class="font-weight-bold text-left">Mobile Number</th>
-                                        <th class="font-weight-bold text-left">No of Items </th>
-                                        <th class="font-weight-bold text-left">Delivery Date</th>
-                                        <th class="font-weight-bold text-left">Current Stage</th>
-                                        <th class="font-weight-bold text-center">Order Value</th>
+                                        <th class="text-center" style="width:60px;">#</th>
+                                        <th class="text-left">WO No</th>
+                                        <th class="text-left">Client Name</th>
+                                        <th class="text-left">Mobile</th>
+                                        <th class="text-center">Items</th>
+                                        <th class="text-center">Delivery Date</th>
+                                        <th class="text-center">Current Stage</th>
+                                        <th class="text-right">Order Value</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {% paginate 10 instances %}
                                     {% for instance in instances %}
                                     <tr class="{% if instance.delayed_days > 0 %}delayed{% endif %}">
                                         <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-left">{{ instance.order_no }}</td>
-                                        <td class="text-left">{{ instance.customer.name }}</td>
-                                        <td class="text-left">{{ instance.customer.mobile_number }}</td>
-                                        <td class="text-left">{{ instance.number_of_items }}</td>
-                                        <td class="text-left">{{ instance.delivery_date|date:"d/m/Y" }}</td>
-                                        <td class="text-left">{{ instance.get_status_display }}</td>
-                                        <td class="text-left">{{ instance.total_estimate }}</td>
+
+                                        <td class="text-left font-weight-bold">
+                                            {{ instance.order_no }}
+                                        </td>
+
+                                        <td class="text-left">
+                                            {{ instance.customer.name }}
+                                        </td>
+
+                                        <td class="text-left">
+                                            {{ instance.customer.mobile_number }}
+                                        </td>
+
+                                        <td class="text-center font-weight-bold">
+                                            {{ instance.number_of_items }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            {{ instance.delivery_date|date:"d/m/Y" }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span class="badge badge-info">
+                                                {{ instance.get_status_display }}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ instance.total_estimate }}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">
+                                            No work orders found
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
+
+                                <!-- Totals -->
                                 <tfoot>
-                                    <tr>
-                                        <td colspan="7" class="font-weight-bold text-right">Total Order Value:</td>
-                                        <td class="font-weight-bold text-left">{{ total_estimate_sum }}</td>
+                                    <tr class="font-weight-bold bg-light">
+                                        <th colspan="7" class="text-right">Total Order Value</th>
+                                        <th class="text-right">{{ total_estimate_sum }}</th>
                                     </tr>
                                 </tfoot>
                             </table>
-                        </div><!-- end /table-responsive-->
+
+                        </div>
 
                         <!-- Pagination -->
                         {% get_pages %}
+                        <div class="clearfix"></div>
+
                         <div class="row pagi my-3">
-                            <div class="col-sm-6 text-left my-pagina">
+                            <div class="col-sm-6 text-left">
                                 {% show_pages %}
                             </div>
-                            <div class="col-sm-6 text-right tot my-pagination align-items-center">
-                                <div class="mt-2">
+                            <div class="col-sm-6 text-right align-items-center">
+                                <div class="m-t-10">
                                     Showing 
                                     <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                    <span class="current_end_status">{{ pages.current_end_index }}</span> of 
+                                    <span class="current_end_status">{{ pages.current_end_index }}</span>
+                                    of 
                                     <span class="total_count">{{ pages.total_count }}</span>
                                 </div>
                             </div>
                         </div>
-                    </div><!-- end card-body-->
-                </div><!--end card-->
-            </div> <!-- end col -->
-        </div>
-    </div><!-- container -->
-</div><!-- end page content -->
 
-<!-- Inline CSS for Delayed Orders -->
-<style>
+                    </div><!-- end card-body -->
+                </div><!--end card-->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delayed Order Highlight -->
+<!-- <style>
     .delayed {
-        background-color: #f8d7da; /* Light red background */
-        color: #721c24; /* Dark red text */
+        background-color: #fff3cd !important;   /* soft warning */
+        color: #856404;
     }
-</style>
+</style> -->
 
 {% endblock content %}
 
 {% block static %}
 {% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .badge{
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+</style>
 {% endblock static %}

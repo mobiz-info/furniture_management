@@ -6,85 +6,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }}</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 30px;
+            color: #000;
+            font-size: 13px;
         }
 
-        h2 {
+        /* Header */
+        .print-header {
             text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
         }
 
+        .print-header h2 {
+            margin: 0;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .print-subtitle {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        /* Meta Info */
+        .meta-box {
+            margin-top: 15px;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #999;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         th, td {
-            border: 1px solid black;
-            padding: 8px;
+            border: 1px solid #000;
+            padding: 8px 10px;
             text-align: left;
         }
 
         th {
             background-color: #f2f2f2;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
         }
 
+        tbody td {
+            font-size: 13px;
+        }
+
+        /* Totals */
+        .total-row th {
+            border-top: 2px solid #000;
+            font-weight: bold;
+            background: #f5f5f5;
+        }
+
+        /* Print Button */
         .print-button {
             display: block;
-            width: 150px;
+            width: 160px;
             margin: 20px auto;
             padding: 10px;
-            background-color: #3f51b5;
-            color: white;
+            background-color: #000;
+            color: #fff;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 14px;
+            border-radius: 4px;
             text-align: center;
         }
 
         .print-button:hover {
-            background-color: #303f9f;
+            background-color: #333;
         }
 
+        /* Footer */
+        .print-footer {
+            margin-top: 30px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px dashed #999;
+            padding-top: 10px;
+        }
+
+        /* Print rules */
         @media print {
             .print-button {
                 display: none;
+            }
+
+            body {
+                margin: 10mm;
+            }
+
+            th {
+                background-color: #eaeaea !important;
+                -webkit-print-color-adjust: exact;
             }
         }
     </style>
 </head>
 
 <body>
-    <h2>Print - Work Order Profit Loss</h2>
-    <button class="print-button" onclick="window.print()">Print</button>
 
-    <h3 class="mb-4">Work Order Profit/Loss - {{ work_order.order_no }}</h3>
+    <!-- HEADER -->
+    <div class="print-header">
+        <h2>Work Order Profit / Loss Report</h2>
+        <div class="print-subtitle">
+            Financial Summary
+        </div>
+    </div>
+
+    <!-- META INFO -->
+    <div class="meta-box">
+        <div>
+            <strong>Work Order:</strong> {{ work_order.order_no }}
+        </div>
+        <div>
+            <strong>Print Date:</strong> {% now "d/m/Y H:i" %}
+        </div>
+    </div>
+
+    <!-- PRINT BUTTON -->
+    <button class="print-button" onclick="window.print()">Print</button>
 
     {% get_work_order_costs work_order as costs %}
 
-    <table class="table mb-0">
+    <!-- TABLE -->
+    <table>
         <thead>
             <tr>
-                <th class="text-center">#</th>
-                <th class="text-center">Date Added</th>
-                <th class="text-left">Labour Cost</th>
-                <th class="text-left">Accessories Cost</th>
-                <th class="text-left">Total Cost</th>
+                <th style="width:50px;">#</th>
+                <th style="width:120px;">Date</th>
+                <th>Labour Cost</th>
+                <th>Accessories Cost</th>
+                <th>Total Cost</th>
             </tr>
         </thead>
+
         <tbody>
             <tr>
                 <td class="text-center">1</td>
-                <td class="text-center">{{ work_order.date_added|date:"d/m/Y" }}</td>
-                <td class="text-left">{{ costs.labour_cost }}</td>
-                <td class="text-left">{{ costs.accessories_total }}</td>
-                <td class="text-left">{{ costs.total_cost }}</td>
+                <td>{{ work_order.date_added|date:"d/m/Y" }}</td>
+                <td>{{ costs.labour_cost }}</td>
+                <td>{{ costs.accessories_total }}</td>
+                <td><strong>{{ costs.total_cost }}</strong></td>
             </tr>
         </tbody>
+
+        <tfoot>
+            <tr class="total-row">
+                <th colspan="4" style="text-align:right;">TOTAL COST</th>
+                <th>{{ costs.total_cost }}</th>
+            </tr>
+        </tfoot>
     </table>
+
+    <!-- FOOTER -->
+    <div class="print-footer">
+        <div>Generated by Production Cost System</div>
+        <div>Authorized Signature: _______________________</div>
+    </div>
+
 </body>
 </html>

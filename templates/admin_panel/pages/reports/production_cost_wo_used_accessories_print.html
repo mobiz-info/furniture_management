@@ -6,95 +6,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }}</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 30px;
+            color: #000;
+            font-size: 13px;
         }
-        h2 {
+
+        /* Header */
+        .print-header {
             text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
         }
+
+        .print-header h2 {
+            margin: 0;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .print-subtitle {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .meta-box {
+            margin-top: 15px;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #999;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
+
         th, td {
-            border: 1px solid black;
-            padding: 8px;
+            border: 1px solid #000;
+            padding: 7px 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
         }
+
+        tbody td {
+            font-size: 12.5px;
+        }
+
+        tfoot th {
+            font-size: 13px;
+            font-weight: bold;
+            background: #f5f5f5;
+        }
+
+        /* Totals Highlight */
+        .total-row th {
+            border-top: 2px solid #000;
+        }
+
+        /* Print Button */
         .print-button {
             display: block;
-            width: 150px;
+            width: 160px;
             margin: 20px auto;
             padding: 10px;
-            background-color: #3f51b5;
-            color: white;
+            background-color: #000;
+            color: #fff;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 14px;
+            border-radius: 4px;
             text-align: center;
         }
+
         .print-button:hover {
-            background-color: #303f9f;
+            background-color: #333;
         }
+
+        /* Footer */
+        .print-footer {
+            margin-top: 30px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px dashed #999;
+            padding-top: 10px;
+        }
+
+        /* Print Rules */
         @media print {
             .print-button {
                 display: none;
+            }
+
+            body {
+                margin: 10mm;
+            }
+
+            th {
+                background-color: #eaeaea !important;
+                -webkit-print-color-adjust: exact;
             }
         }
     </style>
 </head>
 
 <body>
-    <h2>Print - Production Cost Work Order Accessories Used</h2>
-    <button class="print-button" onclick="window.print()">Print</button>
 
-    <h3 class="mb-4">Used Accessories Detail - Work Order: {{ work_order.order_no }}</h3>
+    <!-- HEADER -->
+    <div class="print-header">
+        <h2>Production Cost Report</h2>
+        <div class="print-subtitle">
+            Work Order Accessories Used
+        </div>
+    </div>
+
+    <!-- META INFO -->
+    <div class="meta-box">
+        <div>
+            <strong>Work Order:</strong> {{ work_order.order_no }}
+        </div>
+        <div>
+            <strong>Print Date:</strong> {% now "d/m/Y H:i" %}
+        </div>
+    </div>
+
+    <!-- PRINT BUTTON -->
+    <button class="print-button" onclick="window.print()">Print</button>
 
     {% get_accessories_by_work_order work_order as data %}
     {% with accessories=data.items total_rate=data.total_rate total_quantity=data.total_quantity total_cost=data.total_cost %}
 
-    <table class="table mb-0" style="width:100%;">
+    <!-- TABLE -->
+    <table>
         <thead>
             <tr>
-                <th class="text-center">#</th>
-                <th class="text-center">Date Added</th>
-                <th class="text-center">Section</th>
-                <th class="text-left">Accessories</th>
-                <th class="text-left">Accessories Rate</th>
-                <th class="text-left">Quantity</th>
-                <th class="text-left">Total Cost</th>
+                <th style="width:40px;">#</th>
+                <th style="width:90px;">Date</th>
+                <th style="width:120px;">Section</th>
+                <th>Accessory</th>
+                <th style="width:90px;">Rate</th>
+                <th style="width:80px;">Qty</th>
+                <th style="width:110px;">Total</th>
             </tr>
         </thead>
+
         <tbody>
             {% for item in accessories %}
             <tr>
                 <td class="text-center">{{ forloop.counter }}</td>
-                <td class="text-center">{{ item.date_added|date:"d/m/Y" }}</td>
-                <td class="text-left">{{ item.section }}</td>
-                <td class="text-left">{{ item.material }}</td>
-                <td class="text-left">{{ item.rate }}</td>
-                <td class="text-left">{{ item.quantity }}</td>
-                <td class="text-left">{{ item.total_cost }}</td>
+                <td>{{ item.date_added|date:"d/m/Y" }}</td>
+                <td>{{ item.section }}</td>
+                <td>{{ item.material }}</td>
+                <td>{{ item.rate }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.total_cost }}</td>
             </tr>
             {% endfor %}
         </tbody>
+
         <tfoot>
-            <tr>
-                <th colspan="4" class="text-right">Total</th>
-                <th class="text-left">{{ total_rate }}</th>
-                <th class="text-left">{{ total_quantity }}</th>
-                <th class="text-left">{{ total_cost }}</th>
+            <tr class="total-row">
+                <th colspan="4" style="text-align:right;">TOTAL</th>
+                <th>{{ total_rate }}</th>
+                <th>{{ total_quantity }}</th>
+                <th>{{ total_cost }}</th>
             </tr>
         </tfoot>
     </table>
 
     {% endwith %}
+
+    <!-- FOOTER -->
+    <div class="print-footer">
+        <div>Generated by Production Cost System</div>
+        <div>Signature: _______________________</div>
+    </div>
+
 </body>
 </html>

@@ -4,9 +4,9 @@
 {% load el_pagination_tags %}
 
 {% block content %}
-<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
+
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -20,100 +20,164 @@
 
                 <!-- Card -->
                 <div class="card">
+
+                    <!-- Header -->
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
-                            {% comment %} <form method="get" action="{% url 'work_order:work_report' %}" class="form-inline flex-wrap">
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="start_date" class="mr-2">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date" value="{{ filter_data.start_date|date:'Y-m-d' }}">
-                                </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="end_date" class="mr-2">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date" value="{{ filter_data.end_date|date:'Y-m-d' }}">
-                                </div>
-                                <div class="form-group mb-2 mr-2">
-                                    <label for="q" class="mr-2">Search</label>
-                                    <div class="input-group">
-                                        <input name="q" type="text" value="{{ request.GET.q|default:'' }}">
+                            <h4 class="card-title mb-3 mr-3">
+                                Staff Work Detail Report
+                            </h4>
 
-                                        <div class="input-group-append">
-                                            <button type="submit" class="btn btn-soft-primary btn-sm">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <div class="mb-2 ml-2">
-                                <a href="{% url 'work_order:print_work_report' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                   target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
-                                   style="color:#000">
-                                    <i class="ri-printer-line text-primary"></i> Print
-                                </a>
-                                <a href="{% url 'work_order:export_work_report_excel' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                   target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark"
-                                   style="color:#000">
-                                    <i class="ri-file-excel-2-line text-danger"></i> Export
-                                </a>
-                            </div> {% endcomment %}
+                            <!-- (Filters intentionally disabled as per original) -->
+                            <div></div>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <h4>{{ staff.first_name }} {{ staff.last_name }}</h4>
-                            <p>Section: {{ staff.department.name }}</p>
-                            <p>Date Range: {{ start_date }} → {{ end_date }}</p>
 
-                            <table class="table table-striped">
-                                <thead>
+                        <!-- Staff Info Panel -->
+                        <div class="mb-4 p-3 border rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Staff:</strong><br>
+                                    {{ staff.first_name }} {{ staff.last_name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Section:</strong><br>
+                                    {{ staff.department.name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Date Range:</strong><br>
+                                    {{ start_date }} → {{ end_date }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Project</th>
-                                        <th>Customer</th>
-                                        <th>Hours</th>
-                                        <th>Wage</th>
-                                        <th>Remark</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-left">Project</th>
+                                        <th class="text-left">Customer</th>
+                                        <th class="text-right">Hours</th>
+                                        <th class="text-right">Wage</th>
+                                        <th class="text-left">Remark</th>
                                     </tr>
                                 </thead>
+                            
                                 <tbody>
                                     {% paginate 50 records %}
                                     {% for row in records %}
                                     <tr>
-                                        <td>{{ row.date_added|date:"d/m/Y" }}</td>
-                                        <td>{{ row.work_order.order_no }}</td>
-                                        <td>{{ row.work_order.customer.name }}</td>
-                                        <td>{{ row.time_spent }}</td>
-                                        <td>{{ row.wage }}</td>
-                                        <td>{{ row.work_order.remark }}</td>
+                                        <td class="text-center">
+                                            {{ row.date_added|date:"d/m/Y" }}
+                                        </td>
+                            
+                                        <td class="text-left font-weight-bold">
+                                            {{ row.work_order.order_no }}
+                                        </td>
+                            
+                                        <td class="text-left">
+                                            {{ row.work_order.customer.name }}
+                                        </td>
+                            
+                                        <td class="text-right font-weight-bold">
+                                            {{ row.time_spent }}
+                                        </td>
+                            
+                                        <td class="text-right font-weight-bold">
+                                            {{ row.wage }}
+                                        </td>
+                            
+                                        <td class="text-left text-muted">
+                                            {{ row.work_order.remark }}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            No records found
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
+                            
+                                <!-- ✅ TOTALS FOOTER -->
+                                <tfoot>
+                                    <tr class="font-weight-bold bg-light">
+                                        <th colspan="3" class="text-right">Total</th>
+                                        <th class="text-right">
+                                            {{ total_hours }}
+                                        </th>
+                                        <th class="text-right">
+                                            {{ total_wage }}
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
                             </table>
+                            
+
                         </div>
 
                         <!-- Pagination -->
                         {% get_pages %}
+                        <div class="clearfix"></div>
+
                         <div class="row pagi my-3">
-                            <div class="col-sm-6 text-left my-pagina">
+                            <div class="col-sm-6 text-left">
                                 {% show_pages %}
                             </div>
-                            <div class="col-sm-6 text-right tot my-pagination align-items-center">
-                                <div class="mt-2">
+                            <div class="col-sm-6 text-right align-items-center">
+                                <div class="m-t-10">
                                     Showing 
                                     <span class="current_page_index">{{ pages.current_start_index }}</span> -
-                                    <span class="current_end_status">{{ pages.current_end_index }}</span> of 
+                                    <span class="current_end_status">{{ pages.current_end_index }}</span>
+                                    of 
                                     <span class="total_count">{{ pages.total_count }}</span>
                                 </div>
                             </div>
                         </div>
+
                     </div><!-- end card-body -->
                 </div><!-- end card -->
             </div><!-- end col -->
         </div><!-- end row -->
+
     </div><!-- end container -->
 </div><!-- end page-content -->
 {% endblock content %}
+
+{% block static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+
+    .badge{
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+</style>
+{% endblock static %}

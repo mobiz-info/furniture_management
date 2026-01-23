@@ -5,9 +5,9 @@
 {% load work_order_templatetags %}
 
 {% block content %}
-<!-- Page Content -->
 <div class="page-content">
     <div class="container-fluid">
+
         <!-- Page Title -->
         <div class="row">
             <div class="col-sm-12">
@@ -21,130 +21,172 @@
 
                 <!-- Card -->
                 <div class="card">
+
+                    <!-- Header -->
                     <div class="card-header">
                         <div class="d-flex align-items-end justify-content-between flex-wrap">
-                            <h4 class="card-title mb-3 mr-3">List view</h4>
+                            <h4 class="card-title mb-3 mr-3">
+                                Work Order Profit / Loss
+                            </h4>
+
+                            <!-- Export Buttons -->
                             <div class="mb-2 ml-2">
                                 <a href="{% url 'work_order:work_order_profit_loss_print' work_order.pk %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark mr-2"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark mr-2">
                                     <i class="ri-printer-line text-primary"></i> Print
                                 </a>
+
                                 <a href="{% url 'work_order:work_order_profit_loss_export' work_order.pk %}"
                                    target="_blank"
-                                   class="btn btn-light border-0 ripple-surface-dark"
-                                   style="color:#000">
+                                   class="btn btn-light border-0 ripple-surface-dark">
                                     <i class="ri-file-excel-2-line text-danger"></i> Export
                                 </a>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="card-body">
+
                         <div class="table-responsive">
-                            <h3 class="mb-4">Work Order Profit/Loss - {{ work_order.order_no }}</h3>
+
+                            <!-- Title -->
+                            <h3 class="mb-4 text-center">
+                                Profit / Loss Summary — {{ work_order.order_no }}
+                            </h3>
 
                             {% get_work_order_costs work_order as costs %}
 
-                            <table class="table mb-0" style="width:100%;">
-                                <!-- Top Info Box -->
-                                <div class="card mb-4" style="border:1px solid #ddd;border-radius:15px;">
-                                    <div class="card-body">
-                                        <div class="row">
+                            <!-- Info Panel -->
+                            <div class="card mb-4" style="border:1px solid #e0e0e0;border-radius:12px;">
+                                <div class="card-body">
+                                    <div class="row">
 
-                                            <!-- Left -->
-                                            <div class="col-md-4">
-                                                <p><strong>Customer name:</strong> {{ work_order.customer.name }}</p>
-                                                <p><strong>Address:</strong> {{ work_order.customer.address }}</p>
-                                                <p><strong>Mobile No:</strong> {{work_order.customer.mobile }}</p>
-                                            </div>
-
-                                            <!-- Middle -->
-                                            <div class="col-md-4">
-                                                <p><strong>No of Items:</strong> {{ work_order.number_of_items }}</p>
-                                                <p><strong>Created date:</strong> {{ work_order.date_added|date:"d/m/Y" }}</p>
-                                                <p><strong>Estimated Delivery date:</strong> {{ work_order.estimated_delivery_date|date:"d/m/Y" }}</p>
-                                                <p><strong>Estimated cost:</strong> {{ work_order.total_estimate }}</p>
-                                            </div>
-
-                                            <!-- Right -->
-                                            <div class="col-md-4">
-                                                <p><strong>Actual Delivery Date:</strong> {{ work_order.actual_delivery_date|date:"d/m/Y" }}</p>
-                                                <p><strong>Actual Cost:</strong> {{ costs.total_cost }}</p>
-
-                                                {% if work_order.actual_delivery_date and work_order.estimated_delivery_date %}
-                                                    {% with delay=work_order.actual_delivery_date|timesince:work_order.estimated_delivery_date %}
-                                                        <p><strong>Delay of any:</strong> {{ delay }}</p>
-                                                    {% endwith %}
-                                                {% else %}
-                                                    <p><strong>Delay of any:</strong> 0 days</p>
-                                                {% endif %}
-                                            </div>
-
+                                        <!-- Customer Info -->
+                                        <div class="col-md-4">
+                                            <p><strong>Customer:</strong> {{ work_order.customer.name }}</p>
+                                            <p><strong>Address:</strong> {{ work_order.customer.address }}</p>
+                                            <p><strong>Mobile:</strong> {{ work_order.customer.mobile }}</p>
                                         </div>
+
+                                        <!-- Order Info -->
+                                        <div class="col-md-4">
+                                            <p><strong>No of Items:</strong> {{ work_order.number_of_items }}</p>
+                                            <p><strong>Created Date:</strong> {{ work_order.date_added|date:"d/m/Y" }}</p>
+                                            <p><strong>Est. Delivery:</strong> {{ work_order.estimated_delivery_date|date:"d/m/Y" }}</p>
+                                            <p><strong>Estimated Cost:</strong> {{ work_order.total_estimate }}</p>
+                                        </div>
+
+                                        <!-- Cost Info -->
+                                        <div class="col-md-4">
+                                            <p><strong>Actual Delivery:</strong> {{ work_order.actual_delivery_date|date:"d/m/Y" }}</p>
+                                            <p><strong>Actual Cost:</strong> {{ costs.total_cost }}</p>
+
+                                            {% if work_order.actual_delivery_date and work_order.estimated_delivery_date %}
+                                                {% with delay=work_order.actual_delivery_date|timesince:work_order.estimated_delivery_date %}
+                                                    <p><strong>Delay:</strong> {{ delay }}</p>
+                                                {% endwith %}
+                                            {% else %}
+                                                <p><strong>Delay:</strong> 0 days</p>
+                                            {% endif %}
+                                        </div>
+
                                     </div>
                                 </div>
-                                <!-- End Top Info Box -->
+                            </div>
 
-                                <thead>
+                            <!-- Cost Table -->
+                            <table class="table table-bordered table-striped mb-0" style="width:100%;">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Date Added</th>
-                                        <th class="text-left">Labour Cost</th>
-                                        <th class="text-left">Accessories Cost</th>
-                                        <th class="text-left">Total Cost</th>
-                                        <th class="text-center">Actions</th>   <!-- NEW -->
+                                        <th class="text-center" style="width:60px;">#</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-right">Labour Cost</th>
+                                        <th class="text-right">Accessories Cost</th>
+                                        <th class="text-right">Total Cost</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 
                                 <tbody>
                                     <tr>
                                         <td class="text-center">1</td>
-                                        <td class="text-center">{{ work_order.date_added|date:"d/m/Y" }}</td>
-                                
-                                        <td class="text-left">
+
+                                        <td class="text-center">
+                                            {{ work_order.date_added|date:"d/m/Y" }}
+                                        </td>
+
+                                        <td class="text-right font-weight-bold">
                                             {{ costs.labour_cost }}
                                         </td>
-                                
-                                        <td class="text-left">
+
+                                        <td class="text-right font-weight-bold">
                                             {{ costs.accessories_total }}
                                         </td>
-                                
-                                        <td class="text-left">{{ costs.total_cost }}</td>
-                                
-                                        <!-- ACTION BUTTONS -->
+
+                                        <td class="text-right font-weight-bold">
+                                            {{ costs.total_cost }}
+                                        </td>
+
+                                        <!-- Actions -->
                                         <td class="text-center">
                                             <a href="{% url 'work_order:work_order_labour_detail' work_order.pk %}"
-                                               class="btn btn-sm btn-outline-primary mr-1" title="View Labour Cost">
+                                               class="btn btn-sm btn-outline-primary mr-1"
+                                               title="View Labour Cost">
                                                 <i class="ri-hammer-line"></i>
                                             </a>
-                                        
+
                                             <a href="{% url 'work_order:production_cost_wo_used_accessories_detail' work_order.pk %}"
-                                               class="btn btn-sm btn-outline-success" title="View Accessories Cost">
+                                               class="btn btn-sm btn-outline-success"
+                                               title="View Accessories Cost">
                                                 <i class="ri-tools-line"></i>
                                             </a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+
                         </div>
-                        <!-- end table responsive -->
-                        <!-- Back Button using JavaScript -->
-                        <div class="mt-4" style="text-align: right;">
+
+                        <!-- Back Button -->
+                        <div class="mt-4 text-right">
                             <button onclick="window.history.back()" class="btn btn-secondary">
                                 <i class="ri-arrow-go-back-line"></i> Back
                             </button>
                         </div>
-                    </div>
+
+                    </div><!-- end card-body -->
                 </div>
             </div>
         </div>
-    </div><!-- container -->
+
+    </div>
 </div>
-<!-- end page content -->
 {% endblock content %}
 
 {% block static %}
-    {% load static %}
+{% load static %}
+<style>
+    .table th, .table td{
+        vertical-align: middle !important;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .table thead th{
+        font-weight: 600;
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .card-title{
+        font-weight: 600;
+    }
+
+    .btn-sm{
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+</style>
 {% endblock static %}
